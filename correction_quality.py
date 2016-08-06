@@ -39,7 +39,9 @@ def sent_tokenize(s):
 
 def preprocess_paragraph(p):
 	"""preprocesses a paragraph"""
-	return re.sub("\s+", " ", p)
+	p = re.sub("\s+", " ", p)
+	p = re.sub("(\.\s+)\.", "\1", p)
+	return p
 
 
 def preprocess_word(w):
@@ -69,7 +71,10 @@ def _choose_ending_position(sentences, endings, i):
 		word = preprocess_word(word)
 		if len(word) > 1:
 			return endings[i], word
-	print ("sentence contains no words")
+	print ("sentence contains no words:\n", sentences[i])
+	print("sentence before", sentences[i-1])
+	print("sentence after", sentences[i+1])
+	raise
 	return endings[i], preprocess_word(sentences[i].split()[-1])
 
 
@@ -104,9 +109,11 @@ def aligned_ends_together(sentence1, sentence2, reg1, reg2):
 	# print(reg2)
 	# print(aligned)
 	if (reg1 in mapping and mapping[reg1] == align.EMPTY_WORD):
+		# print(reg2, rev[reg2])
 		if approximately_same_word(reg2, rev[reg2]):
 			return True
 	if (reg2 in rev and rev[reg2] == align.EMPTY_WORD):
+		# print(reg1, mapping[reg1])
 		if approximately_same_word(reg1, mapping[reg1]):
 			return True
 	return False
@@ -132,6 +139,9 @@ def break2common_sentences(p1, p2):
 	j = 0
 	inc = False
 	while i < len(s1) and j < len(s2):
+		one_after1 = "not_initialized"
+		one_after2 = "not_initialized"
+
 		# create a for loop with two pointers
 		if inc:
 			i += 1
@@ -143,30 +153,33 @@ def break2common_sentences(p1, p2):
 		position1, reg1 = _choose_ending_position(s1, endings1, i)
 		position2, reg2 = _choose_ending_position(s2, endings2, j) # the problem arises because I do not use alignment, what if the last word was deleted or added? (also aligning very different sentences and checking wheter the last word is aligned to approximately the same word is fallable (they are aligned by how similar they are, not place in sentence))
 		if approximately_same_word(reg1, reg2):
+			print("ordered ",i)
 			positions1.append(position1)
 			positions2.append(position2)
 			continue
 
-
 		#deal with addition or subtraction of a sentence ending
 		slen1 = len(s1[i].split())
-		slen2 = len(s2[i].split())
-		if i + 1 < len(s1) and slen1 > slen2:
+		slen2 = len(s2[j].split())
+		# print(slen1," ", slen2)
+		if i + 1 < len(s1) and slen1 < slen2:
 			pos_after1, one_after1 = _choose_ending_position(s1, endings1, i + 1)
 			if approximately_same_word(one_after1, reg2):
+				print("first longer ",i)
 				positions1.append(pos_after1)
 				positions2.append(position2)
 				i += 1
 				continue
 		
-		if j + 1 < len(s2) and slen2 > slen1:
+		if j + 1 < len(s2) and slen2 < slen1:
 			pos_after2, one_after2 = _choose_ending_position(s2, endings2, j + 1)
 			if approximately_same_word(reg1, one_after2):
+				print("second longer ", i)
 				positions1.append(position1)
 				positions2.append(pos_after2)
 				j += 1
 				continue
-
+		# print("not missing a sentence")
 		# no alignment found with 2 sentences
 		# check if a word was added to the end of one of the sentences
 		if aligned_ends_together(s1[i], s2[j], reg1, reg2):
@@ -176,19 +189,24 @@ def break2common_sentences(p1, p2):
 
 		# check if a word was added to the end of one of the sentences
 		# Also, deal with addition or subtraction of a sentence ending
-		if i + 1 < len(s1) and slen1 > slen2:
+		if i + 1 < len(s1) and slen1 < slen2:
 			if aligned_ends_together(s1[i] + s1[i + 1], s2[j], one_after1, reg2):
 					positions1.append(pos_after1)
 					positions2.append(position2)
 					i += 1
 					continue
 
-		if j + 1 < len(s2) and slen2 > slen1:
+		if j + 1 < len(s2) and slen2 < slen1:
 			if aligned_ends_together(s1[i], s2[j]  + s2[j + 1], reg1, one_after2):
 					positions1.append(position1)
 					positions2.append(pos_after2)
 					j += 1
 					continue
+		print (i, reg1, reg2, one_after1, one_after2)
+		# print("s1:",s1[i])
+		# print("s2:",s2[j])
+		# print("s1af:",s1[i+1])
+		# print("s2af:",s2[j+1])
 
 	# add last sentence in case skipped
 		position1, reg1 = _choose_ending_position(s1, endings1, -1)
@@ -261,10 +279,14 @@ if __name__ == '__main__':
 	autocorrect = read_paragraph(ACL2016RozovskayaRothOutput_file)
 	origin = read_paragraph(learner_file)
 	gold = read_paragraph(gold_file)
-	broken, differences = compare_paragraphs(origin, autocorrect)
-	# broken, differences = compare_paragraphs(origin, gold)######################TODO not working, why?
+	# # compare origin to autocorrect
+	# broken, differences = compare_paragraphs(origin, autocorrect)
+	# autocorrect_sentences = list(get_sentences_from_endings(autocorrect, broken[1]))
+
+	# compare gold to autocorrect
+	broken, differences = compare_paragraphs(origin, gold)######################TODO not working, why?
+	gold_sentences =  list(get_sentences_from_endings(gold, broken[1]))
 	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
-	autocorrect_sentences = list(get_sentences_from_endings(autocorrect, broken[1]))
 	for i, dif in enumerate(differences):
 		if dif > 2: # or i < 3
 			print("-------\nsentences:\n",autocorrect_sentences[i],"\n", origin_sentences[i])
