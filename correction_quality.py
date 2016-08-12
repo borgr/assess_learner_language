@@ -12,29 +12,44 @@ import distance
 from munkres import Munkres, print_matrix
 import re
 lemmatizer = WordNetLemmatizer()
-sentence_ends_with_no_space_pattern = re.compile("(.*?\w\w\.)(\w+\s.*)")
+sentence_ends_with_no_space_pattern = re.compile("(.*?\w\w\.)(\w+[^\.].*)")
+space_before_sentence_pattern = re.compile("(.*?\s\.(\s*\")?)(.*)")
 
 MAX_DIST = 2
 PATH = r"/home/borgr/ucca/data/paragraphs/"
 
+print("bugs are still seen when running on gold, autocorrect shouldn't make such errors")
+print("remmember to clean prints after fixing bugs and before committing")
+print("clean all TODO")
 
 def is_word(w):
 	return True if w != align.EMPTY_WORD and re.search('[a-zA-Z]', w) else False
 
+def split_by_pattern(tokens, p, first=1, second=2):
+	""" gets a list of tokens and splits tokens by a compiled regex pattern
+		param:
+		tokens - list of strings representing sentence or sentences
+		p - compiled regex pattern or object containing method match() that returns match object
+		first - the group number that represents the first token found
+		second - the group number that represents the second token found"""
+
+	res = []
+	for i, token in enumerate(tokens):
+		matched = p.match(token)
+		while matched:
+			assert(matched.group(first) + matched.group(second) == token)
+			res.append(matched.group(first))
+			token = matched.group(second)
+			matched = p.match(token)
+		if token.strip():
+			res.append(token)
+	return res
 def sent_tokenize(s):
 	"""tokenizes a text to sentences"""
 	tokens = nltk_sent_tokenize(s)
-	res = []
-	for i, token in enumerate(tokens):
-		matched = sentence_ends_with_no_space_pattern.match(token)
-		while matched:
-			assert(matched.group(1) + matched.group(2) == token)
-			res.append(matched.group(1))
-			token = matched.group(2)
-			##TODO do some sentences does not end with "." ?!??!??!??!??!??!??!??!??!??!??!??!?
-			matched = sentence_ends_with_no_space_pattern.match(token)
-		res.append(token)
-	return res
+	tokens = split_by_pattern(tokens, sentence_ends_with_no_space_pattern)
+	tokens = split_by_pattern(tokens, space_before_sentence_pattern, 1, 3)
+	return tokens
 
 
 def preprocess_paragraph(p):
@@ -55,9 +70,9 @@ def approximately_same_word(w1, w2):
 	l1 = lemmatizer.lemmatize(w1)
 	l2 = lemmatizer.lemmatize(w2)
 	if (distance.levenshtein(l1, l2) > MAX_DIST or
-		w1 == align.EMPTY_WORD or w2 == align.EMPTY_WORD): #consider using a stemmer first*************************
-		# should the a etc be considered in a different way?
-		return False # words such as in at on etc, might be considered all equal to each other and to the empty_word for our purpose
+		w1 == align.EMPTY_WORD or w2 == align.EMPTY_WORD):
+		#TODO should "the" "a" etc be considered in a different way? maybe they should not but not in this function
+		return False #TODO words such as in at on etc, might be considered all equal to each other and to the empty_word for our purpose
 	return True
 
 
@@ -71,10 +86,10 @@ def _choose_ending_position(sentences, endings, i):
 		word = preprocess_word(word)
 		if len(word) > 1:
 			return endings[i], word
-	print ("sentence contains no words:\n", sentences[i])
+	print ("sentence contains no words:\n\"", sentences[i], "\"")
 	print("sentence before", sentences[i-1])
 	print("sentence after", sentences[i+1])
-	raise
+	raise "should not happen"
 	return endings[i], preprocess_word(sentences[i].split()[-1])
 
 
@@ -202,7 +217,14 @@ def break2common_sentences(p1, p2):
 					positions2.append(pos_after2)
 					j += 1
 					continue
+		if i>339:
+			print("s1:",s1[i])
+			print("s2:",s2[j])
+			print("s1af:",s1[i+1])
+			print("s2af:",s2[j+1])
+
 		print (i, reg1, reg2, one_after1, one_after2)
+		print("------------------")
 		# print("s1:",s1[i])
 		# print("s2:",s2[j])
 		# print("s1af:",s1[i+1])
