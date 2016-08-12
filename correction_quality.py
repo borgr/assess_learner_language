@@ -117,6 +117,8 @@ def calculate_endings(sentences, paragraph):
 	return endings
 
 def aligned_ends_together(sentence1, sentence2, reg1, reg2):
+	""" checks if two sentences, ending in two regularized words ends at the same place.
+	"""
 	aligned, indexes = align.align(sentence1, sentence2, True)
 	mapping = dict(map(lambda x:(preprocess_word(x[0]), preprocess_word(x[1])), aligned))
 	rev = dict(align.reverse_mapping(aligned))
