@@ -3,8 +3,12 @@ from itertools import accumulate
 import math
 import re
 import sys
+from collections import Counter
 
 # dependencies
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import distance
 from munkres import Munkres, print_matrix
 
@@ -29,9 +33,9 @@ CHANGING_RATIO = 5
 PATH = r"/home/borgr/ucca/data/paragraphs/"
 
 ORDERED = "ORDERED"
-FIRST_LONGER = "first longer"
-SECOND_LONGER = "second longer"
-ORDERED_ALIGNEDED = "ORDERED with align"
+FIRST_LONGER = "sentence splitted"
+SECOND_LONGER = "sentence concatenated"
+ORDERED_ALIGNED = "ORDERED with align"
 FIRST_LONGER_ALIGNED = "first longer with align"
 SECOND_LONGER_ALIGNED = "second longer with align"
 REMOVE_LAST = "remove last"
@@ -40,6 +44,10 @@ NO_ALIGNED = ""
 
 print("remmember to clean prints after fixing bugs and before committing")
 print("clean all TODO")
+
+###########################################################
+####                    GENEERAL NLP                    ###
+###########################################################
 
 def is_word(w):
 	return True if w != align.EMPTY_WORD and re.search('\w', w) else False
@@ -144,6 +152,11 @@ def calculate_endings(sentences, paragraph):
 	return endings
 
 
+###########################################################
+####                    WORDS CHANGED                   ###
+###########################################################
+
+
 def aligned_ends_together(shorter, longer, reg1, reg2, addition=""):
 	""" checks if two sentences, ending in two regularized words ends at the same place.
 	"""
@@ -242,8 +255,8 @@ def break2common_sentences(p1, p2):
 		# no alignment found with 2 sentences
 		# check if a word was added to the end of one of the sentences
 		if aligned_ends_together(s1[i], s2[j], reg1, reg2):
-			# print(ORDERED_ALIGNEDED, " ",i)
-			aligned_by.append(ORDERED_ALIGNEDED)
+			# print(ORDERED_ALIGNED, " ",i)
+			aligned_by.append(ORDERED_ALIGNED)
 			positions1.append(position1)
 			positions2.append(position2)
 			continue
@@ -339,6 +352,7 @@ def compare_paragraphs(origin, corrected):
 	origin_sentences = get_sentences_from_endings(origin, broken[0])
 	corrected_sentences = get_sentences_from_endings(corrected, broken[1])
 	differences = [word_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
+	print("comparing done")
 	return broken, differences, aligned_by
 
 
@@ -346,6 +360,137 @@ def read_paragraph(filename):
 	with open(PATH + filename) as fl:
 		return preprocess_paragraph(fl.read())
 
+
+def extract_aligned_by_dict(a):
+	""" takes aligned_by list and creates a counter of ordered, first longer and second longer sentences"""
+	count = Counter(a)
+	res = Counter()
+	res[ORDERED] = count[ORDERED] + count[ORDERED_ALIGNED]
+	res[FIRST_LONGER] = count[FIRST_LONGER] + count[FIRST_LONGER_ALIGNED]
+	res[SECOND_LONGER] = count[SECOND_LONGER] + count[SECOND_LONGER_ALIGNED]
+	return res
+
+
+###########################################################
+####                    VISUALIZATION                   ###
+###########################################################
+
+
+def create_hist(l):
+	""" converts a int counter to a sorted list for a histogram"""
+	count = Counter(l)
+	hist = [0] * (max(count.keys()) + 1)
+	for key, val in count.items():
+		hist[key] = val
+	return hist
+
+
+def rainbow_colors(labels):
+	"""creates colors, each corresponding to a unique label"""
+	cls = set(labels)
+	if len(cls) == 2:
+		return dict(zip(cls, ("blue", "yellow")))
+	return dict(zip(cls, cm.rainbow(np.linspace(0, 1, len(cls)))))
+
+
+def plot_differences_hist(l, ax):
+	""" gets a list of (broken, differences, aligned_by, name) tuples and plot the hists"""
+	broken, differences, aligned_by, name = list(range(4)) # tuple structure
+	width = 1/len(l)
+	for i, tple in enumerate(l):
+		y = create_hist(tple[differences])
+		x = np.array(range(len(y)))
+		colors = rainbow_colors(range(len(l)))
+		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name])
+	ax.autoscale(tight=True)
+	plt.ylabel("amount")
+	plt.xlabel("number of words changed")
+	plt.title("number of words changed by method of correction")
+	plt.legend(loc=7, fontsize=10)
+	# plt.tight_layout()
+
+
+def plot_aligned_by(l, ax):
+	""" gets a list of (broken, differences, aligned_by, name) tuples and plot the bars"""
+	broken, differences, aligned_by, name = list(range(4)) # tuple structure
+	width = 1/len(l)
+	for i, tple in enumerate(l):
+		y = extract_aligned_by_dict(tple[aligned_by])
+		y = [y[FIRST_LONGER], y[ORDERED], y[SECOND_LONGER]]
+		x = np.array(range(len(y)))
+		colors = rainbow_colors(range(len(l)))
+		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name])
+	ax.autoscale(tight=True)
+	plt.ylabel("amount")
+	plt.xlabel("number of sentence changes of that sort")
+	plt.title("number of sentence changes by method of correction")
+	plt.xticks(x + width, (FIRST_LONGER, ORDERED, SECOND_LONGER))
+	plt.legend(loc=7, fontsize=10)
+	# plt.tight_layout()
+
+def plot_not_aligned(l, ax):
+	""" gets a list of (broken, differences, aligned_by, name) tuples and plot the bars"""
+	broken, differences, aligned_by, name = list(range(4)) # tuple structure
+	width = 1/len(l)
+	for i, tple in enumerate(l):
+		y = extract_aligned_by_dict(tple[aligned_by])
+		y = [y[FIRST_LONGER], y[SECOND_LONGER]]
+		print(y)
+		x = np.array(range(len(y)))
+		colors = rainbow_colors(range(len(l)))
+		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name])
+	ax.autoscale(tight=True)
+	plt.ylabel("amount")
+	plt.xlabel("number of sentence changes of that sort")
+	plt.title("number of sentence changes by method of correction")
+	plt.xticks(x + width, (FIRST_LONGER, SECOND_LONGER))
+	plt.legend(loc=7, fontsize=10)
+	# plt.tight_layout()
+
+def plot_differences(l, ax):
+	""" gets a list of (broken, differences, aligned_by, name) tuples and plot the plots"""
+	broken, differences, aligned_by, name = list(range(4)) # tuple structure
+	width = 0.2
+	for i, tple in enumerate(l):
+		y = create_hist(tple[differences])
+		x = np.array(range(len(y)))
+		colors = rainbow_colors(range(len(l)))
+		ax.plot(x, y, color=colors[i], label=tple[name])
+	ax.autoscale(tight=True)
+	plt.ylabel("amount")
+	plt.xlabel("number of words changed")
+	plt.title("number of words changed by method of correction")
+	plt.legend(loc=7, fontsize=10)
+	# plt.tight_layout()
+
+
+def plot_comparison(l):
+	"""gets a list of tuple parameters and plots them"""
+	data = []
+	ax = plt.subplot(221)
+	plot_differences(l, ax)
+	ax = plt.subplot(222)
+	plot_differences_hist(l, ax)
+	ax = plt.subplot(223)
+	plot_aligned_by(l, ax)
+	ax = plt.subplot(224)
+	plot_not_aligned(l, ax)
+	plt.show()
+	# 	data.append(
+	# 		go.Bar(
+	# 			x=list(range(len(hist) + 1)),
+	# 			y=hist,
+	# 			name=tple[name]
+	# 		)
+	# 	)
+
+
+	# layout = go.Layout(
+	# 	barmode='group'
+	# )
+
+	# fig = go.Figure(data=data, layout=layout)
+	# py.iplot(fig, filename='grouped-bar')
 
 if __name__ == '__main__':
 	# origin = """genetic risk refers more to your chance of inheriting a disorder or disease . 
@@ -377,20 +522,26 @@ if __name__ == '__main__':
 	origin = read_paragraph(learner_file)
 	gold = read_paragraph(gold_file)
 
-	# compare origin to autocorrect
+	res_list = []
+
+	# compare origin to ACL2016RozovskayaRoth autocorrect
 	broken, differences, aligned_by = compare_paragraphs(origin, autocorrect)
 	comparison_sentences = list(get_sentences_from_endings(autocorrect, broken[1]))
-
-	# # compare gold to origin
-	# broken, differences, aligned_by = compare_paragraphs(origin, gold)
-	# comparison_sentences =  list(get_sentences_from_endings(gold, broken[1]))
-
-	#TODO culomns of number of sentences by number of words changed
-	#TODO number of sentences unaligned, aligned with certain direction
 	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
-	print(differences)
-	for i, dif in enumerate(differences):
-		if dif > 2: # or i < 3
-			print("-------\nsentences:\n",comparison_sentences[i],"\n", origin_sentences[i])
-			print ("dif:", dif)
-			print("match num:", i)
+	ACL2016RozovskayaRoth_autocorrect_hist = create_hist(differences)
+	res_list.append((broken, differences, aligned_by, "Rozovskaya Roth"))
+
+	# compare gold to origin
+	broken, differences, aligned_by = compare_paragraphs(origin, gold)
+	comparison_sentences =  list(get_sentences_from_endings(gold, broken[1]))
+	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
+	res_list.append((broken, differences, aligned_by, "gold standard"))
+
+	plot_comparison(res_list)
+
+	# # prints
+	# for i, dif in enumerate(differences):
+	# 	if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+	# 		print("-------\nsentences:\n", comparison_sentences[i],"\norigignal:\n", origin_sentences[i])
+	# 		print ("word dif:", dif)
+	# 		print("match num:", i)
