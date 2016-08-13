@@ -68,7 +68,7 @@ def sent_tokenize(s):
 
 def word_tokenize(s):
 	"""tokenizes a sentence to words list"""
-	return [w for w in re.split("\W", s) if is_word(w)]
+	return [w for w in align.word_tokenize(s) if is_word(w)]
 
 
 def preprocess_paragraph(p):
@@ -341,7 +341,7 @@ def compare_paragraphs(origin, corrected):
 	print("assesing differences")
 	origin_sentences = get_sentences_from_endings(origin, broken[0])
 	corrected_sentences = get_sentences_from_endings(corrected, broken[1])
-	differences = [word_diff(orig,cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
+	differences = [word_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
 	return broken, differences, aligned_by
 
 
