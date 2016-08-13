@@ -12,8 +12,9 @@ import distance
 from munkres import Munkres, print_matrix
 import re
 lemmatizer = WordNetLemmatizer()
-SENTENCE_ENDS_WITH_NO_SPACE_PATTERN = re.compile("(.*?\w\w\.)(\w+[^\.].*)")
-SPACE_BEFORE_SENTENCE_PATTERN = re.compile("(.*?\s\.(\s*\")?)(.*)")
+SENTENCE_END = "[\.\?\!]" #TODO add ... ??? !!! ?!
+SENTENCE_ENDS_WITH_NO_SPACE_PATTERN = re.compile("(.*?\w\w" + SENTENCE_END +")(\w+[^\.].*)")
+SPACE_BEFORE_SENTENCE_PATTERN = re.compile("(.*?\s" + SENTENCE_END +"(\s*\")?)(.*)")
 
 MAX_DIST = 2
 SHORT_WORD_LEN = 4
@@ -73,7 +74,7 @@ def word_tokenize(s):
 def preprocess_paragraph(p):
 	"""preprocesses a paragraph"""
 	p = re.sub("\s+", " ", p)
-	p = re.sub("(\.\s+)\.", "\1", p)
+	p = re.sub("(" + SENTENCE_END +"\s+)" + SENTENCE_END, "\1", p)
 	return p
 
 
@@ -340,7 +341,7 @@ def compare_paragraphs(origin, corrected):
 	print("assesing differences")
 	origin_sentences = get_sentences_from_endings(origin, broken[0])
 	corrected_sentences = get_sentences_from_endings(corrected, broken[1])
-	differences = [word_diff(orig,cor) for orig, cor in zip(origin_sentences,corrected_sentences)]
+	differences = [word_diff(orig,cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
 	return broken, differences, aligned_by
 
 
