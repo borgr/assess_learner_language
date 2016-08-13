@@ -28,9 +28,9 @@ ORDERED_ALIGNEDED = "ORDERED with align"
 FIRST_LONGER_ALIGNED = "first longer with align"
 SECOND_LONGER_ALIGNED = "second longer with align"
 REMOVE_LAST = "remove last"
+PARAGRAPH_END = "paragraph end"
 NO_ALIGNED = ""
 
-print("check if bugs are still seen when running on gold, autocorrect shouldn't make such errors")
 print("remmember to clean prints after fixing bugs and before committing")
 print("clean all TODO")
 
@@ -158,11 +158,9 @@ def aligned_ends_together(shorter, longer, reg1, reg2, addition=""):
 	# print(reg2)
 	# print(aligned)
 	if ((reg1, empty) in aligned):
-		print(reg2, rev[reg2],"are the same?", approximately_same_word(reg2, rev[reg2]))
 		if reg2 in addition_words and approximately_same_word(reg2, rev[reg2]):
 			return True
 	if ((empty, reg2) in aligned):
-		print(reg1, mapping[reg1],"are the same?", approximately_same_word(reg1, mapping[reg1]))
 		if mapping[reg1] in addition_words and approximately_same_word(reg1, mapping[reg1]):
 			return True
 	return False
@@ -204,7 +202,7 @@ def break2common_sentences(p1, p2):
 		position1, reg1 = _choose_ending_position(s1, endings1, i)
 		position2, reg2 = _choose_ending_position(s2, endings2, j)
 		if approximately_same_word(reg1, reg2):
-			print(ORDERED, " ",i)
+			# print(ORDERED, " ",i)
 			aligned_by.append(ORDERED)
 			positions1.append(position1)
 			positions2.append(position2)
@@ -213,11 +211,11 @@ def break2common_sentences(p1, p2):
 		#deal with addition or subtraction of a sentence ending
 		slen1 = len(word_tokenize(s1[i]))
 		slen2 = len(word_tokenize(s2[j]))
-		# print(slen1," ", slen2)
+
 		if i + 1 < len(s1) and slen1 < slen2:
 			pos_after1, one_after1 = _choose_ending_position(s1, endings1, i + 1)
 			if approximately_same_word(one_after1, reg2):
-				print(FIRST_LONGER, " ", i)
+				# print(FIRST_LONGER, " ", i)
 				aligned_by.append(FIRST_LONGER)
 				positions1.append(pos_after1)
 				positions2.append(position2)
@@ -227,24 +225,20 @@ def break2common_sentences(p1, p2):
 		if j + 1 < len(s2) and slen2 < slen1:
 			pos_after2, one_after2 = _choose_ending_position(s2, endings2, j + 1)
 			if approximately_same_word(reg1, one_after2):
-				print(SECOND_LONGER, " ", i)
+				# print(SECOND_LONGER, " ", i)
 				aligned_by.append(SECOND_LONGER)
 				positions1.append(position1)
 				positions2.append(pos_after2)
 				j += 1
 				continue
-		# print("not missing a sentence")
+
 		# no alignment found with 2 sentences
 		# check if a word was added to the end of one of the sentences
 		if aligned_ends_together(s1[i], s2[j], reg1, reg2):
-			print(ORDERED_ALIGNEDED, " ",i)
+			# print(ORDERED_ALIGNEDED, " ",i)
 			aligned_by.append(ORDERED_ALIGNEDED)
 			positions1.append(position1)
 			positions2.append(position2)
-			print("s1:",s1[i])
-			print("s2:",s2[j])
-			print("s1af:",s1[i+1])
-			print("s2af:",s2[j+1])
 			continue
 
 		# # if no match is found twice and we had ORDERED match, it might have been a mistake
@@ -264,24 +258,16 @@ def break2common_sentences(p1, p2):
 		# Also, deal with addition or subtraction of a sentence ending
 		if i + 1 < len(s1) and slen1 < slen2:
 			if aligned_ends_together(s2[j], s1[i], reg2, one_after1, addition=s1[i + 1]):
-				print(FIRST_LONGER_ALIGNED, " ",i)
+				# print(FIRST_LONGER_ALIGNED, " ",i)
 				aligned_by.append(FIRST_LONGER_ALIGNED)
 				positions1.append(pos_after1)
 				positions2.append(position2)
-				print("s1:",s1[i])
-				print("s2:",s2[j])
-				print("s1af:",s1[i+1])
-				print("s2af:",s2[j+1])
 				i += 1
 				continue
 
 		if j + 1 < len(s2) and slen2 < slen1:
 			if aligned_ends_together(s1[i], s2[j], reg1, one_after2, addition=s2[j + 1]):
-				print(SECOND_LONGER_ALIGNED, " ", i)
-				print("s1:",s1[i])
-				print("s2:",s2[j])
-				print("s1af:",s1[i+1])
-				print("s2af:",s2[j+1])
+				# print(SECOND_LONGER_ALIGNED, " ", i)
 				aligned_by.append(SECOND_LONGER_ALIGNED)
 				positions1.append(position1)
 				positions2.append(pos_after2)
@@ -294,13 +280,14 @@ def break2common_sentences(p1, p2):
 		# 	positions2.append(removed_pos2)
 		# 	i -= 2
 		# 	j -= 2
-		print (i, reg1, reg2, one_after1, one_after2)
-		print("s1:",s1[i])
-		print("s2:",s2[j])
-		print("s1af:",s1[i+1])
-		print("s2af:",s2[j+1])
-		print(i)
-		print("------------------")
+
+		# print (i, reg1, reg2, one_after1, one_after2)
+		# print("s1:",s1[i])
+		# print("s2:",s2[j])
+		# print("s1af:",s1[i+1])
+		# print("s2af:",s2[j+1])
+		# print(i)
+		# print("------------------")
 		aligned_by.append(NO_ALIGNED)
 
 	# add last sentence in case skipped
@@ -310,10 +297,13 @@ def break2common_sentences(p1, p2):
 	    positions1[-1] != position1 and positions2[-1] != position2):
 		positions1.append(endings1[-1])
 		positions2.append(endings2[-1])
+		aligned_by.append(PARAGRAPH_END)
 	elif positions1[-1] != position1 and positions2[-1] == position2:
 		positions1[-1] = endings1[-1]
+		aligned_by.append(PARAGRAPH_END)
 	elif positions1[-1] == position1 and positions2[-1] != position2:
 		positions2[-1] = endings2[-1]
+		aligned_by.append(PARAGRAPH_END)
 
 	return positions1, positions2, aligned_by
 
