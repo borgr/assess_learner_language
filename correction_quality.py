@@ -1,16 +1,23 @@
+# built in packages
 from itertools import accumulate
 import math
+import re
+import sys
+
+# dependencies
+import distance
+from munkres import Munkres, print_matrix
 
 from nltk.tokenize import sent_tokenize as nltk_sent_tokenize
 from nltk.stem import WordNetLemmatizer
-import sys
+
+# ucca
 sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
 sys.path.append('/home/borgr/ucca/ucca/ucca')
 sys.path.append('/home/borgr/ucca/ucca')
 import align
-import distance
-from munkres import Munkres, print_matrix
-import re
+
+#constants
 lemmatizer = WordNetLemmatizer()
 SENTENCE_END = "[\.\?\!]" #TODO add ... ??? !!! ?!
 SENTENCE_ENDS_WITH_NO_SPACE_PATTERN = re.compile("(.*?\w\w" + SENTENCE_END +")(\w+[^\.].*)")
@@ -381,6 +388,7 @@ if __name__ == '__main__':
 	#TODO culomns of number of sentences by number of words changed
 	#TODO number of sentences unaligned, aligned with certain direction
 	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
+	print(differences)
 	for i, dif in enumerate(differences):
 		if dif > 2: # or i < 3
 			print("-------\nsentences:\n",comparison_sentences[i],"\n", origin_sentences[i])
