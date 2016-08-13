@@ -12,13 +12,22 @@ import distance
 from munkres import Munkres, print_matrix
 import re
 lemmatizer = WordNetLemmatizer()
-sentence_ends_with_no_space_pattern = re.compile("(.*?\w\w\.)(\w+[^\.].*)")
-space_before_sentence_pattern = re.compile("(.*?\s\.(\s*\")?)(.*)")
+SENTENCE_ENDS_WITH_NO_SPACE_PATTERN = re.compile("(.*?\w\w\.)(\w+[^\.].*)")
+SPACE_BEFORE_SENTENCE_PATTERN = re.compile("(.*?\s\.(\s*\")?)(.*)")
 
 MAX_DIST = 2
 SHORT_WORD_LEN = 4
 CHANGING_RATIO = 5
 PATH = r"/home/borgr/ucca/data/paragraphs/"
+
+ORDERED = "ORDERED"
+FIRST_LONGER = "first longer"
+SECOND_LONGER = "second longer"
+ORDERED_ALIGNEDED = "ORDERED with align"
+FIRST_LONGER_ALIGNED = "first longer with align"
+SECOND_LONGER_ALIGNED = "second longer with align"
+REMOVE_LAST = "remove last"
+NO_ALIGNED = ""
 
 print("check if bugs are still seen when running on gold, autocorrect shouldn't make such errors")
 print("remmember to clean prints after fixing bugs and before committing")
@@ -51,8 +60,8 @@ def split_by_pattern(tokens, p, first=1, second=2):
 def sent_tokenize(s):
 	"""tokenizes a text to sentences"""
 	tokens = nltk_sent_tokenize(s)
-	tokens = split_by_pattern(tokens, sentence_ends_with_no_space_pattern)
-	tokens = split_by_pattern(tokens, space_before_sentence_pattern, 1, 3)
+	tokens = split_by_pattern(tokens, SENTENCE_ENDS_WITH_NO_SPACE_PATTERN)
+	tokens = split_by_pattern(tokens, SPACE_BEFORE_SENTENCE_PATTERN, 1, 3)
 	return tokens
 
 
@@ -162,16 +171,9 @@ def break2common_sentences(p1, p2):
 
 	Breaking is done according to the text of both passages
 	returns two lists each containing positions of sentence endings
-	guarentees same number of positions is acquired and the last position is the passage end"""
-	
-	ordered = "ordered"
-	first_longer = "first longer"
-	second_longer = "second longer"
-	ordered_aligned = "ordered with align"
-	first_longer_align = "first longer with align"
-	second_longer_align = "second longer with align"
-	remove_last = "remove last"
-	no_align = ""
+	guarentees same number of positions is acquired and the last position is the passage end
+	return:
+		positions1, positions2 - lists of indexes of the changed """
 	aligned_by = []
 	s1 = sent_tokenize(p1)
 	s2 = sent_tokenize(p2)
@@ -201,8 +203,8 @@ def break2common_sentences(p1, p2):
 		position1, reg1 = _choose_ending_position(s1, endings1, i)
 		position2, reg2 = _choose_ending_position(s2, endings2, j)
 		if approximately_same_word(reg1, reg2):
-			print(ordered, " ",i)
-			aligned_by.append(ordered)
+			print(ORDERED, " ",i)
+			aligned_by.append(ORDERED)
 			positions1.append(position1)
 			positions2.append(position2)
 			continue
@@ -214,8 +216,8 @@ def break2common_sentences(p1, p2):
 		if i + 1 < len(s1) and slen1 < slen2:
 			pos_after1, one_after1 = _choose_ending_position(s1, endings1, i + 1)
 			if approximately_same_word(one_after1, reg2):
-				print(first_longer, " ", i)
-				aligned_by.append(first_longer)
+				print(FIRST_LONGER, " ", i)
+				aligned_by.append(FIRST_LONGER)
 				positions1.append(pos_after1)
 				positions2.append(position2)
 				i += 1
@@ -224,8 +226,8 @@ def break2common_sentences(p1, p2):
 		if j + 1 < len(s2) and slen2 < slen1:
 			pos_after2, one_after2 = _choose_ending_position(s2, endings2, j + 1)
 			if approximately_same_word(reg1, one_after2):
-				print(second_longer, " ", i)
-				aligned_by.append(second_longer)
+				print(SECOND_LONGER, " ", i)
+				aligned_by.append(SECOND_LONGER)
 				positions1.append(position1)
 				positions2.append(pos_after2)
 				j += 1
@@ -234,8 +236,8 @@ def break2common_sentences(p1, p2):
 		# no alignment found with 2 sentences
 		# check if a word was added to the end of one of the sentences
 		if aligned_ends_together(s1[i], s2[j], reg1, reg2):
-			print(ordered_aligned, " ",i)
-			aligned_by.append(ordered_aligned)
+			print(ORDERED_ALIGNEDED, " ",i)
+			aligned_by.append(ORDERED_ALIGNEDED)
 			positions1.append(position1)
 			positions2.append(position2)
 			print("s1:",s1[i])
@@ -244,12 +246,12 @@ def break2common_sentences(p1, p2):
 			print("s2af:",s2[j+1])
 			continue
 
-		# # if no match is found twice and we had ordered match, it might have been a mistake
-		# if aligned_by[-1] == no_align and aligned_by[-2] == no_align:
+		# # if no match is found twice and we had ORDERED match, it might have been a mistake
+		# if aligned_by[-1] == NO_ALIGNED and aligned_by[-2] == NO_ALIGNED:
 		# 	print("using fallback")
 		# 	removed_pos1 = positions1.pop()
 		# 	removed_pos2 = positions2.pop()
-		# 	aligned_by.append(remove_last)
+		# 	aligned_by.append(REMOVE_LAST)
 		# 	i -= 2
 		# 	j -= 2
 		# 	print("s1:",s1[i])
@@ -261,8 +263,8 @@ def break2common_sentences(p1, p2):
 		# Also, deal with addition or subtraction of a sentence ending
 		if i + 1 < len(s1) and slen1 < slen2:
 			if aligned_ends_together(s2[j], s1[i], reg2, one_after1, addition=s1[i + 1]):
-				print(first_longer_align, " ",i)
-				aligned_by.append(first_longer_align)
+				print(FIRST_LONGER_ALIGNED, " ",i)
+				aligned_by.append(FIRST_LONGER_ALIGNED)
 				positions1.append(pos_after1)
 				positions2.append(position2)
 				print("s1:",s1[i])
@@ -274,19 +276,19 @@ def break2common_sentences(p1, p2):
 
 		if j + 1 < len(s2) and slen2 < slen1:
 			if aligned_ends_together(s1[i], s2[j], reg1, one_after2, addition=s2[j + 1]):
-				print(second_longer_align, " ", i)
+				print(SECOND_LONGER_ALIGNED, " ", i)
 				print("s1:",s1[i])
 				print("s2:",s2[j])
 				print("s1af:",s1[i+1])
 				print("s2af:",s2[j+1])
-				aligned_by.append(second_longer_align)
+				aligned_by.append(SECOND_LONGER_ALIGNED)
 				positions1.append(position1)
 				positions2.append(pos_after2)
 				j += 1
 				continue
 
 		# # removing last yielded no consequences keep in regular way
-		# if aligned_by[-1] == remove_last:
+		# if aligned_by[-1] == REMOVE_LAST:
 		# 	positions1.append(removed_pos1)
 		# 	positions2.append(removed_pos2)
 		# 	i -= 2
@@ -298,7 +300,7 @@ def break2common_sentences(p1, p2):
 		print("s2af:",s2[j+1])
 		print(i)
 		print("------------------")
-		aligned_by.append(no_align)
+		aligned_by.append(NO_ALIGNED)
 
 	# add last sentence in case skipped
 		position1, reg1 = _choose_ending_position(s1, endings1, -1)
@@ -312,7 +314,7 @@ def break2common_sentences(p1, p2):
 	elif positions1[-1] == position1 and positions2[-1] != position2:
 		positions2[-1] = endings2[-1]
 
-	return positions1, positions2
+	return positions1, positions2, aligned_by
 
 
 def get_sentences_from_endings(paragraph, endings):
@@ -324,17 +326,18 @@ def get_sentences_from_endings(paragraph, endings):
 
 
 def compare_paragraphs(origin, corrected):
-	""" compares two paragraphs, returns the sentence endings and their corresponding difference measures"""
+	""" compares two paragraphs, returns the sentence endings, their corresponding difference measures, and the way they were aligned"""
 	print("comparing paragraphs")
 	print("aligning sentences")
-	broken = break2common_sentences(origin, corrected)
+	broken = []
+	broken[0], broken[1], aligned_by = break2common_sentences(origin, corrected)
 	# print(list(get_sentences_from_endings(origin, broken[0]))[:5])
 	# print(list(get_sentences_from_endings(corrected, broken[1]))[-10:])
 	print("assesing differences")
 	origin_sentences = get_sentences_from_endings(origin, broken[0])
 	corrected_sentences = get_sentences_from_endings(corrected, broken[1])
 	differences = [word_diff(orig,cor) for orig, cor in zip(origin_sentences,corrected_sentences)]
-	return broken, differences
+	return broken, differences, aligned_by
 
 
 def read_paragraph(filename):
@@ -371,14 +374,17 @@ if __name__ == '__main__':
 	autocorrect = read_paragraph(ACL2016RozovskayaRothOutput_file)
 	origin = read_paragraph(learner_file)
 	gold = read_paragraph(gold_file)
+
 	# compare origin to autocorrect
-	broken, differences = compare_paragraphs(origin, autocorrect)
+	broken, differences, aligned_by = compare_paragraphs(origin, autocorrect)
 	comparison_sentences = list(get_sentences_from_endings(autocorrect, broken[1]))
 
 	# # compare gold to origin
-	# broken, differences = compare_paragraphs(origin, gold)######################TODO not working, why?
+	# broken, differences, aligned_by = compare_paragraphs(origin, gold)
 	# comparison_sentences =  list(get_sentences_from_endings(gold, broken[1]))
 
+	#TODO culomns of number of sentences by number of words changed
+	#TODO number of sentences unaligned, aligned with certain direction
 	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
 	for i, dif in enumerate(differences):
 		if dif > 2: # or i < 3
