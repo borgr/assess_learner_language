@@ -329,7 +329,7 @@ def compare_paragraphs(origin, corrected):
 	""" compares two paragraphs, returns the sentence endings, their corresponding difference measures, and the way they were aligned"""
 	print("comparing paragraphs")
 	print("aligning sentences")
-	broken = []
+	broken = [None,None]
 	broken[0], broken[1], aligned_by = break2common_sentences(origin, corrected)
 	# print(list(get_sentences_from_endings(origin, broken[0]))[:5])
 	# print(list(get_sentences_from_endings(corrected, broken[1]))[-10:])
