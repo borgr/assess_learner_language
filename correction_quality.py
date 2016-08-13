@@ -326,7 +326,11 @@ def get_sentences_from_endings(paragraph, endings):
 
 
 def compare_paragraphs(origin, corrected):
-	""" compares two paragraphs, returns the sentence endings, their corresponding difference measures, and the way they were aligned"""
+	""" compares two paragraphs
+		return:
+		broken - the sentence endings indexes
+		differences - difference measures corresponding to the indexes in broken
+		aligned_by - the way the sentences were aligned"""
 	print("comparing paragraphs")
 	print("aligning sentences")
 	broken = [None,None]
