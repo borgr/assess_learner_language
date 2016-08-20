@@ -32,7 +32,7 @@ SHORT_WORD_LEN = 4
 CHANGING_RATIO = 5
 PATH = r"/home/borgr/ucca/data/paragraphs/"
 
-ORDERED = "ORDERED"
+ORDERED = "original order"
 FIRST_LONGER = "sentence splitted"
 SECOND_LONGER = "sentence concatenated"
 ORDERED_ALIGNED = "ORDERED with align"
@@ -42,7 +42,6 @@ REMOVE_LAST = "remove last"
 PARAGRAPH_END = "paragraph end"
 NO_ALIGNED = ""
 
-print("remmember to clean prints after fixing bugs and before committing")
 print("clean all TODO")
 
 ###########################################################
@@ -346,8 +345,6 @@ def compare_paragraphs(origin, corrected):
 	print("aligning sentences")
 	broken = [None,None]
 	broken[0], broken[1], aligned_by = break2common_sentences(origin, corrected)
-	# print(list(get_sentences_from_endings(origin, broken[0]))[:5])
-	# print(list(get_sentences_from_endings(corrected, broken[1]))[-10:])
 	print("assesing differences")
 	origin_sentences = get_sentences_from_endings(origin, broken[0])
 	corrected_sentences = get_sentences_from_endings(corrected, broken[1])
@@ -389,7 +386,7 @@ def rainbow_colors(labels):
 	"""creates colors, each corresponding to a unique label"""
 	cls = set(labels)
 	if len(cls) == 2:
-		return dict(zip(cls, ("blue", "yellow")))
+		return dict(zip(cls, ("blue", "orange")))
 	return dict(zip(cls, cm.rainbow(np.linspace(0, 1, len(cls)))))
 
 
@@ -411,7 +408,7 @@ def plot_differences_hist(l, ax):
 
 
 def plot_aligned_by(l, ax):
-	""" gets a list of (broken, differences, aligned_by, name) tuples and plot the bars"""
+	""" gets a list of (broken, differences, aligned_by, name) tuples and plot """
 	broken, differences, aligned_by, name = list(range(4)) # tuple structure
 	width = 1/len(l)
 	for i, tple in enumerate(l):
@@ -423,7 +420,7 @@ def plot_aligned_by(l, ax):
 	ax.autoscale(tight=True)
 	plt.ylabel("amount")
 	plt.xlabel("number of sentence changes of that sort")
-	plt.title("number of sentence changes by method of correction")
+	plt.title("accumulative number of sentence changes by method of correction")
 	plt.xticks(x + width, (FIRST_LONGER, ORDERED, SECOND_LONGER))
 	plt.legend(loc=7, fontsize=10)
 	# plt.tight_layout()
@@ -435,7 +432,6 @@ def plot_not_aligned(l, ax):
 	for i, tple in enumerate(l):
 		y = extract_aligned_by_dict(tple[aligned_by])
 		y = [y[FIRST_LONGER], y[SECOND_LONGER]]
-		print(y)
 		x = np.array(range(len(y)))
 		colors = rainbow_colors(range(len(l)))
 		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name])
@@ -451,15 +447,24 @@ def plot_differences(l, ax):
 	""" gets a list of (broken, differences, aligned_by, name) tuples and plot the plots"""
 	broken, differences, aligned_by, name = list(range(4)) # tuple structure
 	width = 0.2
+	ys = []
+	max_len = 0
+	colors = rainbow_colors(range(len(l)))
+
 	for i, tple in enumerate(l):
-		y = create_hist(tple[differences])
-		x = np.array(range(len(y)))
-		colors = rainbow_colors(range(len(l)))
-		ax.plot(x, y, color=colors[i], label=tple[name])
+		y = create_hist(tple[differences])[1:]
+		ys.append((y,tple[name],colors[i]))
+		max_len = max(max_len, len(y))
+	
+	x = np.array(range(max_len))
+
+	for y,name, color in ys:
+		y = y + [0]*(max_len-len(y))
+		ax.plot(x, np.cumsum(y), color=color, label=name)
 	ax.autoscale(tight=True)
 	plt.ylabel("amount")
 	plt.xlabel("number of words changed")
-	plt.title("number of words changed by method of correction")
+	plt.title("accumulative number of sentences by words changed per")
 	plt.legend(loc=7, fontsize=10)
 	# plt.tight_layout()
 
@@ -476,43 +481,9 @@ def plot_comparison(l):
 	ax = plt.subplot(224)
 	plot_not_aligned(l, ax)
 	plt.show()
-	# 	data.append(
-	# 		go.Bar(
-	# 			x=list(range(len(hist) + 1)),
-	# 			y=hist,
-	# 			name=tple[name]
-	# 		)
-	# 	)
 
-
-	# layout = go.Layout(
-	# 	barmode='group'
-	# )
-
-	# fig = go.Figure(data=data, layout=layout)
-	# py.iplot(fig, filename='grouped-bar')
 
 if __name__ == '__main__':
-	# origin = """genetic risk refers more to your chance of inheriting a disorder or disease . 
-	# how much a genetic change tells us about your chances of developing a disorder is not always clelar . 
-	# when we are diagnosed out with a certain genetic diseases , are we supposed to disclose this result to our relatives ? 
-	# on one hand , we do not want this potential danger causing frightening affect our families ' later lives . 
-	# when people around us know that we got certain disease , their altitudes will be easily changed , whether caring us too much or keeping away from us . 
-	# surrounded by such concerns , it is very likely that we are distracted to worry about these problems . 
-	# it is a concern that will be with us during our whole life , because we will never know when the ''potential bomb' ' will explode . """
-	# autocorrect = """genetic risk refers to your chance of inheriting a disorder or disase.
-	# how much a genetic change tells us about your chance of developing a disorder is not always clear.
-	# when we are diagnosed with certain genetic diseases, are we suppose to disclose this result to our relatives?
-	# on one hand, we do not want this potential danger having frightening effects in our families' later lives.
-	# when people around us know that we have certain diseases, their attitude will easily change, whether caring for us too much or keeping away from us.
-	# surrounded by such concerns, it is very likely that we are distracted and worry about these problems.
-	# it is a concern that will be with us during our whole life, because we never know when the ''potential bomb'' will explode."""
-	# origin = preprocess_paragraph(origin)
-	# autocorrect = preprocess_paragraph(autocorrect)
-	# a = break2common_sentences(origin, autocorrect)
-
-	# print(diff_words("""it is common that almost everyone in a public transport is watching phone or wearing a pair ear piece in this modern society today .  ""","""It is a common scene that almost everyone in a public transport is watching at phone or wearing a pair ear piece in this modern society today ."""))
-	# raise
 
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	learner_file = "conll.tok.orig"
@@ -530,6 +501,9 @@ if __name__ == '__main__':
 	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
 	ACL2016RozovskayaRoth_autocorrect_hist = create_hist(differences)
 	res_list.append((broken, differences, aligned_by, "Rozovskaya Roth"))
+	# print()
+	# print("number of sentences with more than 2 changes:", sum([1 for d in differences if d > 2]))
+	# print("number of sentences with more than 3 changes:", sum([1 for d in differences if d > 3]))
 
 	# compare gold to origin
 	broken, differences, aligned_by = compare_paragraphs(origin, gold)
@@ -539,9 +513,9 @@ if __name__ == '__main__':
 
 	plot_comparison(res_list)
 
-	# # prints
-	# for i, dif in enumerate(differences):
-	# 	if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
-	# 		print("-------\nsentences:\n", comparison_sentences[i],"\norigignal:\n", origin_sentences[i])
-	# 		print ("word dif:", dif)
-	# 		print("match num:", i)
+	# prints
+	for i, dif in enumerate(differences):
+		if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+			print("-------\nsentences:\n", comparison_sentences[i],"\norignal:\n", origin_sentences[i])
+			print ("word dif:", dif)
+			print("match num:", i)
