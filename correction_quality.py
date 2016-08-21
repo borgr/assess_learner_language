@@ -346,10 +346,16 @@ def compare_paragraphs(origin, corrected):
 	broken = [None,None]
 	broken[0], broken[1], aligned_by = break2common_sentences(origin, corrected)
 	print("assesing differences")
-	origin_sentences = get_sentences_from_endings(origin, broken[0])
-	corrected_sentences = get_sentences_from_endings(corrected, broken[1])
+	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
+	corrected_sentences = list(get_sentences_from_endings(corrected, broken[1]))
 	differences = [word_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
-	print("comparing done")
+	print("comparing done printing interesting results")
+
+	for i, dif in enumerate(differences):
+		if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+			print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
+			print ("word dif:", dif)
+			print("match num:", i)
 	return broken, differences, aligned_by
 
 
@@ -488,7 +494,8 @@ if __name__ == '__main__':
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	learner_file = "conll.tok.orig"
 	gold_file = "corrected_official-2014.0.txt.comparable"
-
+	from fce import CORRECTED_FILE as fce_gold_file
+	from fce import LEARNER_FILE as fce_learner_file
 	autocorrect = read_paragraph(ACL2016RozovskayaRothOutput_file)
 	origin = read_paragraph(learner_file)
 	gold = read_paragraph(gold_file)
@@ -497,25 +504,11 @@ if __name__ == '__main__':
 
 	# compare origin to ACL2016RozovskayaRoth autocorrect
 	broken, differences, aligned_by = compare_paragraphs(origin, autocorrect)
-	comparison_sentences = list(get_sentences_from_endings(autocorrect, broken[1]))
-	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
-	ACL2016RozovskayaRoth_autocorrect_hist = create_hist(differences)
 	res_list.append((broken, differences, aligned_by, "Rozovskaya Roth"))
-	# print()
-	# print("number of sentences with more than 2 changes:", sum([1 for d in differences if d > 2]))
-	# print("number of sentences with more than 3 changes:", sum([1 for d in differences if d > 3]))
 
 	# compare gold to origin
 	broken, differences, aligned_by = compare_paragraphs(origin, gold)
-	comparison_sentences =  list(get_sentences_from_endings(gold, broken[1]))
-	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
 	res_list.append((broken, differences, aligned_by, "gold standard"))
 
 	plot_comparison(res_list)
 
-	# prints
-	for i, dif in enumerate(differences):
-		if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
-			print("-------\nsentences:\n", comparison_sentences[i],"\norignal:\n", origin_sentences[i])
-			print ("word dif:", dif)
-			print("match num:", i)
