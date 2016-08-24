@@ -1,4 +1,5 @@
 import re
+from correction_quality import PATH
 FCE_DATA_FILE = "en_esl-ud-all.conllu"
 CORRECTED_FILE = "corrected." + FCE_DATA_FILE
 LEARNER_FILE = "learner." + FCE_DATA_FILE
@@ -19,16 +20,16 @@ def to_corrected(xml_text):
 def main():
 	corrected = []
 	learner = []
-	with open(FCE_DATA_FILE) as fl:
+	with open(PATH + FCE_DATA_FILE) as fl:
 		for line in fl:
 			if line.startswith("#SENT="):
 				stripped = strip(line)
 				learner.append(to_learner(stripped))
 				corrected.append(to_corrected(stripped))
 
-	with open(CORRECTED_FILE,"w") as fl:
+	with open(PATH + CORRECTED_FILE,"w") as fl:
 		fl.writelines(corrected)
-	with open(LEARNER_FILE,"w") as fl:
+	with open(PATH + LEARNER_FILE,"w") as fl:
 		fl.writelines(learner)
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 # built in packages
 from itertools import accumulate
+from itertools import islice
 import math
 import re
 import sys
@@ -23,10 +24,13 @@ import align
 
 #constants
 lemmatizer = WordNetLemmatizer()
-SENTENCE_END = "[\.\?\!]" #TODO add ... ??? !!! ?!
+ENDERS = r"\.\?\!\;"
+SENTENCE_NOT_END = "[^" + ENDERS + "]"
+SENTENCE_END = "[" + ENDERS + "]" #TODO add ... ??? !!! ?!
 SENTENCE_ENDS_WITH_NO_SPACE_PATTERN = re.compile("(.*?\w\w" + SENTENCE_END +")(\w+[^\.].*)")
 SPACE_BEFORE_SENTENCE_PATTERN = re.compile("(.*?\s" + SENTENCE_END +"(\s*\")?)(.*)")
 
+MAX_SENTENCES = 1400 # accounts for the maximum number of lines to get from the database
 MAX_DIST = 2
 SHORT_WORD_LEN = 4
 CHANGING_RATIO = 5
@@ -41,8 +45,6 @@ SECOND_LONGER_ALIGNED = "second longer with align"
 REMOVE_LAST = "remove last"
 PARAGRAPH_END = "paragraph end"
 NO_ALIGNED = ""
-
-print("clean all TODO")
 
 ###########################################################
 ####                    GENEERAL NLP                    ###
@@ -73,11 +75,19 @@ def split_by_pattern(tokens, p, first=1, second=2):
 
 
 def sent_tokenize(s):
-	"""tokenizes a text to sentences"""
+	"""tokenizes a text to a list of sentences"""
 	tokens = nltk_sent_tokenize(s)
 	tokens = split_by_pattern(tokens, SENTENCE_ENDS_WITH_NO_SPACE_PATTERN)
 	tokens = split_by_pattern(tokens, SPACE_BEFORE_SENTENCE_PATTERN, 1, 3)
-	return tokens
+
+	# concatanate empty sentences to the ones before them
+	result = []
+	for token in tokens:
+		if re.search(r"[A-Za-z]", token) is not None:
+			result.append(token)
+		else:
+			result[-1] = result[-1] + token
+	return result
 
 
 def word_tokenize(s):
@@ -87,8 +97,10 @@ def word_tokenize(s):
 
 def preprocess_paragraph(p):
 	"""preprocesses a paragraph"""
-	p = re.sub("\s+", " ", p)
-	p = re.sub("(" + SENTENCE_END +"\s+)" + SENTENCE_END, "\1", p)
+	p = re.sub(r"(" + SENTENCE_NOT_END + ")(\s*\n)", r"\1.\2", p)
+	p = re.sub("(\.\s*['\"])\s*\.", r"\1", p)
+	p = re.sub(r"\s+", r" ", p)
+	p = re.sub(r"(" + SENTENCE_END +r"\s+)" + SENTENCE_END, r"\1", p)
 	return p
 
 
@@ -126,10 +138,11 @@ def _choose_ending_position(sentences, endings, i):
 	raise "should not happen"
 	return endings[i], preprocess_word(word_tokenize(sentences[i])[-1])
 
-
 def word_diff(s1, s2):
 	""" counts the number of aligned words that are not considered approximately the same word in 2 sentences"""
+	print("\n----------------------------\n",s1,"\n---\n", s2)#TODO delete prints
 	alignment, indexes = align.align(s1, s2, True)
+
 	return sum(not approximately_same_word(preprocess_word(w1), preprocess_word(w2)) for i, (w1, w2) in enumerate(alignment) if is_word(w1) or is_word(w2))
 
 
@@ -156,7 +169,7 @@ def calculate_endings(sentences, paragraph):
 ###########################################################
 
 
-def aligned_ends_together(shorter, longer, reg1, reg2, addition=""):
+def aligned_ends_together(shorter, longer, reg1, reg2, addition="", force=False):
 	""" checks if two sentences, ending in two regularized words ends at the same place.
 	"""
 	sentence1 = shorter
@@ -176,10 +189,14 @@ def aligned_ends_together(shorter, longer, reg1, reg2, addition=""):
 	# print(rev)
 	# print(reg2)
 	# print(aligned)
-	if ((reg1, empty) in aligned):
+	# print(force)
+	if force or ((reg1, empty) in aligned):
+		# print(reg1,",",reg2,",")
+		# print("reg2 in addition_words",reg2 in addition_words)
+		# print("approximately_same_word(reg2, rev[reg2])",approximately_same_word(reg2, rev[reg2]))
 		if reg2 in addition_words and approximately_same_word(reg2, rev[reg2]):
 			return True
-	if ((empty, reg2) in aligned):
+	if force or ((empty, reg2) in aligned):
 		if mapping[reg1] in addition_words and approximately_same_word(reg1, mapping[reg1]):
 			return True
 	return False
@@ -206,6 +223,7 @@ def break2common_sentences(p1, p2):
 	i = 0
 	j = 0
 	inc = False
+	force = False
 	while i < len(s1) and j < len(s2):
 		one_after1 = "not_initialized"
 		one_after2 = "not_initialized"
@@ -260,23 +278,29 @@ def break2common_sentences(p1, p2):
 			positions2.append(position2)
 			continue
 
-		# # if no match is found twice and we had ORDERED match, it might have been a mistake
-		# if aligned_by[-1] == NO_ALIGNED and aligned_by[-2] == NO_ALIGNED:
-		# 	print("using fallback")
-		# 	removed_pos1 = positions1.pop()
-		# 	removed_pos2 = positions2.pop()
-		# 	aligned_by.append(REMOVE_LAST)
-		# 	i -= 2
-		# 	j -= 2
-		# 	print("s1:",s1[i])
-		# 	print("s2:",s2[j])
-		# 	print("s1af:",s1[i+1])
-		# 	print("s2af:",s2[j+1])
+		# if no match is found twice and we had ORDERED match, it might have been a mistake
+		if (positions1 and positions2 and
+		   aligned_by[-1] == NO_ALIGNED and aligned_by[-2] == NO_ALIGNED):
+			print("using fallback")
+			print("s1:",s1[i])
+			print("s2:",s2[j])
+			print("s1af:",s1[i+1])
+			print("s2af:",s2[j+1])
+			removed_pos1 = positions1.pop()
+			removed_pos2 = positions2.pop()
+			aligned_by.append(REMOVE_LAST)
+			i -= 3
+			j -= 3
+			position1, reg1 = _choose_ending_position(s1, endings1, i)
+			position2, reg2 = _choose_ending_position(s2, endings2, j)
+			pos_after1, one_after1 = _choose_ending_position(s1, endings1, i + 1)
+			pos_after2, one_after2 = _choose_ending_position(s2, endings2, j + 1)
+			force = True
 
 		# check if a word was added to the end of one of the sentences
 		# Also, deal with addition or subtraction of a sentence ending
 		if i + 1 < len(s1) and slen1 < slen2:
-			if aligned_ends_together(s2[j], s1[i], reg2, one_after1, addition=s1[i + 1]):
+			if aligned_ends_together(s2[j], s1[i], reg2, one_after1, addition=s1[i + 1], force=force):
 				# print(FIRST_LONGER_ALIGNED, " ",i)
 				aligned_by.append(FIRST_LONGER_ALIGNED)
 				positions1.append(pos_after1)
@@ -285,27 +309,27 @@ def break2common_sentences(p1, p2):
 				continue
 
 		if j + 1 < len(s2) and slen2 < slen1:
-			if aligned_ends_together(s1[i], s2[j], reg1, one_after2, addition=s2[j + 1]):
+			if aligned_ends_together(s1[i], s2[j], reg1, one_after2, addition=s2[j + 1], force=force):
 				# print(SECOND_LONGER_ALIGNED, " ", i)
 				aligned_by.append(SECOND_LONGER_ALIGNED)
 				positions1.append(position1)
 				positions2.append(pos_after2)
 				j += 1
 				continue
-
-		# # removing last yielded no consequences keep in regular way
-		# if aligned_by[-1] == REMOVE_LAST:
-		# 	positions1.append(removed_pos1)
-		# 	positions2.append(removed_pos2)
-		# 	i -= 2
-		# 	j -= 2
+		# removing last yielded no consequences keep in regular way
+		if aligned_by[-1] == REMOVE_LAST:
+			positions1.append(removed_pos1)
+			positions2.append(removed_pos2)
+			i += 2
+			j += 2
 
 		# print (i, reg1, reg2, one_after1, one_after2)
+		# print("before1", s1[i-1])
+		# print("before2", s2[j-1])
 		# print("s1:",s1[i])
 		# print("s2:",s2[j])
 		# print("s1af:",s1[i+1])
 		# print("s2af:",s2[j+1])
-		# print(i)
 		# print("------------------")
 		aligned_by.append(NO_ALIGNED)
 
@@ -348,7 +372,9 @@ def compare_paragraphs(origin, corrected):
 	print("assesing differences")
 	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
 	corrected_sentences = list(get_sentences_from_endings(corrected, broken[1]))
+	# print(corrected_sentences[20:30], broken[1][400:410])
 	differences = [word_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
+	# print(corrected_sentences[400:410], broken[1][400:410])
 	print("comparing done printing interesting results")
 
 	for i, dif in enumerate(differences):
@@ -361,7 +387,7 @@ def compare_paragraphs(origin, corrected):
 
 def read_paragraph(filename):
 	with open(PATH + filename) as fl:
-		return preprocess_paragraph(fl.read())
+		return preprocess_paragraph("".join(islice(fl, MAX_SENTENCES)))
 
 
 def extract_aligned_by_dict(a):
@@ -491,6 +517,8 @@ def plot_comparison(l):
 
 if __name__ == '__main__':
 
+	print("clean all TODO")
+
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	learner_file = "conll.tok.orig"
 	gold_file = "corrected_official-2014.0.txt.comparable"
@@ -499,16 +527,28 @@ if __name__ == '__main__':
 	autocorrect = read_paragraph(ACL2016RozovskayaRothOutput_file)
 	origin = read_paragraph(learner_file)
 	gold = read_paragraph(gold_file)
+	fce_gold = read_paragraph(fce_gold_file)
+	fce_learner = read_paragraph(fce_learner_file)
 
 	res_list = []
 
+	# compare fce origin to fce gold
+	name = "fce to gold"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
+	res_list.append((broken, differences, aligned_by, name))
+
 	# compare origin to ACL2016RozovskayaRoth autocorrect
+	name = "Rozovskaya Roth"
+	print(name)
 	broken, differences, aligned_by = compare_paragraphs(origin, autocorrect)
-	res_list.append((broken, differences, aligned_by, "Rozovskaya Roth"))
+	res_list.append((broken, differences, aligned_by, name))
 
 	# compare gold to origin
+	name = "gold standard"
+	print(name)
 	broken, differences, aligned_by = compare_paragraphs(origin, gold)
-	res_list.append((broken, differences, aligned_by, "gold standard"))
+	res_list.append((broken, differences, aligned_by, name))
 
 	plot_comparison(res_list)
 
