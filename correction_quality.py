@@ -146,7 +146,7 @@ def _choose_ending_position(sentences, endings, i):
 
 def word_diff(s1, s2):
 	""" counts the number of aligned words that are not considered approximately the same word in 2 sentences"""
-	# print("\n----------------------------\n",s1,"\n---\n", s2)#TODO delete prints
+	# print("\n----------------------------\n",s1,"\n---\n", s2)
 	alignment, indexes = align.align(s1, s2, True)
 
 	return sum(not approximately_same_word(preprocess_word(w1), preprocess_word(w2)) for i, (w1, w2) in enumerate(alignment) if is_word(w1) or is_word(w2))
@@ -419,7 +419,7 @@ def compare_paragraphs(origin, corrected):
 	print("assesing differences")
 	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
 	corrected_sentences = list(get_sentences_from_endings(corrected, broken[1]))
-	print(corrected_sentences)
+	# print(corrected_sentences)
 	differences = [word_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
 	print("comparing done printing interesting results")
 
@@ -451,12 +451,13 @@ def extract_aligned_by_dict(a):
 ###########################################################
 
 
-def create_hist(l):
+def create_hist(l, top=30, bottom=-float("inf")):
 	""" converts a int counter to a sorted list for a histogram"""
 	count = Counter(l)
 	hist = [0] * (max(count.keys()) + 1)
 	for key, val in count.items():
-		hist[key] = val
+		if key <= top and key >= bottom:
+			hist[key] = val
 	return hist
 
 
@@ -549,14 +550,25 @@ def plot_differences(l, ax):
 
 def plot_comparison(l):
 	"""gets a list of tuple parameters and plots them"""
+	# data = []
+	# ax = plt.subplot(221)
+	# plot_differences(l, ax)
+	# ax = plt.subplot(222)
+	# plot_differences_hist(l, ax)
+	# ax = plt.subplot(223)
+	# plot_aligned_by(l, ax)
+	# ax = plt.subplot(224)
+	# plot_not_aligned(l, ax)
+	# plt.show()
+
 	data = []
-	ax = plt.subplot(221)
+	ax = plt.subplot(111)
 	plot_differences(l, ax)
-	ax = plt.subplot(222)
+	ax = plt.subplot(111)
 	plot_differences_hist(l, ax)
-	ax = plt.subplot(223)
+	ax = plt.subplot(111)
 	plot_aligned_by(l, ax)
-	ax = plt.subplot(224)
+	ax = plt.subplot(111)
 	plot_not_aligned(l, ax)
 	plt.show()
 
@@ -601,6 +613,18 @@ if __name__ == '__main__':
 	fce_learner = read_paragraph(fce_learner_file)
 
 	res_list = []
+
+	# compare gold to origin
+	name = "gold standard" # todo what happened to alignments?
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, gold)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare fce origin to fce gold
+	name = "fce to gold"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
+	res_list.append((broken, differences, aligned_by, name))
 
 	# compare origin to cuui
 	name = "cuui"
@@ -680,17 +704,6 @@ if __name__ == '__main__':
 	broken, differences, aligned_by = compare_paragraphs(origin, autocorrect)
 	res_list.append((broken, differences, aligned_by, name))
 
-	# compare gold to origin
-	name = "gold standard"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, gold)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare fce origin to fce gold
-	name = "fce to gold"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
-	res_list.append((broken, differences, aligned_by, name))
 
 	plot_comparison(res_list)
 
