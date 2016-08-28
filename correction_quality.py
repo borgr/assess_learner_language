@@ -24,13 +24,14 @@ import align
 #constants
 lemmatizer = WordNetLemmatizer()
 ENDERS_DEFINITELY = r"\?\!\;" #TODO add ... ??? !!! ?!
-ENDERS = r"\."
+ENDERS = r"\." + ENDERS_DEFINITELY
 SENTENCE_NOT_END = "[^" + ENDERS + "]"
 SENTENCE_END = "[" + ENDERS + "]" 
 SENTENCE_DEFINITELY_PATTERN = re.compile(r"(.+\s*[" + ENDERS_DEFINITELY + r"]\s*)(.+)")
 SENTENCE_ENDS_WITH_NO_SPACE_PATTERN = re.compile("(.*?\w\w" + SENTENCE_END +")(\w+[^\.].*)")
 SPACE_BEFORE_SENTENCE_PATTERN = re.compile("(.*?\s" + SENTENCE_END +"(\s*\")?)(.*)")
-
+SPECIAL_WORDS_PATTERNS = [re.compile(r"i\s*\.\s*e\s*\.", re.IGNORECASE)]
+SPECIAL_WORDS_REPLACEMENTS = ["ie", "eg"]
 MAX_SENTENCES = 1400 # accounts for the maximum number of lines to get from the database
 MAX_DIST = 2
 SHORT_WORD_LEN = 4
@@ -85,7 +86,7 @@ def sent_tokenize(s):
 	# concatanate empty sentences to the ones before them
 	result = []
 	for token in tokens:
-		if re.search(r"[A-Za-z]", token) is not None:
+		if re.search(r"[A-Za-z][A-Za-z]", token) is not None:
 			result.append(token)
 		else:
 			result[-1] = result[-1] + token
@@ -100,10 +101,12 @@ def word_tokenize(s):
 
 def preprocess_paragraph(p):
 	"""preprocesses a paragraph"""
+	for i, pattern in enumerate(SPECIAL_WORDS_PATTERNS):
+		p = re.sub(pattern, SPECIAL_WORDS_REPLACEMENTS[i], p)
 	p = re.sub(r"(" + SENTENCE_NOT_END + ")(\s*\n)", r"\1.\2", p)
 	p = re.sub("(\.\s*['\"])\s*\.", r"\1", p)
 	p = re.sub(r"\s+", r" ", p)
-	p = re.sub(r"(" + SENTENCE_END +r"\s+)" + SENTENCE_END, r"\1", p)
+	p = re.sub(r"(" + SENTENCE_END +r"\s*)" + SENTENCE_END, r"\1", p)
 	return p
 
 
@@ -131,7 +134,7 @@ def _choose_ending_position(sentences, endings, i):
 		endings - list of sentences positions endings
 
 		return position, last word in the i'th sentence"""
-	for word in reversed(word_tokenize(sentences[i])): # maybe word tokenizer is better? for things like and also demon,2012 and demon, 2012 face-to-face and face to face? or is splitting by - too will suffice?
+	for word in reversed(word_tokenize(sentences[i])):
 		word = preprocess_word(word)
 		if len(word) > 1:
 			return endings[i], word
@@ -143,7 +146,7 @@ def _choose_ending_position(sentences, endings, i):
 
 def word_diff(s1, s2):
 	""" counts the number of aligned words that are not considered approximately the same word in 2 sentences"""
-	print("\n----------------------------\n",s1,"\n---\n", s2)#TODO delete prints
+	# print("\n----------------------------\n",s1,"\n---\n", s2)#TODO delete prints
 	alignment, indexes = align.align(s1, s2, True)
 
 	return sum(not approximately_same_word(preprocess_word(w1), preprocess_word(w2)) for i, (w1, w2) in enumerate(alignment) if is_word(w1) or is_word(w2))
@@ -161,7 +164,7 @@ def calculate_endings(sentences, paragraph):
 	endings = []
 	for s in sentences:
 		current += len(s)
-		while current < len(paragraph) and paragraph[current] == " ":
+		while current < len(paragraph) and not paragraph[current].isalnum():
 			current += 1
 		endings.append(current)
 	return endings
@@ -206,14 +209,13 @@ def aligned_ends_together(shorter, longer, reg1, reg2, addition="", force=False)
 	# print(aligned)
 	# print(force)
 	if force or ((reg1, empty) in aligned):
-		print(reg1,",",reg2,",")
+		# print(reg1,",",reg2,",")
 		# print("reg2 in addition_words",reg2 in addition_words)
 		# print("approximately_same_word(reg2, rev[reg2])",approximately_same_word(reg2, rev[reg2]))
 		if reg2 in addition_words and approximately_same_word(reg2, rev[reg2]):
-			print()
 			return True
 	if force or ((empty, reg2) in aligned):
-		print(reg1,",",reg2)
+		# print(reg1,",",reg2)
 		if mapping[reg1] in addition_words and approximately_same_word(reg1, mapping[reg1]):
 			return True
 	return False
@@ -348,6 +350,7 @@ def break2common_sentences(p1, p2):
 				if aligned_ends_together(s2[j], s1[i], reg2, two_after1, addition=s1[i + 1] + s1[i + 2], force=force):
 					print(FIRST_LONGER_ALIGNED, "*2! ",i)
 					aligned_by.append(FIRST_LONGER_ALIGNED)
+					aligned_by.append(FIRST_LONGER_ALIGNED)
 					positions1.append(pos_2after1)
 					positions2.append(position2)
 					i += 2
@@ -355,6 +358,7 @@ def break2common_sentences(p1, p2):
 			if j + 2 < len(s2) and slen2 < slen1:
 				if aligned_ends_together(s1[i], s2[j], reg1, two_after2, addition=s2[j + 1] + s2[j + 2], force=force):
 					print(SECOND_LONGER_ALIGNED, "*2! ", i)
+					aligned_by.append(SECOND_LONGER_ALIGNED)
 					aligned_by.append(SECOND_LONGER_ALIGNED)
 					positions1.append(position1)
 					positions2.append(pos_2after2)
@@ -415,6 +419,7 @@ def compare_paragraphs(origin, corrected):
 	print("assesing differences")
 	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
 	corrected_sentences = list(get_sentences_from_endings(corrected, broken[1]))
+	print(corrected_sentences)
 	differences = [word_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
 	print("comparing done printing interesting results")
 
@@ -562,10 +567,34 @@ if __name__ == '__main__':
 
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	learner_file = "conll.tok.orig"
+	amu_file = "AMU"
+	cuui_file = "CUUI"
+	iitb_file = "IITB"
+	ipn_file = "IPN"
+	nthu_file = "NTHU"
+	pku_file = "PKU"
+	post_file = "POST"
+	rac_file = "RAC"
+	sjtu_file = "SJTU"
+	ufc_file = "UFC"
+	umc_file = "UMC"
+	camb_file = "CAMB"
 	gold_file = "corrected_official-2014.0.txt.comparable"
 	from fce import CORRECTED_FILE as fce_gold_file
 	from fce import LEARNER_FILE as fce_learner_file
 	autocorrect = read_paragraph(ACL2016RozovskayaRothOutput_file)
+	amu = read_paragraph(amu_file)
+	camb = read_paragraph(camb_file)
+	cuui = read_paragraph(cuui_file)
+	iitb = read_paragraph(iitb_file)
+	ipn = read_paragraph(ipn_file)
+	nthu = read_paragraph(nthu_file)
+	pku = read_paragraph(pku_file)
+	post = read_paragraph(post_file)
+	rac = read_paragraph(rac_file)
+	sjtu = read_paragraph(sjtu_file)
+	ufc = read_paragraph(ufc_file)
+	umc = read_paragraph(umc_file)
 	origin = read_paragraph(learner_file)
 	gold = read_paragraph(gold_file)
 	fce_gold = read_paragraph(fce_gold_file)
@@ -573,22 +602,94 @@ if __name__ == '__main__':
 
 	res_list = []
 
-	# compare fce origin to fce gold
-	# name = "fce to gold"
-	# print(name)
-	# broken, differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
-	# res_list.append((broken, differences, aligned_by, name))
+	# compare origin to cuui
+	name = "cuui"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, cuui)
+	res_list.append((broken, differences, aligned_by, name))
 
-	# # compare origin to ACL2016RozovskayaRoth autocorrect
-	# name = "Rozovskaya Roth"
-	# print(name)
-	# broken, differences, aligned_by = compare_paragraphs(origin, autocorrect)
-	# res_list.append((broken, differences, aligned_by, name))
+	# compare origin to iitb
+	name = "iitb"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, iitb)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to ipn
+	name = "ipn"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, ipn)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to nthu
+	name = "nthu"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, nthu)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to pku
+	name = "pku"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, pku)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to post
+	name = "post"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, post)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to rac
+	name = "rac"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, rac)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to sjtu
+	name = "sjtu"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, sjtu)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to ufc
+	name = "ufc"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, ufc)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to umc
+	name = "umc"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, umc)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to camb
+	name = "camb"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, camb)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to AMU
+	name = "AMU"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, amu)
+	res_list.append((broken, differences, aligned_by, name))	
+
+	# compare origin to ACL2016RozovskayaRoth autocorrect
+	name = "Rozovskaya Roth"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, autocorrect)
+	res_list.append((broken, differences, aligned_by, name))
 
 	# compare gold to origin
 	name = "gold standard"
 	print(name)
 	broken, differences, aligned_by = compare_paragraphs(origin, gold)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare fce origin to fce gold
+	name = "fce to gold"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
 	res_list.append((broken, differences, aligned_by, name))
 
 	plot_comparison(res_list)
