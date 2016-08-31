@@ -46,6 +46,7 @@ FIRST_LONGER_ALIGNED = "first longer with align"
 SECOND_LONGER_ALIGNED = "second longer with align"
 REMOVE_LAST = "remove last"
 PARAGRAPH_END = "paragraph end"
+COMMA_REPLACE = ", became the end of a sentence"
 NO_ALIGNED = ""
 
 ###########################################################
@@ -180,20 +181,23 @@ def aligned_ends_together(shorter, longer, reg1, reg2, addition="", force=False)
 	"""
 	sentence1 = shorter
 	sentence2 = longer + addition
-	addition_words = word_tokenize(addition) if addition else word_tokenize(longer)
+	addition_words = word_tokenize(addition) if addition else word_tokenize(longer)[len(word_tokenize(shorter)):]
 	addition_words = set(preprocess_word(w) for w in addition_words)
 	tokens1 = [preprocess_word(w) for w in word_tokenize(sentence1)]
-	tokens2 = [preprocess_word(w) for w in word_tokenize(sentence1)]
+	tokens2 = [preprocess_word(w) for w in word_tokenize(sentence2)]
 	count1 = Counter()
+	# if words appear more than once make each word unique by order of appearence 
 	for i, token in enumerate(tokens1):
 		if count1[token] > 0:
 			tokens1[i] = str(count1[token]) + token
-		count1.update(token);
+		if is_word(token):
+			count1.update(token)
 	count2 = Counter()
 	for i, token in enumerate(tokens2):
 		if count2[token] > 0:
 			tokens2[i] = str(count2[token]) + token
-		count2.update(token)
+		if is_word(token):
+			count2.update(token)
 	slen1 = len(tokens1)
 	slen2 = len(tokens2)
 	if abs(slen1 - slen2) > min(slen1, slen2) / CHANGING_RATIO:
@@ -207,16 +211,20 @@ def aligned_ends_together(shorter, longer, reg1, reg2, addition="", force=False)
 	# print(rev)
 	# print(reg2)
 	# print(aligned)
+	# if "annouance the potential" in sentence2 or "annouance the potential" in sentence1:
+	# 	print(sentence1,"\n_________\n",sentence2,"\n_________\n",aligned,"\n_________\n",reg1,"\n_________\n",reg2,"\n_________\n", addition_words,"\n_________\n", len(word_tokenize(shorter)),"\n_________\n",word_tokenize(longer))
 	# print(force)
 	if force or ((reg1, empty) in aligned):
 		# print(reg1,",",reg2,",")
 		# print("reg2 in addition_words",reg2 in addition_words)
 		# print("approximately_same_word(reg2, rev[reg2])",approximately_same_word(reg2, rev[reg2]))
-		if reg2 in addition_words and approximately_same_word(reg2, rev[reg2]):
+		# if reg2 in addition_words and approximately_same_word(reg2, rev[reg2]):
+		if  approximately_same_word(reg2, rev[reg2]):
 			return True
 	if force or ((empty, reg2) in aligned):
 		# print(reg1,",",reg2)
-		if mapping[reg1] in addition_words and approximately_same_word(reg1, mapping[reg1]):
+		# if mapping[reg1] in addition_words and approximately_same_word(reg1, mapping[reg1]):
+		if approximately_same_word(reg1, mapping[reg1]):
 			return True
 	return False
 
@@ -258,6 +266,7 @@ def break2common_sentences(p1, p2):
 		position1, reg1 = _choose_ending_position(s1, endings1, i)
 		position2, reg2 = _choose_ending_position(s2, endings2, j)
 		if approximately_same_word(reg1, reg2):
+
 			# print(ORDERED, " ",i)
 			aligned_by.append(ORDERED)
 			positions1.append(position1)
@@ -348,7 +357,7 @@ def break2common_sentences(p1, p2):
 			# try 3 distance
 			if i + 2 < len(s1) and slen1 < slen2:
 				if aligned_ends_together(s2[j], s1[i], reg2, two_after1, addition=s1[i + 1] + s1[i + 2], force=force):
-					print(FIRST_LONGER_ALIGNED, "*2! ",i)
+					print(FIRST_LONGER_ALIGNED, "*2 ! ",i)
 					aligned_by.append(FIRST_LONGER_ALIGNED)
 					aligned_by.append(FIRST_LONGER_ALIGNED)
 					positions1.append(pos_2after1)
@@ -357,7 +366,7 @@ def break2common_sentences(p1, p2):
 					continue
 			if j + 2 < len(s2) and slen2 < slen1:
 				if aligned_ends_together(s1[i], s2[j], reg1, two_after2, addition=s2[j + 1] + s2[j + 2], force=force):
-					print(SECOND_LONGER_ALIGNED, "*2! ", i)
+					print(SECOND_LONGER_ALIGNED, "*2 ! ", i)
 					aligned_by.append(SECOND_LONGER_ALIGNED)
 					aligned_by.append(SECOND_LONGER_ALIGNED)
 					positions1.append(position1)
@@ -369,6 +378,49 @@ def break2common_sentences(p1, p2):
 			positions2.append(removed_pos2)
 			i += 2
 			j += 2
+		# check if a , was replaced by a sentence ender
+		if positions1 and slen2 < slen1:
+			splitter = reg2 + ","
+			comma_index = s1[i].find(splitter)
+			if comma_index == -1:
+				splitter = reg2 + " ,"
+				comma_index = s1[i].find(splitter)
+			if comma_index != -1:
+				comma_index += len(splitter)
+				# print(s1[i])
+				# print(s2[j])
+				print(COMMA_REPLACE, " from 1")
+				aligned_by.append(COMMA_REPLACE)
+				positions1.append(positions1[-1] + comma_index)
+				positions2.append(position2)
+				s1 = s1[:i] + [s1[i][:comma_index], s1[i][comma_index:]] + s1[i+1:]
+				endings1 = endings1[:i] + [endings1[i-1] + comma_index] + endings1[i:]
+				# print("____")
+				# print(s1[i:i+2])
+				# print(s2[j])
+				# print(s1[i+1])
+				# print(s2[j-1:j+2])
+				continue
+		if positions2 and slen1 < slen2:
+			splitter = reg1 + ","
+			comma_index = s2[j].find(splitter)
+			if comma_index == -1:
+				splitter = reg1 + " ,"
+				comma_index = s2[j].find(splitter)
+			if comma_index != -1:
+				comma_index += len(splitter)
+				# print(s1[i])
+				# print(s2[j])
+				print(COMMA_REPLACE, " from 2")
+				aligned_by.append(COMMA_REPLACE)
+				positions2.append(positions2[-1] + comma_index)
+				positions1.append(position1)
+				s2 = s2[:j] + [s2[j][:comma_index], s2[j][comma_index:]] + s2[j+1:]
+				endings2 = endings2[:j] + [endings2[j-1] + comma_index] + endings2[j:]
+				# print(s2[j+1])
+				# print(s1[i+1])
+
+				continue
 
 		# print (i, reg1, reg2, one_after1, one_after2)
 		# print("before1", s1[i-1])
@@ -405,8 +457,13 @@ def get_sentences_from_endings(paragraph, endings):
 		yield paragraph[last:cur]
 		last = cur
 
+def break_by_char(origin, corrected, char="\n"):
+	if origin.count(char) == corrected.count(char):
+		return [[i for i,c in enumerate(origin) if c == char],
+				[i for i,c in enumerate(corrected) if c == char], []]
+	return break2common_sentences(origin, corrected)
 
-def compare_paragraphs(origin, corrected):
+def compare_paragraphs(origin, corrected, break_sent=break2common_sentences):
 	""" compares two paragraphs
 		return:
 		broken - the sentence endings indexes
@@ -415,7 +472,7 @@ def compare_paragraphs(origin, corrected):
 	print("comparing paragraphs")
 	print("aligning sentences")
 	broken = [None,None]
-	broken[0], broken[1], aligned_by = break2common_sentences(origin, corrected)
+	broken[0], broken[1], aligned_by = break_sent(origin, corrected)
 	print("assesing differences")
 	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
 	corrected_sentences = list(get_sentences_from_endings(corrected, broken[1]))
@@ -431,9 +488,9 @@ def compare_paragraphs(origin, corrected):
 	return broken, differences, aligned_by
 
 
-def read_paragraph(filename):
+def read_paragraph(filename, process=preprocess_paragraph):
 	with open(PATH + filename) as fl:
-		return preprocess_paragraph("".join(islice(fl, MAX_SENTENCES)))
+		return process("".join(islice(fl, MAX_SENTENCES)))
 
 
 def extract_aligned_by_dict(a):
@@ -550,27 +607,27 @@ def plot_differences(l, ax):
 
 def plot_comparison(l):
 	"""gets a list of tuple parameters and plots them"""
-	# data = []
-	# ax = plt.subplot(221)
-	# plot_differences(l, ax)
-	# ax = plt.subplot(222)
-	# plot_differences_hist(l, ax)
-	# ax = plt.subplot(223)
-	# plot_aligned_by(l, ax)
-	# ax = plt.subplot(224)
-	# plot_not_aligned(l, ax)
-	# plt.show()
-
 	data = []
-	ax = plt.subplot(111)
+	ax = plt.subplot(221)
 	plot_differences(l, ax)
-	ax = plt.subplot(111)
+	ax = plt.subplot(222)
 	plot_differences_hist(l, ax)
-	ax = plt.subplot(111)
+	ax = plt.subplot(223)
 	plot_aligned_by(l, ax)
-	ax = plt.subplot(111)
+	ax = plt.subplot(224)
 	plot_not_aligned(l, ax)
 	plt.show()
+
+	# data = []
+	# ax = plt.subplot(111)
+	# plot_differences(l, ax)
+	# ax = plt.subplot(111)
+	# plot_differences_hist(l, ax)
+	# ax = plt.subplot(111)
+	# plot_aligned_by(l, ax)
+	# ax = plt.subplot(111)
+	# plot_not_aligned(l, ax)
+	# plt.show()
 
 
 if __name__ == '__main__':
@@ -611,19 +668,26 @@ if __name__ == '__main__':
 	gold = read_paragraph(gold_file)
 	fce_gold = read_paragraph(fce_gold_file)
 	fce_learner = read_paragraph(fce_learner_file)
-
+	fce_learner_full = read_paragraph(fce_learner_file, lambda x:x)
+	fce_gold_full = read_paragraph(fce_gold_file, lambda x:x)
 	res_list = []
 
-	# compare gold to origin
-	name = "gold standard" # todo what happened to alignments?
+	# compare fce origin to fce gold without matching
+	name = "fce to gold"
 	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, gold)
+	broken, differences, aligned_by = compare_paragraphs(fce_learner_full, fce_gold_full, break_by_char)
 	res_list.append((broken, differences, aligned_by, name))
 
 	# compare fce origin to fce gold
-	name = "fce to gold"
+	name = "fce to gold auto aligned"
 	print(name)
 	broken, differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare gold to origin
+	name = "gold standard"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, gold)
 	res_list.append((broken, differences, aligned_by, name))
 
 	# compare origin to cuui
