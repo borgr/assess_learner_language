@@ -26,12 +26,13 @@ lemmatizer = WordNetLemmatizer()
 ENDERS_DEFINITELY = r"\?\!\;" #TODO add ... ??? !!! ?!
 ENDERS = r"\." + ENDERS_DEFINITELY
 SENTENCE_NOT_END = "[^" + ENDERS + "]"
-SENTENCE_END = "[" + ENDERS + "]" 
+SENTENCE_END = "[" + ENDERS + "]"
+NOT_ABBREVIATION_PATTERN = re.compile(r"(.*?\s+\w\s*\.)(\s*\w\w.*)")
 SENTENCE_DEFINITELY_PATTERN = re.compile(r"(.+\s*[" + ENDERS_DEFINITELY + r"]\s*)(.+)")
 SENTENCE_ENDS_WITH_NO_SPACE_PATTERN = re.compile("(.*?\w\w" + SENTENCE_END +")(\w+[^\.].*)")
 SPACE_BEFORE_SENTENCE_PATTERN = re.compile("(.*?\s" + SENTENCE_END +"(\s*\")?)(.*)")
-SPECIAL_WORDS_PATTERNS = [re.compile(r"i\s*\.\s*e\s*\.", re.IGNORECASE)]
-SPECIAL_WORDS_REPLACEMENTS = ["ie", "eg"]
+SPECIAL_WORDS_PATTERNS = [re.compile(r"i\s*\.\s*e\s*\.", re.IGNORECASE), re.compile(r"e\s*\.\s*g\s*\.", re.IGNORECASE), re.compile(r"\s+c\s*\.\s+", re.IGNORECASE)]
+SPECIAL_WORDS_REPLACEMENTS = ["ie", "eg", " c."]
 MAX_SENTENCES = 1400 # accounts for the maximum number of lines to get from the database
 MAX_DIST = 2
 SHORT_WORD_LEN = 4
@@ -46,7 +47,8 @@ FIRST_LONGER_ALIGNED = "first longer with align"
 SECOND_LONGER_ALIGNED = "second longer with align"
 REMOVE_LAST = "remove last"
 PARAGRAPH_END = "paragraph end"
-COMMA_REPLACE = ", became the end of a sentence"
+COMMA_REPLACE_FIRST = ", in second sentence became the end of a new sentence (first longer)"
+COMMA_REPLACE_SECOND = ", in first sentence became the end of anew sentence (second longer)"
 NO_ALIGNED = ""
 
 ###########################################################
@@ -83,6 +85,7 @@ def sent_tokenize(s):
 	tokens = split_by_pattern(tokens, SENTENCE_DEFINITELY_PATTERN)
 	tokens = split_by_pattern(tokens, SENTENCE_ENDS_WITH_NO_SPACE_PATTERN)
 	tokens = split_by_pattern(tokens, SPACE_BEFORE_SENTENCE_PATTERN, 1, 3)
+	tokens = split_by_pattern(tokens, NOT_ABBREVIATION_PATTERN)
 
 	# concatanate empty sentences to the ones before them
 	result = []
@@ -104,6 +107,7 @@ def preprocess_paragraph(p):
 	"""preprocesses a paragraph"""
 	for i, pattern in enumerate(SPECIAL_WORDS_PATTERNS):
 		p = re.sub(pattern, SPECIAL_WORDS_REPLACEMENTS[i], p)
+	# p = re.sub(r"\s+\.\s+", r".", p)
 	p = re.sub(r"(" + SENTENCE_NOT_END + ")(\s*\n)", r"\1.\2", p)
 	p = re.sub("(\.\s*['\"])\s*\.", r"\1", p)
 	p = re.sub(r"\s+", r" ", p)
@@ -144,6 +148,7 @@ def _choose_ending_position(sentences, endings, i):
 	print("sentence after", sentences[i+1])
 	raise "should not happen"
 	return endings[i], preprocess_word(word_tokenize(sentences[i])[-1])
+
 
 def word_diff(s1, s2):
 	""" counts the number of aligned words that are not considered approximately the same word in 2 sentences"""
@@ -300,7 +305,7 @@ def break2common_sentences(p1, p2):
 		# no alignment found with 2 sentences
 		# check if a word was added to the end of one of the sentences
 		if aligned_ends_together(s1[i], s2[j], reg1, reg2):
-			# print(ORDERED_ALIGNED, " ",i)
+			print(ORDERED_ALIGNED, " ",i)
 			aligned_by.append(ORDERED_ALIGNED)
 			positions1.append(position1)
 			positions2.append(position2)
@@ -309,16 +314,16 @@ def break2common_sentences(p1, p2):
 		# if no match is found twice and we had ORDERED match, it might have been a mistake
 		if (positions1 and positions2 and
 		   aligned_by[-1] == NO_ALIGNED and aligned_by[-2] == NO_ALIGNED):
-			# print("using fallback")
-			# print (i, reg1, reg2, one_after1, one_after2)
-			# print("2before1", s1[i-2])
-			# print("2before2", s2[j-2])
-			# print("before1", s1[i-1])
-			# print("before2", s2[j-1])
-			# print("s1:",s1[i])
-			# print("s2:",s2[j])
-			# print("s1af:",s1[i+1])
-			# print("s2af:",s2[j+1])
+			print("using fallback")
+			print (i, reg1, reg2, one_after1, one_after2)
+			print("2before1", s1[i-2])
+			print("2before2", s2[j-2])
+			print("before1", s1[i-1])
+			print("before2", s2[j-1])
+			print("s1:",s1[i])
+			print("s2:",s2[j])
+			print("s1af:",s1[i+1])
+			print("s2af:",s2[j+1])
 			removed_pos1 = positions1.pop()
 			removed_pos2 = positions2.pop()
 			aligned_by.append(REMOVE_LAST)
@@ -336,7 +341,7 @@ def break2common_sentences(p1, p2):
 		# Also, deal with addition or subtraction of a sentence ending
 		if i + 1 < len(s1) and slen1 < slen2:
 			if aligned_ends_together(s2[j], s1[i], reg2, one_after1, addition=s1[i + 1], force=force):
-				# print(FIRST_LONGER_ALIGNED, " ",i)
+				print(FIRST_LONGER_ALIGNED, " ",i)
 				aligned_by.append(FIRST_LONGER_ALIGNED)
 				positions1.append(pos_after1)
 				positions2.append(position2)
@@ -345,7 +350,7 @@ def break2common_sentences(p1, p2):
 
 		if j + 1 < len(s2) and slen2 < slen1:
 			if aligned_ends_together(s1[i], s2[j], reg1, one_after2, addition=s2[j + 1], force=force):
-				# print(SECOND_LONGER_ALIGNED, " ", i)
+				print(SECOND_LONGER_ALIGNED, " ", i)
 				aligned_by.append(SECOND_LONGER_ALIGNED)
 				positions1.append(position1)
 				positions2.append(pos_after2)
@@ -389,8 +394,8 @@ def break2common_sentences(p1, p2):
 				comma_index += len(splitter)
 				# print(s1[i])
 				# print(s2[j])
-				print(COMMA_REPLACE, " from 1")
-				aligned_by.append(COMMA_REPLACE)
+				print(COMMA_REPLACE_SECOND)
+				aligned_by.append(COMMA_REPLACE_SECOND)
 				positions1.append(positions1[-1] + comma_index)
 				positions2.append(position2)
 				s1 = s1[:i] + [s1[i][:comma_index], s1[i][comma_index:]] + s1[i+1:]
@@ -411,8 +416,8 @@ def break2common_sentences(p1, p2):
 				comma_index += len(splitter)
 				# print(s1[i])
 				# print(s2[j])
-				print(COMMA_REPLACE, " from 2")
-				aligned_by.append(COMMA_REPLACE)
+				print(COMMA_REPLACE_FIRST)
+				aligned_by.append(COMMA_REPLACE_FIRST)
 				positions2.append(positions2[-1] + comma_index)
 				positions1.append(position1)
 				s2 = s2[:j] + [s2[j][:comma_index], s2[j][comma_index:]] + s2[j+1:]
@@ -549,7 +554,7 @@ def plot_aligned_by(l, ax):
 	width = 1/len(l)
 	for i, tple in enumerate(l):
 		y = extract_aligned_by_dict(tple[aligned_by])
-		y = [y[FIRST_LONGER], y[ORDERED], y[SECOND_LONGER]]
+		y = [y[FIRST_LONGER] + y[COMMA_REPLACE_FIRST], y[ORDERED], y[SECOND_LONGER]+ y[COMMA_REPLACE_SECOND]]
 		print("first ordered and second longer",tple[name],":",y)
 		x = np.array(range(len(y)))
 		colors = rainbow_colors(range(len(l)))
@@ -568,7 +573,7 @@ def plot_not_aligned(l, ax):
 	width = 1/len(l)
 	for i, tple in enumerate(l):
 		y = extract_aligned_by_dict(tple[aligned_by])
-		y = [y[FIRST_LONGER], y[SECOND_LONGER]]
+		y = y = [y[FIRST_LONGER] + y[COMMA_REPLACE_FIRST], y[SECOND_LONGER] + y[COMMA_REPLACE_SECOND]]
 		x = np.array(range(len(y)))
 		colors = rainbow_colors(range(len(l)))
 		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name])
@@ -757,7 +762,7 @@ if __name__ == '__main__':
 	res_list.append((broken, differences, aligned_by, name))
 
 	# compare origin to AMU
-	name = "AMU"
+	name = "AMU"	
 	print(name)
 	broken, differences, aligned_by = compare_paragraphs(origin, amu)
 	res_list.append((broken, differences, aligned_by, name))	
