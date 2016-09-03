@@ -14,7 +14,7 @@ from munkres import Munkres, print_matrix
 
 from nltk.tokenize import sent_tokenize as nltk_sent_tokenize
 from nltk.stem import WordNetLemmatizer
-
+trial_name = ""
 # ucca
 sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
 sys.path.append('/home/borgr/ucca/ucca/ucca')
@@ -48,8 +48,152 @@ SECOND_LONGER_ALIGNED = "second longer with align"
 REMOVE_LAST = "remove last"
 PARAGRAPH_END = "paragraph end"
 COMMA_REPLACE_FIRST = ", in second sentence became the end of a new sentence (first longer)"
-COMMA_REPLACE_SECOND = ", in first sentence became the end of anew sentence (second longer)"
+COMMA_REPLACE_SECOND = ", in first sentence became the end of a new sentence (second longer)"
 NO_ALIGNED = ""
+
+def main():
+	print("clean all TODO")
+	global trial_name
+	trial_name = "_all_competitors"
+	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
+	learner_file = "conll.tok.orig"
+	amu_file = "AMU"
+	cuui_file = "CUUI"
+	iitb_file = "IITB"
+	ipn_file = "IPN"
+	nthu_file = "NTHU"
+	pku_file = "PKU"
+	post_file = "POST"
+	rac_file = "RAC"
+	sjtu_file = "SJTU"
+	ufc_file = "UFC"
+	umc_file = "UMC"
+	camb_file = "CAMB"
+	gold_file = "corrected_official-2014.0.txt.comparable"
+	from fce import CORRECTED_FILE as fce_gold_file
+	from fce import LEARNER_FILE as fce_learner_file
+	autocorrect = read_paragraph(ACL2016RozovskayaRothOutput_file)
+	amu = read_paragraph(amu_file)
+	camb = read_paragraph(camb_file)
+	cuui = read_paragraph(cuui_file)
+	iitb = read_paragraph(iitb_file)
+	ipn = read_paragraph(ipn_file)
+	nthu = read_paragraph(nthu_file)
+	pku = read_paragraph(pku_file)
+	post = read_paragraph(post_file)
+	rac = read_paragraph(rac_file)
+	sjtu = read_paragraph(sjtu_file)
+	ufc = read_paragraph(ufc_file)
+	umc = read_paragraph(umc_file)
+	origin = read_paragraph(learner_file)
+	gold = read_paragraph(gold_file)
+	fce_gold = read_paragraph(fce_gold_file)
+	fce_learner = read_paragraph(fce_learner_file)
+	fce_learner_full = read_paragraph(fce_learner_file, lambda x:x)
+	fce_gold_full = read_paragraph(fce_gold_file, lambda x:x)
+	res_list = []
+
+	# # compare fce origin to fce gold without matching
+	# name = "fce to gold"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(fce_learner_full, fce_gold_full, break_by_char)
+	# res_list.append((broken, differences, aligned_by, name))
+
+	# compare fce origin to fce gold
+	name = "fce to gold auto aligned"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare gold to origin
+	name = "gold standard"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, gold)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to cuui
+	name = "cuui"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, cuui)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to iitb
+	name = "iitb"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, iitb)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to ipn
+	name = "ipn"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, ipn)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to nthu
+	name = "nthu"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, nthu)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to pku
+	name = "pku"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, pku)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to post
+	name = "post"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, post)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to rac
+	name = "rac"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, rac)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to sjtu
+	name = "sjtu"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, sjtu)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to ufc
+	name = "ufc"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, ufc)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to umc
+	name = "umc"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, umc)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to camb
+	name = "camb"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, camb)
+	res_list.append((broken, differences, aligned_by, name))
+
+	# compare origin to AMU
+	name = "AMU"	
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, amu)
+	res_list.append((broken, differences, aligned_by, name))	
+
+	# compare origin to ACL2016RozovskayaRoth autocorrect
+	name = "Rozovskaya Roth"
+	print(name)
+	broken, differences, aligned_by = compare_paragraphs(origin, autocorrect)
+	res_list.append((broken, differences, aligned_by, name))
+
+
+	plot_comparison(res_list)
+
+
+
 
 ###########################################################
 ####                    GENEERAL NLP                    ###
@@ -315,15 +459,15 @@ def break2common_sentences(p1, p2):
 		if (positions1 and positions2 and
 		   aligned_by[-1] == NO_ALIGNED and aligned_by[-2] == NO_ALIGNED):
 			print("using fallback")
-			print (i, reg1, reg2, one_after1, one_after2)
-			print("2before1", s1[i-2])
-			print("2before2", s2[j-2])
-			print("before1", s1[i-1])
-			print("before2", s2[j-1])
-			print("s1:",s1[i])
-			print("s2:",s2[j])
-			print("s1af:",s1[i+1])
-			print("s2af:",s2[j+1])
+			# print (i, reg1, reg2, one_after1, one_after2)
+			# print("2before1", s1[i-2])
+			# print("2before2", s2[j-2])
+			# print("before1", s1[i-1])
+			# print("before2", s2[j-1])
+			# print("s1:",s1[i])
+			# print("s2:",s2[j])
+			# print("s1af:",s1[i+1])
+			# print("s2af:",s2[j+1])
 			removed_pos1 = positions1.pop()
 			removed_pos2 = positions2.pop()
 			aligned_by.append(REMOVE_LAST)
@@ -379,10 +523,12 @@ def break2common_sentences(p1, p2):
 					j += 2
 					continue
 			# fallback was unnecesary
+			print("fallback unnecessary")
 			positions1.append(removed_pos1)
 			positions2.append(removed_pos2)
 			i += 2
 			j += 2
+
 		# check if a , was replaced by a sentence ender
 		if positions1 and slen2 < slen1:
 			splitter = reg2 + ","
@@ -513,13 +659,14 @@ def extract_aligned_by_dict(a):
 ###########################################################
 
 
-def create_hist(l, top=30, bottom=-float("inf")):
+def create_hist(l, top=30, bottom=0):
 	""" converts a int counter to a sorted list for a histogram"""
 	count = Counter(l)
-	hist = [0] * (max(count.keys()) + 1)
+	hist = [0] * (max(count.keys()) - bottom + 1)
 	for key, val in count.items():
 		if key <= top and key >= bottom:
-			hist[key] = val
+			hist[key - bottom] = val
+	print(hist)
 	return hist
 
 
@@ -591,23 +738,23 @@ def plot_differences(l, ax):
 	ys = []
 	max_len = 0
 	colors = rainbow_colors(range(len(l)))
+	bottom = 1
 
 	for i, tple in enumerate(l):
-		y = create_hist(tple[differences])[1:]
+		y = create_hist(tple[differences], bottom=bottom)
 		ys.append((y,tple[name],colors[i]))
 		max_len = max(max_len, len(y))
 	
-	x = np.array(range(max_len))
+	x = np.array(range(bottom, max_len+bottom))
 
-	for y,name, color in ys:
+	for y, name, color in ys:
 		y = y + [0]*(max_len-len(y))
 		ax.plot(x, np.cumsum(y), color=color, label=name)
-	ax.autoscale(tight=True)
+	plt.autoscale(enable=True, axis='x', tight=False)
 	plt.ylabel("amount")
 	plt.xlabel("number of words changed")
 	plt.title("accumulative number of sentences by words changed per")
 	plt.legend(loc=7, fontsize=10)
-	# plt.tight_layout()
 
 
 def plot_comparison(l):
@@ -623,156 +770,25 @@ def plot_comparison(l):
 	plot_not_aligned(l, ax)
 	plt.show()
 
-	# data = []
-	# ax = plt.subplot(111)
-	# plot_differences(l, ax)
-	# ax = plt.subplot(111)
-	# plot_differences_hist(l, ax)
-	# ax = plt.subplot(111)
-	# plot_aligned_by(l, ax)
-	# ax = plt.subplot(111)
-	# plot_not_aligned(l, ax)
-	# plt.show()
+	data = []
+	plt.clf()
+	ax = plt.subplot(111)
+	plot_differences(l, ax)
+	plt.savefig("differences" + trial_name + ".svg")
+	plt.clf()
+	ax = plt.subplot(111)
+	plot_differences_hist(l, ax)
+	plt.savefig("differences2" + trial_name + ".svg")
+	plt.clf()
+	ax = plt.subplot(111)
+	plot_aligned_by(l, ax)
+	plt.savefig("aligned_all" + trial_name + ".svg")
+	plt.clf()
+	ax = plt.subplot(111)
+	plot_not_aligned(l, ax)
+	plt.savefig("aligned" + trial_name + ".svg")
+	
 
 
 if __name__ == '__main__':
-
-	print("clean all TODO")
-
-	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
-	learner_file = "conll.tok.orig"
-	amu_file = "AMU"
-	cuui_file = "CUUI"
-	iitb_file = "IITB"
-	ipn_file = "IPN"
-	nthu_file = "NTHU"
-	pku_file = "PKU"
-	post_file = "POST"
-	rac_file = "RAC"
-	sjtu_file = "SJTU"
-	ufc_file = "UFC"
-	umc_file = "UMC"
-	camb_file = "CAMB"
-	gold_file = "corrected_official-2014.0.txt.comparable"
-	from fce import CORRECTED_FILE as fce_gold_file
-	from fce import LEARNER_FILE as fce_learner_file
-	autocorrect = read_paragraph(ACL2016RozovskayaRothOutput_file)
-	amu = read_paragraph(amu_file)
-	camb = read_paragraph(camb_file)
-	cuui = read_paragraph(cuui_file)
-	iitb = read_paragraph(iitb_file)
-	ipn = read_paragraph(ipn_file)
-	nthu = read_paragraph(nthu_file)
-	pku = read_paragraph(pku_file)
-	post = read_paragraph(post_file)
-	rac = read_paragraph(rac_file)
-	sjtu = read_paragraph(sjtu_file)
-	ufc = read_paragraph(ufc_file)
-	umc = read_paragraph(umc_file)
-	origin = read_paragraph(learner_file)
-	gold = read_paragraph(gold_file)
-	fce_gold = read_paragraph(fce_gold_file)
-	fce_learner = read_paragraph(fce_learner_file)
-	fce_learner_full = read_paragraph(fce_learner_file, lambda x:x)
-	fce_gold_full = read_paragraph(fce_gold_file, lambda x:x)
-	res_list = []
-
-	# compare fce origin to fce gold without matching
-	name = "fce to gold"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(fce_learner_full, fce_gold_full, break_by_char)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare fce origin to fce gold
-	name = "fce to gold auto aligned"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare gold to origin
-	name = "gold standard"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, gold)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to cuui
-	name = "cuui"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, cuui)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to iitb
-	name = "iitb"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, iitb)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to ipn
-	name = "ipn"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, ipn)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to nthu
-	name = "nthu"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, nthu)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to pku
-	name = "pku"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, pku)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to post
-	name = "post"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, post)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to rac
-	name = "rac"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, rac)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to sjtu
-	name = "sjtu"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, sjtu)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to ufc
-	name = "ufc"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, ufc)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to umc
-	name = "umc"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, umc)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to camb
-	name = "camb"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, camb)
-	res_list.append((broken, differences, aligned_by, name))
-
-	# compare origin to AMU
-	name = "AMU"	
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, amu)
-	res_list.append((broken, differences, aligned_by, name))	
-
-	# compare origin to ACL2016RozovskayaRoth autocorrect
-	name = "Rozovskaya Roth"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, autocorrect)
-	res_list.append((broken, differences, aligned_by, name))
-
-
-	plot_comparison(res_list)
-
+	main()
