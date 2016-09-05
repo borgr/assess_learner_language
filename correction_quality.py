@@ -10,7 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import distance
-from munkres import Munkres, print_matrix
 
 from nltk.tokenize import sent_tokenize as nltk_sent_tokenize
 from nltk.stem import WordNetLemmatizer
@@ -54,7 +53,7 @@ NO_ALIGNED = ""
 def main():
 	print("clean all TODO")
 	global trial_name
-	trial_name = "_all_competitors"
+	trial_name = "_some_competitors"
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	learner_file = "conll.tok.orig"
 	amu_file = "AMU"
@@ -99,11 +98,11 @@ def main():
 	# broken, differences, aligned_by = compare_paragraphs(fce_learner_full, fce_gold_full, break_by_char)
 	# res_list.append((broken, differences, aligned_by, name))
 
-	# compare fce origin to fce gold
-	name = "fce to gold auto aligned"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare fce origin to fce gold
+	# name = "fce to gold auto aligned"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
+	# res_list.append((broken, differences, aligned_by, name))
 
 	# compare gold to origin
 	name = "gold standard"
@@ -117,65 +116,65 @@ def main():
 	broken, differences, aligned_by = compare_paragraphs(origin, cuui)
 	res_list.append((broken, differences, aligned_by, name))
 
-	# compare origin to iitb
-	name = "iitb"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, iitb)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare origin to iitb
+	# name = "iitb"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(origin, iitb)
+	# res_list.append((broken, differences, aligned_by, name))
 
-	# compare origin to ipn
-	name = "ipn"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, ipn)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare origin to ipn
+	# name = "ipn"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(origin, ipn)
+	# res_list.append((broken, differences, aligned_by, name))
 
-	# compare origin to nthu
-	name = "nthu"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, nthu)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare origin to nthu
+	# name = "nthu"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(origin, nthu)
+	# res_list.append((broken, differences, aligned_by, name))
 
-	# compare origin to pku
-	name = "pku"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, pku)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare origin to pku
+	# name = "pku"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(origin, pku)
+	# res_list.append((broken, differences, aligned_by, name))
 
-	# compare origin to post
-	name = "post"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, post)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare origin to post
+	# name = "post"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(origin, post)
+	# res_list.append((broken, differences, aligned_by, name))
 
-	# compare origin to rac
-	name = "rac"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, rac)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare origin to rac
+	# name = "rac"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(origin, rac)
+	# res_list.append((broken, differences, aligned_by, name))
 
-	# compare origin to sjtu
-	name = "sjtu"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, sjtu)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare origin to sjtu
+	# name = "sjtu"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(origin, sjtu)
+	# res_list.append((broken, differences, aligned_by, name))
 
-	# compare origin to ufc
-	name = "ufc"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, ufc)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare origin to ufc
+	# name = "ufc"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(origin, ufc)
+	# res_list.append((broken, differences, aligned_by, name))
 
-	# compare origin to umc
-	name = "umc"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, umc)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare origin to umc
+	# name = "umc"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(origin, umc)
+	# res_list.append((broken, differences, aligned_by, name))
 
-	# compare origin to camb
-	name = "camb"
-	print(name)
-	broken, differences, aligned_by = compare_paragraphs(origin, camb)
-	res_list.append((broken, differences, aligned_by, name))
+	# # compare origin to camb
+	# name = "camb"
+	# print(name)
+	# broken, differences, aligned_by = compare_paragraphs(origin, camb)
+	# res_list.append((broken, differences, aligned_by, name))
 
 	# compare origin to AMU
 	name = "AMU"	
@@ -297,14 +296,13 @@ def _choose_ending_position(sentences, endings, i):
 def word_diff(s1, s2):
 	""" counts the number of aligned words that are not considered approximately the same word in 2 sentences"""
 	# print("\n----------------------------\n",s1,"\n---\n", s2)
-	alignment, indexes = align.align(s1, s2, True)
-
+	alignment, indexes = align_sentence_words(s1, s2, True)
 	return sum(not approximately_same_word(preprocess_word(w1), preprocess_word(w2)) for i, (w1, w2) in enumerate(alignment) if is_word(w1) or is_word(w2))
 
 
 def diff_words(s1, s2):
 	""" returns the aproximately different words in the two sentences"""
-	alignment, indexes = align.align(s1, s2, True)
+	alignment, indexes = align_sentence_words(s1, s2, True)
 	return [(w1, w2) for i, (w1, w2) in enumerate(alignment) if (is_word(w1) or is_word(w2)) and not approximately_same_word(preprocess_word(w1), preprocess_word(w2))]
 
 
@@ -319,6 +317,20 @@ def calculate_endings(sentences, paragraph):
 		endings.append(current)
 	return endings
 
+align_sentence_words.cache={}
+def align_sentence_words(s1, s2, bool, empty_cache=False):
+	if empty_cache:
+		align_sentence_words.cache={}
+	if (s1, s2, bool) in align_sentence_words.cache:
+		print("cached1")
+		return align_sentence_words.cache[(s1, s2, bool)]
+	elif (s2, s1, bool) in align_sentence_words.cache:
+		print("cached2")
+		return align_sentence_words.cache[(s2, s1, bool)]
+	else:
+		res = align_sentence_words(s1, s2, bool)
+		align_sentence_words.cache[(s2, s1, bool)] = res
+		return res
 
 ###########################################################
 ####                    WORDS CHANGED                   ###
@@ -352,7 +364,7 @@ def aligned_ends_together(shorter, longer, reg1, reg2, addition="", force=False)
 	if abs(slen1 - slen2) > min(slen1, slen2) / CHANGING_RATIO:
 		return False
 
-	aligned, indexes = align.align(sentence1, sentence2, True)
+	aligned, indexes = align_sentence_words(sentence1, sentence2, True)
 	aligned = set(map(lambda x:(preprocess_word(x[0]), preprocess_word(x[1])), aligned))
 	mapping = dict(aligned)
 	rev = dict(align.reverse_mapping(aligned))
@@ -621,6 +633,7 @@ def compare_paragraphs(origin, corrected, break_sent=break2common_sentences):
 		differences - difference measures corresponding to the indexes in broken
 		aligned_by - the way the sentences were aligned"""
 	print("comparing paragraphs")
+	align_sentence_words(None,None,None,True)
 	print("aligning sentences")
 	broken = [None,None]
 	broken[0], broken[1], aligned_by = break_sent(origin, corrected)
@@ -685,9 +698,10 @@ def plot_differences_hist(l, ax):
 	for i, tple in enumerate(l):
 		y = create_hist(tple[differences])
 		x = np.array(range(len(y)))
+		print("number of sentences changed in ",tple[name],":",y)
 		colors = rainbow_colors(range(len(l)))
 		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name])
-	ax.autoscale(tight=True)
+	צplt.autoscale(enable=True, axis='x', tight=False)
 	plt.ylabel("amount")
 	plt.xlabel("number of words changed")
 	plt.title("number of words changed by method of correction")
