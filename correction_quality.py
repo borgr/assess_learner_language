@@ -12,6 +12,8 @@ import matplotlib.cm as cm
 import distance
 import json
 from scipy.stats import spearmanr
+# import scikits.statsmodels as sm
+# from statsmodels.distributions.empirical_distribution import ECDF
 
 from nltk.tokenize import sent_tokenize as nltk_sent_tokenize
 from nltk.stem import WordNetLemmatizer
@@ -99,24 +101,23 @@ def main():
 	old_res = read(filename) if filename else {}
 	for (name, res) in old_res.items():
 		res.append(name)
-		res_list.append(tuple(res))
 		dump(res_list, filename)
 
-	# compare fce origin to fce gold without matching
-	name = "fce"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner_full, fce_gold_full, break_by_char)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
+	# # compare fce origin to fce gold without matching
+	# name = "fce"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner_full, fce_gold_full, break_by_char)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
 
-	# compare fce origin to fce gold
-	name = "fce auto"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
+	# # compare fce origin to fce gold
+	# name = "fce auto"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
 
 	# compare gold to origin
 	name = "gold"
@@ -125,102 +126,38 @@ def main():
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, gold)
 		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
 		dump(res_list, filename)
+	else:
+		res_list.append(old_res[name])
 
-	# compare origin to cuui
+	# compare origin to cuui #1
 	name = "cuui"
 	print(name)
 	if name not in old_res:
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, cuui)
 		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
 		dump(res_list, filename)
+	else:
+		res_list.append(old_res[name])
 
-	# compare origin to iitb
-	name = "iitb"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, iitb)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-
-	# compare origin to ipn
-	name = "ipn"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, ipn)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-
-	# compare origin to nthu
-	name = "nthu"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, nthu)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-
-	# compare origin to pku
-	name = "pku"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, pku)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-
-	# compare origin to post
-	name = "post"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, post)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-
-	# compare origin to rac
-	name = "rac"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, rac)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-
-	# compare origin to sjtu
-	name = "sjtu"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, sjtu)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-
-	# compare origin to ufc
-	name = "ufc"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, ufc)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-
-	# compare origin to umc
-	name = "umc"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, umc)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-
-	# compare origin to camb
+	# compare origin to camb #2
 	name = "camb"
 	print(name)
 	if name not in old_res:
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, camb)
 		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
 		dump(res_list, filename)
+	else:
+		res_list.append(old_res[name])
 
-	# compare origin to AMU
+	# compare origin to AMU #3
 	name = "AMU"	
 	print(name)
 	if name not in old_res:
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, amu)
 		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))	
 		dump(res_list, filename)
+	else:
+		res_list.append(old_res[name])
 
 	# compare origin to ACL2016RozovskayaRoth autocorrect
 	name = "Rozovskaya Roth"
@@ -231,7 +168,99 @@ def main():
 		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
 		dump(res_list, filename)
 	else:
-		print(name, "was already saved")
+		res_list.append(old_res[name])
+
+	# # compare origin to iitb
+	# name = "iitb"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, iitb)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+# else:
+# 	res_list.append(old_res[name])
+
+	# # compare origin to ipn
+	# name = "ipn"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, ipn)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+# else:
+# 	res_list.append(old_res[name])
+
+	# # compare origin to nthu
+	# name = "nthu"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, nthu)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+# else:
+# 	res_list.append(old_res[name])
+
+	# # compare origin to pku
+	# name = "pku"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, pku)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+# else:
+# 	res_list.append(old_res[name])
+
+	# # compare origin to post
+	# name = "post"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, post)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+# else:
+# 	res_list.append(old_res[name])
+
+	# # compare origin to rac
+	# name = "rac"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, rac)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+# else:
+# 	res_list.append(old_res[name])
+
+	# # compare origin to sjtu
+	# name = "sjtu"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, sjtu)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+# else:
+# 	res_list.append(old_res[name])
+
+	# # compare origin to ufc
+	# name = "ufc"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, ufc)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+# else:
+# 	res_list.append(old_res[name])
+
+	# # compare origin to umc
+	# name = "umc"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, umc)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+# else:
+# 	res_list.append(old_res[name])
+
+
 	dump(res_list, filename)
 	plot_comparison(res_list)
 
@@ -811,11 +840,37 @@ def plot_index_differences_hist(l, ax):
 def plot_spearman_differences(l, ax):
 	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
 	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
-	boxplot_differences(l, ax, spearman_differences, "index",1)
+	boxplot_differences(l, ax, spearman_differences, "spearman", 1)
 
+def plot_spearman_ecdf(l, ax):
+	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
+	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
+	plot_ecdf(l, ax, spearman_differences, "spearman", 0.7, 1)
+
+def plot_ecdf(l, ax, pivot, diff_type, bottom, top):
+	ys = []
+	name = -1
+	colors = rainbow_colors(range(len(l)))
+	for i, tple in enumerate(l):
+		# ecdf = ECDF(sample)
+		x = np.sort(tple[pivot])
+		x = [point for point in x if point < top and point >= bottom]
+		yvals = np.arange(len(x))/float(len(x))
+		ys.append((x, tple[name], colors[i]))
+		ax.plot(x, yvals, color=colors[i], label=tple[name])
+
+	# for y, name, color in ys:
+		# x = np.linspace(min(sample), max(sample))
+		# y = ecdf(x)
+		# ax.step(x, y, olor=color, label=name)
+		# ax.boxplot(x, labels=names, showmeans=True)
+	plt.ylabel("probabillity")
+	plt.xlabel("number of " + diff_type + " changed")
+	plt.title("empirical distribution of " + diff_type + " changes")
+	plt.legend(loc=6, fontsize=10)
 
 def boxplot_differences(l, ax, pivot, diff_type, bottom):
-	ys = []
+	# ys = []
 	x = []
 	names = []
 	name = -1
@@ -824,8 +879,8 @@ def boxplot_differences(l, ax, pivot, diff_type, bottom):
 
 	for i, tple in enumerate(l):
 		y = tple[pivot]
-		print(y, tple[name])
-		ys.append((y, tple[name], colors[i]))
+		# print(y, tple[name])
+		# ys.append((y, tple[name], colors[i]))
 		x.append(y)
 		names.append(tple[name])
 		# max_len = max(max_len, len(y))
@@ -840,7 +895,7 @@ def boxplot_differences(l, ax, pivot, diff_type, bottom):
 	ax.boxplot(x, labels=names, showmeans=True)
 	# plt.ylabel("amount")
 	# plt.xlabel("number of " + diff_type + " changed")
-	# plt.title("accumulative number of sentences by " + diff_type + " changed per")
+	plt.title("box plot of " + diff_type + " changes")
 	plt.legend(loc=7, fontsize=10)
 
 
@@ -923,7 +978,7 @@ def plot_comparison(l):
 	ax = plt.subplot(221)
 	plot_spearman_differences(l, ax)
 	ax = plt.subplot(222)
-	plot_index_differences_hist(l, ax)
+	plot_spearman_ecdf(l, ax)
 	ax = plt.subplot(223)
 	plot_aligned_by(l, ax)
 	ax = plt.subplot(224)
@@ -936,6 +991,10 @@ def plot_comparison(l):
 	ax = plt.subplot(111)
 	plot_spearman_differences(l, ax)
 	plt.savefig(dirname + r"spearman_differences" + trial_name + ".svg")
+	plt.clf()
+	ax = plt.subplot(111)
+	plot_spearman_ecdf(l, ax)
+	plt.savefig(dirname + r"spearman_ecdf" + trial_name + ".svg")
 	plt.clf()
 	ax = plt.subplot(111)
 	plot_words_differences(l, ax)
