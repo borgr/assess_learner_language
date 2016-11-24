@@ -27,7 +27,7 @@ import align
 
 #constants
 lemmatizer = WordNetLemmatizer()
-ENDERS_DEFINITELY = r"\?\!\;" #TODO add ... ??? !!! ?!
+ENDERS_DEFINITELY = r"\?\!\;" 
 ENDERS = r"\." + ENDERS_DEFINITELY
 SENTENCE_NOT_END = "[^" + ENDERS + "]"
 SENTENCE_END = "[" + ENDERS + "]"
@@ -56,7 +56,6 @@ COMMA_REPLACE_SECOND = ", in first sentence became the end of a new sentence (se
 NO_ALIGNED = ""
 
 def main():
-	print("clean all TODO")
 	global trial_name
 	trial_name = "_some_competitors"
 	change_date = "160918"
@@ -103,23 +102,23 @@ def main():
 	old_res = read(filename) if filename else {}
 	for (name, res) in old_res.items():
 		res.append(name)
-		dump(res_list, filename)#TODO why is yhis line important?
+		dump(res_list, filename)
 
-	# # compare fce origin to fce gold without matching
-	# name = "fce"
-	# print(name)
-	# if name not in old_res:
-	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner_full, fce_gold_full, sent_token_by_char, sent_token_by_char)
-	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-	# 	dump(res_list, filename)
+	# compare fce origin to fce gold without matching
+	name = "fce"
+	print(name)
+	if name not in old_res:
+		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner_full, fce_gold_full, sent_token_by_char, sent_token_by_char)
+		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+		dump(res_list, filename)
 
-	# # compare fce origin to fce gold
-	# name = "fce auto"
-	# print(name)
-	# if name not in old_res:
-	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
-	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-	# 	dump(res_list, filename)
+	# compare fce origin to fce gold
+	name = "fce auto"
+	print(name)
+	if name not in old_res:
+		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
+		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+		dump(res_list, filename)
 
 	# compare gold to origin
 	name = "gold"
@@ -377,11 +376,11 @@ def approximately_same_word(w1, w2):
 	""" returns if both words are considered the same word with a small fix or not"""
 	l1 = lemmatizer.lemmatize(w1)
 	l2 = lemmatizer.lemmatize(w2)
-	allowed_dist = MAX_DIST if len(l1) > SHORT_WORD_LEN and len(l2) > SHORT_WORD_LEN else 1 #TODO maybe this is too harsh? and letter switch is also allowed?
+	allowed_dist = MAX_DIST if len(l1) > SHORT_WORD_LEN and len(l2) > SHORT_WORD_LEN else 1 
 	if (distance.levenshtein(l1, l2) > allowed_dist or
 		w1 == align.EMPTY_WORD or w2 == align.EMPTY_WORD):
-		#TODO should "the" "a" etc be considered in a different way? maybe they should not but not in this function
-		return False #TODO words such as in at on etc, might be considered all equal to each other and to the empty_word for our purpose
+		#suggestion: should "the" "a" etc be considered in a different way? maybe they should not but not in this function
+		return False #suggestion: words such as in at on etc, might be considered all equal to each other and to the empty_word for our purpose
 	return True
 
 
