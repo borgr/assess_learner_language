@@ -3,6 +3,8 @@ from itertools import islice
 import math
 import re
 import sys
+import os
+import csv
 from collections import Counter
 
 # dependencies
@@ -285,7 +287,8 @@ def main():
 
 
 	dump(res_list, filename)
-	plot_comparison(res_list)
+	# plot_comparison(res_list)
+	convert_file_to_csv(filename)
 
 
 ###########################################################
@@ -1053,7 +1056,42 @@ def plot_comparison(l):
 ###########################################################
 ####                        UTIL                        ###
 ###########################################################
+def convert_file_to_csv(filename):
+	l = read(filename)
+	filename = os.path.splitext(filename)[0]+".csv"
+	col_names = ["words_differences", "index_differences", "spearman_differences", "aligned_by"]
+	names = l.keys()
+	names_row = []
+	spacing_left = int(len(col_names)/2)*[""]
+	spacing_right = (int((len(col_names) + 1)/2) - 1)*[""]
+	for name in names:
+		names_row += spacing_left + [name] + spacing_right
+	col_names = col_names*len(names_row)
+	max_len = 0
+	for value in l.values():
+		for lst in value:
+			lst = lst[1:]
+			max_len = max(max_len, len(lst))
+	with open(filename, 'w', newline='') as csvfile:
+		writer = csv.writer(csvfile)
+		writer.writerow(names_row)
+		writer.writerow(col_names)
+		for i in range(max_len):
+			row = []
+			for value in l.values():
+				value = value[1:]
+				# print(value[2])
+				# print(len(value[0]), type(value))
+				# print(value[1])
+				# raise
+				for lst in value:
+					if len(lst) > i:
+						row.append(lst[i])
+					else:
+						row.append("")
+			writer.writerow(row)
 
+	    
 def read(filename):
 	try:
 		with open(filename, "r+") as fl:
