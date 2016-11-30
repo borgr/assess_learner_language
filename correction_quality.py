@@ -1070,7 +1070,7 @@ def convert_file_to_csv(filename):
 	max_len = 0
 	for value in l.values():
 		for lst in value:
-			lst = lst[1:]
+			lst = lst[1:] # remove sentence breaks
 			max_len = max(max_len, len(lst))
 	with open(filename, 'w', newline='') as csvfile:
 		writer = csv.writer(csvfile)
