@@ -26,7 +26,8 @@ from correction_quality import align_sentence_words
 from correction_quality import preprocess_word
 #file locations
 corrections_dir = r"/home/borgr/ucca/assess_learner_language/batches/"
-data_dir = r"/home/borgr/ucca/assess_learner_language/calculations_data/"
+TRIALS_FILE = "trials"
+DATA_DIR = r"/home/borgr/ucca/assess_learner_language/calculations_data/"
 plots_dir = r"/home/borgr/ucca/assess_learner_language/plots/corrections/"
 hists_dir = r"/home/borgr/ucca/assess_learner_language/unseenEst/"
 batch_files = [r"Batch_2612793_batch_results.csv", r"Batch_2626033_batch_results.csv"]
@@ -50,7 +51,7 @@ COVERAGE_METHODS = [lambda results: np.mean(results, axis = 1).flatten()] # all:
 MEAN_MEASURE = "Mean coverage"
 MEASURE_NAMES = [MEAN_MEASURE] # all:["Mean coverage", "Probabillity of more than " + str(COVERAGE_GOAL) + " coverage "]
 # x
-correction_nums = list(range(20))
+CORRECTION_NUMS = list(range(20))
 
 def main():
 	frames = []
@@ -71,62 +72,105 @@ def main():
 	for root, dirs, files in os.walk(hists_dir):
 		for filename in files:
 			if INPUT_HIST_IDENTIFIER in filename:
-				assessed_new = assessed_new and assess_real_distributions(root+filename, str(0))
+				assess_real_distributions(root+filename, str(0))
 
-	assess_coverage(True)
-	coverage_by_corrections_num = assess_coverage(False)
-	print(coverage_by_corrections_num)
+	assess_coverage(True, show=False)
+	coverage_by_corrections_num = assess_coverage(False, show=False)
+	for correction_index in range(len(CORRECTION_NUMS)):
+		for n in range(len(coverage_by_corrections_num)+1):
+			ps = np.array((coverages[correction_index] for coverages in coverage_by_corrections_num))
+			print(poisson_binomial_PDF_possion_approximation(ps,n), poisson_binomial_PDF(ps,n))
 
-def assess_coverage(only_different_samples):
-	all_ys = [[] for i in range(len(COMPARISON_METHODS))]
-	for root, dirs, files in os.walk(hists_dir):
-		for filename in files:
-			if OUTPUT_HIST_IDENTIFIER in filename:
-				dist = read_dist_from_file(root+filename)
-				i = 0
-				while i < len(dist[0]):
-					if dist[VARIANTS_NUM_COL][i] > 1:
-						dist = np.append(dist,np.array([[dist[PROB_COL][i], dist[VARIANTS_NUM_COL][i] - 1]]).transpose(), axis=1)
-						dist[VARIANTS_NUM_COL][i] = 1
-					i += 1
-				results = []
-				for correction_num in correction_nums:
-					results.append(compute_probabillity_to_account_async(dist, correction_num, REPETITIONS, only_different_samples))
-				results = np.array(results)
-				ys = []
-				for coverage_method in COVERAGE_METHODS:
-					ys.append(coverage_method(results))
-				ys = np.array(ys)
-				# save y
-				for i, comparison_method in enumerate(COMPARISON_METHODS):
-					if comparison_method in filename:
-						all_ys[i].append(ys)
+def get_trial_num(create_if_needed=True):
+	trial_indicators = (COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS)
+	trials = []
+	filename = DATA_DIR + TRIALS_FILE
+	if os.path.isfile(filename):
+		with open(filename, "rb") as fl:
+			trials = pickle.load(fl)
+			if trial_indicators in trials:
+				return trials.index(trial_indicators)
+	else:
+		print("trials file not found, creating a new one:" + filename)
+	# if this is a new trial
+	if create_if_needed:
+		trials.append(trial_indicators)
+		with open(filename, "wb+") as fl:
+			pickle.dump(trials, fl)
+			return trials.index(trial_indicators)
+	else:
+		return -1
+
+
+def assess_coverage(only_different_samples, show=True):
+	trial_num = get_trial_num()
+	repeat = "" if only_different_samples else "_repeat"
+	repeat += "_" + str(REPETITIONS)
+	data_filename = DATA_DIR + str(trial_num) + "coverage_data" + repeat
+	# gather coverage results
+	if os.path.isfile(data_filename):
+		with open(data_filename, "rb") as fl:
+			all_ys = pickle.load(fl)
+	else:
+		print("calculating")
+		all_ys = [[] for i in range(len(COMPARISON_METHODS))]
+		for root, dirs, files in os.walk(hists_dir):
+			for filename in files:
+				if OUTPUT_HIST_IDENTIFIER in filename:
+					dist = read_dist_from_file(root+filename)
+					i = 0
+					while i < len(dist[0]):
+						if dist[VARIANTS_NUM_COL][i] > 1:
+							dist = np.append(dist,np.array([[dist[PROB_COL][i], dist[VARIANTS_NUM_COL][i] - 1]]).transpose(), axis=1)
+							dist[VARIANTS_NUM_COL][i] = 1
+						i += 1
+					results = []
+					for correction_num in CORRECTION_NUMS:
+						results.append(compute_probabillity_to_account_async(dist, correction_num, REPETITIONS, only_different_samples))
+					results = np.array(results)
+					ys = []
+					for coverage_method in COVERAGE_METHODS:
+						ys.append(coverage_method(results))
+					ys = np.array(ys)
+					# save y
+					for i, comparison_method in enumerate(COMPARISON_METHODS):
+						if comparison_method in filename:
+							all_ys[i].append(ys)
+		print("should write to ")
+		with open(data_filename, "wb+") as fl:
+			print(data_filename)
+			pickle.dump(all_ys, fl)
+	# plot results
 	#list by: comparison method->distribution->measure->correction num(Y)
+	if show:
+		all_ys = np.array(all_ys)
+		axis_num = len(all_ys[0][0])
+		ax = plt.subplot("1"+str(axis_num)+"1")
+		colors = rainbow_colors(range(len(all_ys)))
+		for comparison_method_key, dist in enumerate(all_ys):
+			axes = [plt.subplot("1"+str(axis_num)+str(i+1)) for i in range(axis_num)]
+			for sent_key, ys in enumerate(dist):
+				for i, y in enumerate(ys):
+					ax = axes[i]
+					ax.plot(CORRECTION_NUMS, y, color=colors[sent_key]) #label=sentence
+					ax.set_ylabel(MEASURE_NAMES[i])
+					if only_different_samples:
+						ax.set_xlabel("amount of different corrections")
+					else:
+						ax.set_xlabel("amount of corrections sampled")
+					ax.set_title(MEASURE_NAMES[i] + " of different amount of corrections\n using " + COMPARISON_METHODS[comparison_method_key] + " comparison")
+			fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
+			plt.savefig(plots_dir + fig_prefix + r"_coverage" + ".svg")
+			plt.show()
+			plt.cla()
+
+	# extract value for return
 	res = []
-	all_ys = np.array(all_ys)
-	axis_num = len(all_ys[0][0])
-	ax = plt.subplot("1"+str(axis_num)+"1")
-	colors = rainbow_colors(range(len(all_ys)))
 	for comparison_method_key, dist in enumerate(all_ys):
-		axes = [plt.subplot("1"+str(axis_num)+str(i+1)) for i in range(len(ys))]
 		for sent_key, ys in enumerate(dist):
 			for i, y in enumerate(ys):
-				ax = axes[i]
-				ax.plot(correction_nums, y, color=colors[sent_key]) #label=sentence
-				ax.set_ylabel(MEASURE_NAMES[i])
-				if only_different_samples:
-					ax.set_xlabel("amount of different corrections")
-				else:
-					ax.set_xlabel("amount of corrections sampled")
-				ax.set_title(MEASURE_NAMES[i] + " of different amount of corrections\n using " + COMPARISON_METHODS[comparison_method_key] + " comparison")
 				if COMPARISON_METHODS[comparison_method_key] == EXACT_COMP and MEASURE_NAMES[i] == MEAN_MEASURE:
 					res.append(y)
-		repeat = "" if only_different_samples else "repeat"
-		repeat += "_" + str(REPETITIONS)
-		fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
-		plt.savefig(plots_dir + fig_prefix + r"_coverage" + ".svg")
-		plt.show()
-		plt.cla()
 	return np.array(res)
 
 
@@ -178,10 +222,8 @@ def assess_real_distributions(filename, minFrequency=0):
 	outfile = filename.replace(INPUT_HIST_IDENTIFIER, OUTPUT_HIST_IDENTIFIER)
 	if os.path.isfile(outfile):
 		print(outfile, "already exists")
-		return False
 	else:
 		os.system("python /home/borgr/unseenest/src/unseen_est.py " + filename + " 0 " + outfile + " -s 1 ")
-		return True
 
 def compute_coverage(cdf, p, distribution, samples, only_different_samples):
 	covered = 0
