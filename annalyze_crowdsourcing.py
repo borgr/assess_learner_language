@@ -1,5 +1,4 @@
-import operator
-import functools
+import poisson_binomial as pb
 from multiprocessing import Pool
 from nltk import word_tokenize
 from nltk import pos_tag
@@ -24,17 +23,20 @@ sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
 import align
 from correction_quality import align_sentence_words
 from correction_quality import preprocess_word
+
 #file locations
 corrections_dir = r"/home/borgr/ucca/assess_learner_language/batches/"
 TRIALS_FILE = "trials"
 DATA_DIR = r"/home/borgr/ucca/assess_learner_language/calculations_data/"
 plots_dir = r"/home/borgr/ucca/assess_learner_language/plots/corrections/"
 hists_dir = r"/home/borgr/ucca/assess_learner_language/unseenEst/"
-batch_files = [r"Batch_2612793_batch_results.csv", r"Batch_2626033_batch_results.csv"]
+batch_files = [r"Batch_2612793_batch_results.csv", r"Batch_2626033_batch_results.csv", r"Batch_2634540_batch_results.csv"]
+
 #batch column names
 LEARNER_SENTENCES_COL = "Input.sentence"
 CORRECTED_SENTENCES_COL = "Answer.WritingTexts"
 INDEXES_CHANGED_COL = "IndexesChanged"
+
 # distribution columns
 VARIANTS_NUM_COL = 1
 PROB_COL = 0
@@ -53,12 +55,13 @@ MEASURE_NAMES = [MEAN_MEASURE] # all:["Mean coverage", "Probabillity of more tha
 # x
 CORRECTION_NUMS = list(range(20))
 
+
 def main():
 	frames = []
 	for batch_file in batch_files:
 		frames.append(pd.read_csv(corrections_dir + batch_file))
 	db = pd.concat(frames)
-	db[CORRECTED_SENTENCES_COL] = db[CORRECTED_SENTENCES_COL].apply(normalize_sentence)
+	db = clean_data(db)
 	learner_sentences = db[LEARNER_SENTENCES_COL].unique()
 	show=False
 	save=False
@@ -66,7 +69,6 @@ def main():
 	# print(db[LEARNER_SENTENCES_COL])
 	compare_correction_distributions(db, EXACT_COMP, show=show, save=save)
 
-		
 	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db[LEARNER_SENTENCES_COL], db[CORRECTED_SENTENCES_COL])
 	compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show, save=save)
 	for root, dirs, files in os.walk(hists_dir):
@@ -74,12 +76,32 @@ def main():
 			if INPUT_HIST_IDENTIFIER in filename:
 				assess_real_distributions(root+filename, str(0))
 
-	assess_coverage(True, show=False)
-	coverage_by_corrections_num = assess_coverage(False, show=False)
+	assess_coverage(True, show=False, res_type=EXACT_COMP)
+	coverage_by_corrections_num = assess_coverage(False, show=False, res_type=EXACT_COMP)
+
 	for correction_index in range(len(CORRECTION_NUMS)):
+		print("number of corrections:",CORRECTION_NUMS[correction_index])
+		ps = np.fromiter((coverages[correction_index] for coverages in coverage_by_corrections_num), np.float)
+		print("coverage", ps)
 		for n in range(len(coverage_by_corrections_num)+1):
-			ps = np.array((coverages[correction_index] for coverages in coverage_by_corrections_num))
-			print(poisson_binomial_PDF_possion_approximation(ps,n), poisson_binomial_PDF(ps,n))
+			print("probabilities to get ", n, " approx, exact:\n", get_probability_with_belief(ps, n, 1, True, pdf=True), get_probability_with_belief(ps, n, 1, False, pdf=True))
+
+
+def clean_data(db):
+	# clean rejections
+	db = db[db.AssignmentStatus != "Rejected"]
+	db.loc[:,CORRECTED_SENTENCES_COL] = db[CORRECTED_SENTENCES_COL].apply(normalize_sentence)
+	db.loc[:,LEARNER_SENTENCES_COL] = db[LEARNER_SENTENCES_COL].apply(normalize_sentence)
+	max_no_correction_needed = 8
+	# ignore sentences that many annotators say no corrections is needed for them
+	for sentence in db[LEARNER_SENTENCES_COL].unique():
+		if (len(db[(db[LEARNER_SENTENCES_COL] == db[CORRECTED_SENTENCES_COL]) &
+			     (db[LEARNER_SENTENCES_COL] == sentence)])
+			     >= max_no_correction_needed):
+			# print("not using ", sentence)
+			db = db[db[LEARNER_SENTENCES_COL] != sentence]
+	return db
+
 
 def get_trial_num(create_if_needed=True):
 	trial_indicators = (COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS)
@@ -102,7 +124,7 @@ def get_trial_num(create_if_needed=True):
 		return -1
 
 
-def assess_coverage(only_different_samples, show=True):
+def assess_coverage(only_different_samples, show=True, res_type=EXACT_COMP, res_measure=MEAN_MEASURE):
 	trial_num = get_trial_num()
 	repeat = "" if only_different_samples else "_repeat"
 	repeat += "_" + str(REPETITIONS)
@@ -126,7 +148,7 @@ def assess_coverage(only_different_samples, show=True):
 						i += 1
 					results = []
 					for correction_num in CORRECTION_NUMS:
-						results.append(compute_probabillity_to_account_async(dist, correction_num, REPETITIONS, only_different_samples))
+						results.append(compute_probability_to_account_async(dist, correction_num, REPETITIONS, only_different_samples))
 					results = np.array(results)
 					ys = []
 					for coverage_method in COVERAGE_METHODS:
@@ -169,38 +191,59 @@ def assess_coverage(only_different_samples, show=True):
 	for comparison_method_key, dist in enumerate(all_ys):
 		for sent_key, ys in enumerate(dist):
 			for i, y in enumerate(ys):
-				if COMPARISON_METHODS[comparison_method_key] == EXACT_COMP and MEASURE_NAMES[i] == MEAN_MEASURE:
+				if COMPARISON_METHODS[comparison_method_key] == res_type and MEASURE_NAMES[i] == res_measure:
 					res.append(y)
 	return np.array(res)
 
 
-def poisson_binomial_PDF_possion_approximation(ps, n):
+
+def get_probability_with_belief(ps, n, belief=1, approximate=False, pdf=False):
+	""" given probabilities of rightly identifying a good correction as such for each sentence,
+		and a belief of the probability for an output to be correct, computes the probability 
+		to find that n sentences are correct  """	
+	#TODO it is possible to cache results, useful if same pmf will be asked for repeatedly
+	new_ps = ps * belief
+	if pdf:
+		if approximate:
+			return pb.poisson_binomial_PMF_possion_approximation(new_ps, n)
+		else:
+			return pb.poisson_binomial_PMF_DFT(new_ps, n)
+	else:
+		if approximate:
+			return pb.poisson_binomial_CDF_refined_normal_approximation(new_ps, n)
+		else:
+			return pb.poisson_binomial_CDF_DFT(new_ps, n)
+		# return pb.poisson_binomial_PMF(new_ps, n)
+
+def mass_for_poisson_binomial_probability_range(ps, range, belief=1, approximate=False):
+	"""returns the sum of probability mass in the range"""
+	return sum((get_probability_with_belief(ps, ind, approximate) for ind in range))
+
+
+def ranges_for_poisson_binomial_probability_mass(ps, mass, belief=1, approximate=False):
+	""" returns the minimum interval around the mean that coveres the given mass,
+		half from each side of the mean (may cover more than the mass)
+		"""
+	right_mass = mass / 2
+	left_mass = mass / 2
 	mu = sum(ps)
-	return (mu**n)*math.exp(-mu)/math.factorial(n)
+	n = len(ps)
+	right_ind = math.ceil(mu)
+	left_ind = int(mu)
+	right_covered = 0
+	left_covered = 0
+	if right_ind == left_ind:
+		left -= 1
+	while right_ind <= n and right_covered < right_mass:
+		right_covered += get_probability_with_belief(ps, right_ind, belief, approximate)
+		right_ind += 1
+	right_ind -=1
+	while left_ind >= 0 and left_covered < left_mass:
+		left_covered += get_probability_with_belief(ps, left_ind, belief, approximate)
+		left_ind -= 1
+	left_ind += 1
+	return left_ind, right_ind
 
-
-def poisson_binomial_PDF(ps, n):
-	return functools.reduce(operator.mul, (1-x for x in ps), poisson_binomial_R(ps, n,range(len(ps))))
-
-
-def poisson_binomial_T(ps, i, chosen):
-	np.sum((ps[w]**i for w in chosen))
-
-def poisson_binomial_R(ps, n, chosen):
-	if len(chosen) < n:
-		return 0
-	if not n:
-		return 1
-	# pool = Pool(10) #TODO is pooling needed? and working depiste recursion
-	a = np.empty((n,),int)
-	a[::2] = 1
-	a[1::2] = -1
-	it = []
-	# it += list(pool.imap(__compute_coverage, range(1,n+1)))
-	it = np.array((poisson_binomial_T(ps,i,chosen)*poisson_binomial_R(n-i, chosen) for i in range(1,n+1)))
-	# pool.close()
-	# pool.join()
-	return np.inner(it, a)/n
 
 def find_changed_indexes(unique, sentences, corrections):
 	for sentence in unique:
@@ -247,7 +290,7 @@ def __compute_coverage(tpl):
 	cdf, p, distribution, samples, only_different_samples = tpl
 	return compute_coverage(cdf, p, distribution, samples, only_different_samples)
 
-def compute_probabillity_to_account_async(distribution, samples, repetitions, only_different_samples):
+def compute_probability_to_account_async(distribution, samples, repetitions, only_different_samples):
 	pool = Pool(10)
 	cdf = np.cumsum(distribution[PROB_COL])
 	probs = distribution[PROB_COL]/sum(distribution[PROB_COL])
@@ -259,7 +302,7 @@ def compute_probabillity_to_account_async(distribution, samples, repetitions, on
 	pool.join()
 	return np.array(it)
 
-def compute_probabillity_to_account(distribution, samples, repetitions, only_different_samples):
+def compute_probability_to_account(distribution, samples, repetitions, only_different_samples):
 	# print("in")
 	covered = np.zeros([repetitions,1])
 	cdf = np.cumsum(distribution[PROB_COL])
@@ -383,7 +426,7 @@ def plot_acounts_for_percentage(l, ax, data, comparison_by, bottom=1, reverseXY=
 		plt.xlim(xmin=0)
 		# ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=name)
 	plt.autoscale(enable=True, axis='x', tight=False)
-	xlabel = "percentage of probabillity each correction accounts for"
+	xlabel = "percentage of probability each correction accounts for"
 	ylabel = "amount of corrections"
 	if reverseXY:
 		xlabel, ylabel = ylabel, xlabel
