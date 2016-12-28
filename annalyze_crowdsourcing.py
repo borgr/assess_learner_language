@@ -63,21 +63,23 @@ def main():
 	db = pd.concat(frames)
 	db = clean_data(db)
 	learner_sentences = db[LEARNER_SENTENCES_COL].unique()
-	show=False
-	save=False
+	show_correction = False
+	save_correction = False
+	show_coverage = True
+	save_coverage = True
 
 	# print(db[LEARNER_SENTENCES_COL])
-	compare_correction_distributions(db, EXACT_COMP, show=show, save=save)
+	compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
 
 	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db[LEARNER_SENTENCES_COL], db[CORRECTED_SENTENCES_COL])
-	compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show, save=save)
+	compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
 	for root, dirs, files in os.walk(HISTS_DIR):
 		for filename in files:
 			if INPUT_HIST_IDENTIFIER in filename:
 				assess_real_distributions(root+filename, str(0))
 
-	assess_coverage(True, show=False, save=False, res_type=EXACT_COMP)
-	coverage_by_corrections_num = assess_coverage(False, show=True, save=False, res_type=EXACT_COMP)
+	assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
+	coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 
 	# for correction_index in range(len(CORRECTION_NUMS)):
 	# 	print("number of corrections:",CORRECTION_NUMS[correction_index])
@@ -93,7 +95,7 @@ def clean_data(db):
 	db.loc[:,CORRECTED_SENTENCES_COL] = db[CORRECTED_SENTENCES_COL].apply(normalize_sentence)
 	db.loc[:,LEARNER_SENTENCES_COL] = db[LEARNER_SENTENCES_COL].apply(normalize_sentence)
 	max_no_correction_needed = 8
-	# ignore sentences that many annotators say no corrections is needed for them
+	# ignore sentences that many annotators say no corrections are needed for them
 	for sentence in db[LEARNER_SENTENCES_COL].unique():
 		if (len(db[(db[LEARNER_SENTENCES_COL] == db[CORRECTED_SENTENCES_COL]) &
 			     (db[LEARNER_SENTENCES_COL] == sentence)])
@@ -164,7 +166,7 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 	# plot results
 	#list by: comparison method->distribution->measure->correction num(Y)
 	if show or save:
-		xname = "amount of different corrections" if only_different_samples else "amount of corrections sampled"
+		xlabel = "amount of different corrections" if only_different_samples else "amount of corrections sampled"
 		all_ys = np.array(all_ys)
 		axis_num = len(all_ys[0][0])
 		for comparison_method_key, dist in enumerate(all_ys):
@@ -173,8 +175,9 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 				fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
 				save = PLOTS_DIR + fig_prefix + r"_coverage" + ".svg"
 			title_addition = "using " + COMPARISON_METHODS[comparison_method_key] + " comparison"
-			plot_coverage_for_each_sentence(dist, axes, title_addition, show, save)
-			plot_expected_best_coverage
+			# plot_coverage_for_each_sentence(dist, axes, title_addition, show, save, xlabel)
+
+			plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel)
 	# extract value for return
 	res = []
 	for comparison_method_key, dist in enumerate(all_ys):
@@ -185,43 +188,22 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 	return np.array(res)
 
 
-def plot_coverage_for_each_sentence(dist, axes, title_addition="", show=True, save_name=None, xlabel=None):
-	""" plots a line for each sentence
-		axes - a subscriptable object of axis to plot for each comparison meathod
-		dist - list of lists of Ys : distribution->measure->correction num(Y)
-		"""
-	for sent_key, ys in enumerate(dist):
-		colors = rainbow_colors(range(len(dist)))
-		for i, y in enumerate(ys):
-			ax = axes[i]
-			ax.plot(CORRECTION_NUMS, y, color=colors[sent_key]) #label=sentence
-			ax.set_ylabel(MEASURE_NAMES[i])
-			if xlabel:
-				ax.set_xlabel(xlabel)
-			ax.set_title(MEASURE_NAMES[i] + " of different amount of corrections\n" + title_addition)
-	if save_name:
-		plt.savefig(save_name)
-	if show:
-		plt.show()
-	plt.cla()
-
 def get_probability_with_belief(ps, n, belief=1, approximate=False, pdf=False):
 	""" given probabilities of rightly identifying a good correction as such for each sentence,
 		and a belief of the probability for an output to be correct, computes the probability 
 		to find that n sentences are correct  """	
-	#TODO it is possible to cache results, useful if same pmf will be asked for repeatedly
 	new_ps = ps * belief
 	if pdf:
 		if approximate:
 			return pb.poisson_binomial_PMF_possion_approximation(new_ps, n)
 		else:
 			return pb.poisson_binomial_PMF_DFT(new_ps, n)
+		# return pb.poisson_binomial_PMF(new_ps, n)
 	else:
 		if approximate:
 			return pb.poisson_binomial_CDF_refined_normal_approximation(new_ps, n)
 		else:
 			return pb.poisson_binomial_CDF_DFT(new_ps, n)
-		# return pb.poisson_binomial_PMF(new_ps, n)
 
 def mass_for_poisson_binomial_probability_range(ps, range, belief=1, approximate=False):
 	"""returns the sum of probability mass in the range"""
@@ -311,30 +293,13 @@ def compute_probability_to_account_async(distribution, samples, repetitions, onl
 	return np.array(it)
 
 def compute_probability_to_account(distribution, samples, repetitions, only_different_samples):
-	# print("in")
 	covered = np.zeros([repetitions,1])
 	cdf = np.cumsum(distribution[PROB_COL])
-	# inverted_function = lambda x:np.argmax(cdf < x)
+
 	probs = distribution[PROB_COL]/sum(distribution[PROB_COL])
 
 	for i in range(repetitions):
 		covered[i] = compute_coverage(cdf, probs, distribution, samples, only_different_samples)
-		# # if i % (repetitions/10) == 0:
-		# # 	print("in", i, "th repetition")
-		# uncovered_variants_num = distribution[VARIANTS_NUM_COL].copy()
-		# uncovered_probes = distribution[PROB_COL].copy()
-		# sampled = 0
-		# while sampled < samples and not cmath.isclose(covered[i], 1.0):
-		# 	chosen = np.random.choice(np.arange(len(distribution[PROB_COL])), p=p)
-		# 	covered[i] += min(uncovered_variants_num[chosen], samples - sampled) * distribution[PROB_COL][chosen]
-		# 	if only_different_samples:
-		# 		p = uncovered_probes/sum(uncovered_probes)
-		# 		assert(not np.isnan(sum(p)))
-		# 		uncovered_probes[chosen] = 0
-		# 		sampled += uncovered_variants_num[chosen]
-		# 	else:
-		# 		sampled += distribution[VARIANTS_NUM_COL][chosen]
-		# 	uncovered_variants_num[chosen] = 0
 	return covered
 
 def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, show=True, save=True):
@@ -383,7 +348,9 @@ def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, sh
 		# 	plt.show()
 	export_hists(learner_sentences, concat, name, HISTS_DIR)
 
-
+###################################################################################
+####								plots
+###################################################################################
 def export_hists(l, data, comparison_by, HISTS_DIR):
 	for i, name in enumerate(l):
 		filename = re.sub("\W","",name)[:6]
@@ -392,6 +359,59 @@ def export_hists(l, data, comparison_by, HISTS_DIR):
 		y = [str(val)+"\n" for val in y]
 		with open(filename, "w+") as fl:
 			fl.writelines(y)
+
+
+def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_name=None, xlabel=None):
+	""" plots a line for each sentence
+		axes - a subscriptable object of axis to plot for each comparison meathod
+		dist - list of lists of Ys : distribution->measure->correction num(Y)
+		"""
+	#corrections_num -> coverage 
+	coverage_by_corrections_num = []
+	for sent_key, ys in enumerate(dist):
+		for i, y in enumerate(ys):
+			if MEASURE_NAMES[i] == MEAN_MEASURE:
+				coverage_by_corrections_num.append(y)
+
+	x = []
+	y = []
+	for correction_index, correction_num in enumerate(CORRECTION_NUMS):
+		ps = np.fromiter((coverage[correction_index] for coverage in coverage_by_corrections_num), np.float)
+		expected_accuracy = pb.mu(ps)/len(ps)
+		x.append(correction_num)
+		y.append(expected_accuracy)
+
+	ax.plot(CORRECTION_NUMS, y)
+	ax.set_ylabel("Expected accuracy")
+	if xlabel:
+		ax.set_xlabel(xlabel)
+	ax.set_title("Expected accuracy for perfect corrected text by corrections number\n" + title_addition)
+	if save_name:
+		plt.savefig(save_name)
+	if show:
+		plt.show()
+	plt.cla()
+
+
+def plot_coverage_for_each_sentence(dist, axes, title_addition="", show=True, save_name=None, xlabel=None):
+	""" plots expected accuracy result for each correction number
+		axes - a subscriptable object of axis to plot for each comparison meathod
+		dist - list of lists of Ys : distribution->measure->correction num(Y)
+		"""
+	for sent_key, ys in enumerate(dist):
+		colors = rainbow_colors(range(len(dist)))
+		for i, y in enumerate(ys):
+			ax = axes[i]
+			ax.plot(CORRECTION_NUMS, y, color=colors[sent_key])
+			ax.set_ylabel(MEASURE_NAMES[i])
+			if xlabel:
+				ax.set_xlabel(xlabel)
+			ax.set_title(MEASURE_NAMES[i] + " of different amount of corrections\n" + title_addition)
+	if save_name:
+		plt.savefig(save_name)
+	if show:
+		plt.show()
+	plt.cla()
 
 
 def plot_hist(l, ax, data, comparison_by, bottom=1):
@@ -467,9 +487,6 @@ def plot_differences_hist(l, ax, data, comparison_by, bottom=1, percentage=False
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 	# plt.tight_layout()
 
-def isBatchFile(filename):
-	return "batch" in filename and filename.split(".")[-1].lower() == "csv"
-
 def get_all_sentences_corrected():
 	""" returns an iterable containing all the sentences that were corrected"""
 	corrected = set()
@@ -495,6 +512,13 @@ def rainbow_colors(labels):
 		return dict(zip(cls, ("blue", "orange")))
 	return dict(zip(cls, cm.rainbow(np.linspace(0, 1, len(cls)))))
 
+###################################################################################
+####							general\NLP	
+###################################################################################
+
+def isBatchFile(filename):
+	return "batch" in filename and filename.split(".")[-1].lower() == "csv"
+
 def normalize_sentence(s):
 	s = re.sub(r"\W+", r" ", s)
 	s = re.sub(r"\s([a-zA-Z]\s)", r"\1", s)
@@ -514,7 +538,6 @@ def convert_sentence_to_diff_indexes(original, sentence):
 			if i == -1:
 				indexes.append(max_ind)
 				max_ind += 1
-				# print("aligned to empty word", (w1,w2), (i,j))
 			else:
 				indexes.append(i)
 	return tuple(sorted(indexes))
