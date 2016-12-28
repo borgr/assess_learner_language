@@ -28,9 +28,9 @@ from correction_quality import preprocess_word
 corrections_dir = r"/home/borgr/ucca/assess_learner_language/batches/"
 TRIALS_FILE = "trials"
 DATA_DIR = r"/home/borgr/ucca/assess_learner_language/calculations_data/"
-plots_dir = r"/home/borgr/ucca/assess_learner_language/plots/corrections/"
-hists_dir = r"/home/borgr/ucca/assess_learner_language/unseenEst/"
-batch_files = [r"Batch_2612793_batch_results.csv", r"Batch_2626033_batch_results.csv", r"Batch_2634540_batch_results.csv"]
+PLOTS_DIR = r"/home/borgr/ucca/assess_learner_language/plots/corrections/"
+HISTS_DIR = r"/home/borgr/ucca/assess_learner_language/unseenEst/"
+BATCH_FILES = [r"Batch_2612793_batch_results.csv", r"Batch_2626033_batch_results.csv", r"Batch_2634540_batch_results.csv"]
 
 #batch column names
 LEARNER_SENTENCES_COL = "Input.sentence"
@@ -58,7 +58,7 @@ CORRECTION_NUMS = list(range(20))
 
 def main():
 	frames = []
-	for batch_file in batch_files:
+	for batch_file in BATCH_FILES:
 		frames.append(pd.read_csv(corrections_dir + batch_file))
 	db = pd.concat(frames)
 	db = clean_data(db)
@@ -71,20 +71,20 @@ def main():
 
 	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db[LEARNER_SENTENCES_COL], db[CORRECTED_SENTENCES_COL])
 	compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show, save=save)
-	for root, dirs, files in os.walk(hists_dir):
+	for root, dirs, files in os.walk(HISTS_DIR):
 		for filename in files:
 			if INPUT_HIST_IDENTIFIER in filename:
 				assess_real_distributions(root+filename, str(0))
 
-	assess_coverage(True, show=False, res_type=EXACT_COMP)
-	coverage_by_corrections_num = assess_coverage(False, show=False, res_type=EXACT_COMP)
+	assess_coverage(True, show=False, save=False, res_type=EXACT_COMP)
+	coverage_by_corrections_num = assess_coverage(False, show=True, save=False, res_type=EXACT_COMP)
 
-	for correction_index in range(len(CORRECTION_NUMS)):
-		print("number of corrections:",CORRECTION_NUMS[correction_index])
-		ps = np.fromiter((coverages[correction_index] for coverages in coverage_by_corrections_num), np.float)
-		print("coverage", ps)
-		for n in range(len(coverage_by_corrections_num)+1):
-			print("probabilities to get ", n, " approx, exact:\n", get_probability_with_belief(ps, n, 1, True, pdf=True), get_probability_with_belief(ps, n, 1, False, pdf=True))
+	# for correction_index in range(len(CORRECTION_NUMS)):
+	# 	print("number of corrections:",CORRECTION_NUMS[correction_index])
+	# 	ps = np.fromiter((coverages[correction_index] for coverages in coverage_by_corrections_num), np.float)
+	# 	print("coverage", ps)
+	# 	for n in range(len(coverage_by_corrections_num)+1):
+	# 		print("probabilities to get ", n, " approx, exact:\n", get_probability_with_belief(ps, n, 1, True, pdf=True), get_probability_with_belief(ps, n, 1, False, pdf=True))
 
 
 def clean_data(db):
@@ -124,7 +124,7 @@ def get_trial_num(create_if_needed=True):
 		return -1
 
 
-def assess_coverage(only_different_samples, show=True, res_type=EXACT_COMP, res_measure=MEAN_MEASURE):
+def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT_COMP, res_measure=MEAN_MEASURE):
 	trial_num = get_trial_num()
 	repeat = "" if only_different_samples else "_repeat"
 	repeat += "_" + str(REPETITIONS)
@@ -134,9 +134,8 @@ def assess_coverage(only_different_samples, show=True, res_type=EXACT_COMP, res_
 		with open(data_filename, "rb") as fl:
 			all_ys = pickle.load(fl)
 	else:
-		print("calculating")
 		all_ys = [[] for i in range(len(COMPARISON_METHODS))]
-		for root, dirs, files in os.walk(hists_dir):
+		for root, dirs, files in os.walk(HISTS_DIR):
 			for filename in files:
 				if OUTPUT_HIST_IDENTIFIER in filename:
 					dist = read_dist_from_file(root+filename)
@@ -164,28 +163,18 @@ def assess_coverage(only_different_samples, show=True, res_type=EXACT_COMP, res_
 			pickle.dump(all_ys, fl)
 	# plot results
 	#list by: comparison method->distribution->measure->correction num(Y)
-	if show:
+	if show or save:
+		xname = "amount of different corrections" if only_different_samples else "amount of corrections sampled"
 		all_ys = np.array(all_ys)
 		axis_num = len(all_ys[0][0])
-		ax = plt.subplot("1"+str(axis_num)+"1")
-		colors = rainbow_colors(range(len(all_ys)))
 		for comparison_method_key, dist in enumerate(all_ys):
 			axes = [plt.subplot("1"+str(axis_num)+str(i+1)) for i in range(axis_num)]
-			for sent_key, ys in enumerate(dist):
-				for i, y in enumerate(ys):
-					ax = axes[i]
-					ax.plot(CORRECTION_NUMS, y, color=colors[sent_key]) #label=sentence
-					ax.set_ylabel(MEASURE_NAMES[i])
-					if only_different_samples:
-						ax.set_xlabel("amount of different corrections")
-					else:
-						ax.set_xlabel("amount of corrections sampled")
-					ax.set_title(MEASURE_NAMES[i] + " of different amount of corrections\n using " + COMPARISON_METHODS[comparison_method_key] + " comparison")
-			fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
-			plt.savefig(plots_dir + fig_prefix + r"_coverage" + ".svg")
-			plt.show()
-			plt.cla()
-
+			if save:
+				fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
+				save = PLOTS_DIR + fig_prefix + r"_coverage" + ".svg"
+			title_addition = "using " + COMPARISON_METHODS[comparison_method_key] + " comparison"
+			plot_coverage_for_each_sentence(dist, axes, title_addition, show, save)
+			plot_expected_best_coverage
 	# extract value for return
 	res = []
 	for comparison_method_key, dist in enumerate(all_ys):
@@ -196,6 +185,25 @@ def assess_coverage(only_different_samples, show=True, res_type=EXACT_COMP, res_
 	return np.array(res)
 
 
+def plot_coverage_for_each_sentence(dist, axes, title_addition="", show=True, save_name=None, xlabel=None):
+	""" plots a line for each sentence
+		axes - a subscriptable object of axis to plot for each comparison meathod
+		dist - list of lists of Ys : distribution->measure->correction num(Y)
+		"""
+	for sent_key, ys in enumerate(dist):
+		colors = rainbow_colors(range(len(dist)))
+		for i, y in enumerate(ys):
+			ax = axes[i]
+			ax.plot(CORRECTION_NUMS, y, color=colors[sent_key]) #label=sentence
+			ax.set_ylabel(MEASURE_NAMES[i])
+			if xlabel:
+				ax.set_xlabel(xlabel)
+			ax.set_title(MEASURE_NAMES[i] + " of different amount of corrections\n" + title_addition)
+	if save_name:
+		plt.savefig(save_name)
+	if show:
+		plt.show()
+	plt.cla()
 
 def get_probability_with_belief(ps, n, belief=1, approximate=False, pdf=False):
 	""" given probabilities of rightly identifying a good correction as such for each sentence,
@@ -353,7 +361,7 @@ def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, sh
 		plot_differences_hist(learner_sentences, ax, concat, name)
 		print("amount of models ", amount_of_models)
 		if save:
-			plt.savefig(plots_dir + fig_prefix + r"_hist" + ".svg")
+			plt.savefig(PLOTS_DIR + fig_prefix + r"_hist" + ".svg")
 		if show:
 			plt.show()
 
@@ -361,7 +369,7 @@ def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, sh
 		ax = plt.subplot("111")
 		plot_acounts_for_percentage(learner_sentences, ax, concat, name)
 		if save:
-			plt.savefig(plots_dir + fig_prefix + r"percentage_hist" + ".svg")
+			plt.savefig(PLOTS_DIR + fig_prefix + r"percentage_hist" + ".svg")
 		if show:
 			plt.show()
 
@@ -370,16 +378,16 @@ def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, sh
 		# prefix_reverseXY = "_rev_" if reverseXY else ""
 		# plot_acounts_for_percentage(learner_sentences, ax, concat, name, reverseXY=reverseXY)
 		# if save:
-		# 	plt.savefig(plots_dir + fig_prefix + prefix_reverseXY + r"percentage_hist" + ".svg")
+		# 	plt.savefig(PLOTS_DIR + fig_prefix + prefix_reverseXY + r"percentage_hist" + ".svg")
 		# if show:
 		# 	plt.show()
-	export_hists(learner_sentences, concat, name, hists_dir)
+	export_hists(learner_sentences, concat, name, HISTS_DIR)
 
 
-def export_hists(l, data, comparison_by, hists_dir):
+def export_hists(l, data, comparison_by, HISTS_DIR):
 	for i, name in enumerate(l):
 		filename = re.sub("\W","",name)[:6]
-		filename = hists_dir + filename + "_"+ comparison_by + "_" + INPUT_HIST_IDENTIFIER +".txt"
+		filename = HISTS_DIR + filename + "_"+ comparison_by + "_" + INPUT_HIST_IDENTIFIER +".txt"
 		y = create_hist(data[i], bottom=1)
 		y = [str(val)+"\n" for val in y]
 		with open(filename, "w+") as fl:
