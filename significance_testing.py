@@ -43,11 +43,8 @@ def main():
 	print(list(results))
 	# m2score_sig(files[0])
 count=0
-def m2score_sig(filename, gold_file=r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2"):
-	# gold_file = r"/home/borgr/ucca/assess_learner_language/m2scorer/example/source_gold"
-	# system_file = r"/home/borgr/ucca/assess_learner_language/m2scorer/example/system"
-	input_dir = r"/home/borgr/ucca/data/paragraphs/"
-	output_dir = r"/home/borgr/ucca/assess_learner_language/results/significance/"
+def m2score_sig(filename, gold_file=r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2", input_dir = r"/home/borgr/ucca/data/paragraphs/", output_dir = r"/home/borgr/ucca/assess_learner_language/results/significance/"):
+
 	system_file = input_dir + filename
 	n_samples = 1000
 	print("testing significance of " + filename)
