@@ -4,12 +4,19 @@ import functools
 import math
 import numpy as np
 import scipy
+
+def mu(ps):
+	return sum(ps)
+
+def std(ps):
+	return np.sqrt(np.dot(ps,1-ps))
+
 def pval(ps, x, approximate=False):
 	"""returns the probability given ps that x or a bigger value will be seen"""
 	return mass_for_poisson_binomial_probability_range(ps, range(math.ceil(x), len(ps)), approximate)
 
 def poisson_binomial_PMF_possion_approximation(ps, n):
-	mu = sum(ps)
+	mu = mu(ps)
 	return (mu**n)*math.exp(-mu)/math.factorial(n)
 
 def poisson_binomial_CDF_refined_normal_approximation(ps, n):
@@ -18,9 +25,8 @@ def poisson_binomial_CDF_refined_normal_approximation(ps, n):
 	A refinement of normal approximation to Poisson binomial.
 	International Journal of Mathematics and Mathematical Sciences, 5, 717–728.
 	"""
-	#TODO why does it predict such wierd outcomes (specifically it looks like normal dist and not cummulative)
-	mu = sum(ps)
-	std = np.sqrt(np.dot(ps,1-ps))
+	mu = mu(ps)
+	std = std(ps)
 	gamma = np.power(std, -3)*np.dot(np.multiply(ps,1-ps), 1-2*ps)
 	x = (n + 0.5 - mu) / std
 	phi_x = scipy.stats.norm(0, 1).pdf(x)
@@ -29,8 +35,8 @@ def poisson_binomial_CDF_refined_normal_approximation(ps, n):
 
 def poisson_binomial_CDF_normal_approximation(ps, n):
 	"""Based on central theorem"""
-	mu = sum(ps)
-	std = np.sqrt(np.dot(ps,1-ps))
+	mu = mu(ps)
+	std = std(ps)
 	gamma = np.power(std, -3)*np.dot(np.multiply(ps,1-ps), 1-2*ps)
 	x = (n + 0.5 - mu) / std
 	return scipy.stats.norm(0, 1).cdf(x)
@@ -43,7 +49,11 @@ def poisson_binomial_CDF_DFT(ps, n):
 
 dft_cache = {}
 def poisson_binomial_PMFS_DFT(ps):
-	"""
+	""" calculates the whole distribution using DFT method
+		proposed by 
+		Hong, Yili. 
+		"On computing the distribution function for the Poisson binomial distribution."
+		Computational Statistics & Data Analysis 59 (2013): 41-51.
 	"""
 	hashable = tuple(ps)
 	if hashable not in dft_cache:
