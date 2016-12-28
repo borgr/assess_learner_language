@@ -59,12 +59,12 @@ def m2score_sig(filename, gold_file=r"/home/borgr/ucca/data/conll14st-test-data/
 	statfunction = lambda source, gold, system: m2scorer.get_score(system, source, gold, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
 	data = (source_sentences, gold_edits, system_sentences)
 	test_significance(statfunction, data, output_dir + str(n_samples)+"_2changes" + filename, n_samples=n_samples)
-	# n_samples = 100
-	# data = (np.array([1,2,3]), np.array([2,3,4]), np.array([4,5,6]))
+	# n_samples = 1403
 	# def temp(x,y,z):
 	# 	global count
 	# 	count += 1
-	# 	print(count)
+	# 	print (count)
+	# 	print(x[0],y[0],z[0])
 	# 	return np.random.rand(1)
 	# test_significance(temp, data, None, n_samples=n_samples)
 
@@ -76,7 +76,7 @@ def test_significance(statfunction, data, filename=None, alpha=0.05, n_samples=1
 		if filename is None the results are not save to any file"""
 	print("calculating for " + str(filename))
 	if filename == None:
-		res = scikits.bootstrap.ci(data, statfunction, alpha, n_samples, method, output, epsilon, multi)
+		res = scikits.bootstrap.ci(data, statfunction, alpha, n_samples, method, output, epsilon)
 	elif not os.path.isfile(filename):
 		res = scikits.bootstrap.ci(data, statfunction, alpha, n_samples, method, output, epsilon, multi)
 		with open(filename, "w") as fl:
