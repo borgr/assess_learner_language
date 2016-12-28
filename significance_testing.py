@@ -36,20 +36,20 @@ def main():
 	umc_file,
 	camb_file,
 	gold_file]
-	# pool = Pool(10)
-	# results = pool.imap(m2score_sig, files)
-	# pool.close()
-	# pool.join()
-	# print(list(results))
-	m2score_sig(files[0])
-
+	pool = Pool(3)
+	results = pool.imap(m2score_sig, files)
+	pool.close()
+	pool.join()
+	print(list(results))
+	# m2score_sig(files[0])
+count=0
 def m2score_sig(filename, gold_file=r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2"):
 	# gold_file = r"/home/borgr/ucca/assess_learner_language/m2scorer/example/source_gold"
 	# system_file = r"/home/borgr/ucca/assess_learner_language/m2scorer/example/system"
 	input_dir = r"/home/borgr/ucca/data/paragraphs/"
 	output_dir = r"/home/borgr/ucca/assess_learner_language/results/significance/"
 	system_file = input_dir + filename
-	n_samples = 1
+	n_samples = 1000
 	print("testing significance of " + filename)
 	# load source sentences and gold edits
 	source_sentences, gold_edits = m2scorer.load_annotation(gold_file)
@@ -61,25 +61,32 @@ def m2score_sig(filename, gold_file=r"/home/borgr/ucca/data/conll14st-test-data/
 
 	statfunction = lambda source, gold, system: m2scorer.get_score(system, source, gold, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
 	data = (source_sentences, gold_edits, system_sentences)
-	test_significance(statfunction, data, output_dir + str(n_samples) + filename, n_samples)
+	test_significance(statfunction, data, output_dir + str(n_samples)+"_2changes" + filename, n_samples=n_samples)
+	# n_samples = 100
+	# data = (np.array([1,2,3]), np.array([2,3,4]), np.array([4,5,6]))
+	# def temp(x,y,z):
+	# 	global count
+	# 	count += 1
+	# 	print(count)
+	# 	return np.random.rand(1)
+	# test_significance(temp, data, None, n_samples=n_samples)
 
 
-def test_significance(statfunction, data, filename=None, alpha=0.05, n_samples=100):
+
+def test_significance(statfunction, data, filename=None, alpha=0.05, n_samples=100, method='bca', output='lowhigh', epsilon=0.001, multi=True):
 	""" checks the confidence rate of alpha over n_samples based on the empirical distribution data writes to file the results.
 		if filename already exists its content is considered to be the results of the function
 		if filename is None the results are not save to any file"""
-
+	print("calculating for " + str(filename))
 	if filename == None:
-		res = scikits.bootstrap.ci(data, statfunction=statfunction, alpha=alpha, n_samples=n_samples)
+		res = scikits.bootstrap.ci(data, statfunction, alpha, n_samples, method, output, epsilon, multi)
 	elif not os.path.isfile(filename):
-		print("writing")
-		res = scikits.bootstrap.ci(data, statfunction=statfunction, alpha=alpha, n_samples=n_samples)
-		print("tested")
+		res = scikits.bootstrap.ci(data, statfunction, alpha, n_samples, method, output, epsilon, multi)
 		with open(filename, "w") as fl:
-			fl.write(res)
+			fl.write(str(res))
 	else:
 		with open(filename, "r") as fl:
-			res = filename.readlines()
+			res = fl.readlines()
 	print(filename, "results:", res)
 	return res
 
