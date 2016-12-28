@@ -46,9 +46,7 @@ def poisson_binomial_PMFS_DFT(ps):
 	"""
 	"""
 	hashable = tuple(ps)
-	if hashable in dft_cache:
-		print(sum(dft_cache[hashable]))
-	else:
+	if hashable not in dft_cache:
 		ps_num = len(ps)
 		omega = (2*math.pi)/(ps_num + 1)
 		a = np.ones((ps_num+1, ))
@@ -65,7 +63,6 @@ def poisson_binomial_PMFS_DFT(ps):
 			b[l] = -b[ps_num +1 -l]
 		x = a + 1j * b
 		result = np.fft.fft(x / (ps_num + 1))
-		print("check dft") #TODO check and delete<
 
 		dft_cache[hashable] = np.real(result)
 	return dft_cache[hashable]
