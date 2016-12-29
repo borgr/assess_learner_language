@@ -58,15 +58,15 @@ def m2score_sig(filename, gold_file=r"/home/borgr/ucca/data/conll14st-test-data/
 
 	statfunction = lambda source, gold, system: m2scorer.get_score(system, source, gold, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
 	data = (source_sentences, gold_edits, system_sentences)
-	test_significance(statfunction, data, output_dir + str(n_samples)+"_2changes" + filename, n_samples=n_samples)
-	# n_samples = 1403
-	# def temp(x,y,z):
-	# 	global count
-	# 	count += 1
-	# 	print (count)
-	# 	print(x[0],y[0],z[0])
-	# 	return np.random.rand(1)
-	# test_significance(temp, data, None, n_samples=n_samples)
+	# test_significance(statfunction, data, output_dir + str(n_samples)+"_2changes" + filename, n_samples=n_samples)
+	n_samples = 1403
+	def temp(x,y,z):
+		global count
+		count += 1
+		print (count)
+		print(x[0],y[0],z[0])
+		return np.random.rand(3)
+	test_significance(temp, data, None, n_samples=n_samples)
 
 
 

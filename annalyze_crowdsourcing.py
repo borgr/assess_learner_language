@@ -53,7 +53,7 @@ COVERAGE_METHODS = [lambda results: np.mean(results, axis = 1).flatten()] # all:
 MEAN_MEASURE = "Mean coverage"
 MEASURE_NAMES = [MEAN_MEASURE] # all:["Mean coverage", "Probabillity of more than " + str(COVERAGE_GOAL) + " coverage "]
 # x
-CORRECTION_NUMS = list(range(20))
+CORRECTION_NUMS = list(range(21))
 
 
 def main():
@@ -65,10 +65,10 @@ def main():
 	learner_sentences = db[LEARNER_SENTENCES_COL].unique()
 	show_correction = False
 	save_correction = False
-	show_coverage = True
+	show_coverage = False
 	save_coverage = True
 
-	# print(db[LEARNER_SENTENCES_COL])
+
 	compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
 
 	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db[LEARNER_SENTENCES_COL], db[CORRECTED_SENTENCES_COL])
@@ -81,14 +81,6 @@ def main():
 	assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 	coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 
-	# for correction_index in range(len(CORRECTION_NUMS)):
-	# 	print("number of corrections:",CORRECTION_NUMS[correction_index])
-	# 	ps = np.fromiter((coverages[correction_index] for coverages in coverage_by_corrections_num), np.float)
-	# 	print("coverage", ps)
-	# 	for n in range(len(coverage_by_corrections_num)+1):
-	# 		print("probabilities to get ", n, " approx, exact:\n", get_probability_with_belief(ps, n, 1, True, pdf=True), get_probability_with_belief(ps, n, 1, False, pdf=True))
-
-
 def clean_data(db):
 	# clean rejections
 	db = db[db.AssignmentStatus != "Rejected"]
@@ -100,12 +92,12 @@ def clean_data(db):
 		if (len(db[(db[LEARNER_SENTENCES_COL] == db[CORRECTED_SENTENCES_COL]) &
 			     (db[LEARNER_SENTENCES_COL] == sentence)])
 			     >= max_no_correction_needed):
-			# print("not using ", sentence)
 			db = db[db[LEARNER_SENTENCES_COL] != sentence]
 	return db
 
 
 def get_trial_num(create_if_needed=True):
+	""" gets a uniqe trial number that changes with every change of COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS""" 
 	trial_indicators = (COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS)
 	trials = []
 	filename = DATA_DIR + TRIALS_FILE
@@ -175,9 +167,18 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 				fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
 				save = PLOTS_DIR + fig_prefix + r"_coverage" + ".svg"
 			title_addition = "using " + COMPARISON_METHODS[comparison_method_key] + " comparison"
-			# plot_coverage_for_each_sentence(dist, axes, title_addition, show, save, xlabel)
+			plot_coverage_for_each_sentence(dist, axes, title_addition, show, save, xlabel)
+
+			if save:
+				fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
+				save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".svg"
 
 			plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel)
+
+			if save:
+				fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
+				save = PLOTS_DIR + fig_prefix + r"_covered_corrections_dist" + ".svg"
+			plot_covered_corrections_distribution([correction for correction in CORRECTION_NUMS if correction > 0], dist, plt.subplot("111"), title_addition, show, save, xlabel)
 	# extract value for return
 	res = []
 	for comparison_method_key, dist in enumerate(all_ys):
@@ -187,23 +188,60 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 					res.append(y)
 	return np.array(res)
 
+def plot_covered_corrections_distribution(corrections_to_plot, dist, ax, title_addition="", show=True, save_name=None, xlabel=None):
+	#corrections_num -> coverage 
+	coverage_by_corrections_num = []
+	for sent_key, ys in enumerate(dist):
+		for i, y in enumerate(ys):
+			if MEASURE_NAMES[i] == MEAN_MEASURE:
+				coverage_by_corrections_num.append(y)
 
-def get_probability_with_belief(ps, n, belief=1, approximate=False, pdf=False):
+	ys = []
+	for correction_index, correction_num in enumerate(CORRECTION_NUMS):
+		if correction_num in corrections_to_plot:
+			ps = np.fromiter((coverage[correction_index] for coverage in coverage_by_corrections_num), np.float)
+			ys.append(get_probability_with_belief(ps, 1, pdf=True, all=True))
+
+	x = np.arange(len(ps) + 1)
+	colors = rainbow_colors(range(len(corrections_to_plot)))
+	for y, color, correction_num in zip(ys,colors.values(), corrections_to_plot):
+		ax.plot(x, y, color=color, label=correction_num)
+
+	ax.set_ylabel("probabillity")
+	ax.set_xlabel("number of covered sentences")
+	ax.set_title("probabillity distribution for correct sentences covered in g.s.\n" + "out of " + str(len(x)-1) + " " + title_addition)
+	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True, title="corrections in g.s.")
+	if save_name:
+		plt.savefig(save_name)
+	if show:
+		plt.show()
+	plt.cla()
+def get_probability_with_belief(ps, n, belief=1, approximate=False, pdf=False, all=False):
 	""" given probabilities of rightly identifying a good correction as such for each sentence,
 		and a belief of the probability for an output to be correct, computes the probability 
 		to find that n sentences are correct  """	
 	new_ps = ps * belief
-	if pdf:
+	if all:
 		if approximate:
-			return pb.poisson_binomial_PMF_possion_approximation(new_ps, n)
+			return np.array([get_probability_with_belief(new_ps, n, 1, approximate, pdf, all) for n in range(len(ps)+1)])
+		
 		else:
-			return pb.poisson_binomial_PMF_DFT(new_ps, n)
-		# return pb.poisson_binomial_PMF(new_ps, n)
+			if pdf:
+				return pb.poisson_binomial_PMFS_DFT(new_ps)
+			else:
+				return np.cumsum(pb.poisson_binomial_PMFS_DFT(new_ps))
 	else:
-		if approximate:
-			return pb.poisson_binomial_CDF_refined_normal_approximation(new_ps, n)
+		if pdf:
+			if approximate:
+				return pb.poisson_binomial_PMF_possion_approximation(new_ps, n)
+			else:
+				return pb.poisson_binomial_PMF_DFT(new_ps, n)
+			# return pb.poisson_binomial_PMF(new_ps, n)
 		else:
-			return pb.poisson_binomial_CDF_DFT(new_ps, n)
+			if approximate:
+				return pb.poisson_binomial_CDF_refined_normal_approximation(new_ps, n)
+			else:
+				return pb.poisson_binomial_CDF_DFT(new_ps, n)
 
 def mass_for_poisson_binomial_probability_range(ps, range, belief=1, approximate=False):
 	"""returns the sum of probability mass in the range"""
