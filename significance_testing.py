@@ -46,7 +46,7 @@ count=0
 def m2score_sig(filename, gold_file=r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2", input_dir = r"/home/borgr/ucca/data/paragraphs/", output_dir = r"/home/borgr/ucca/assess_learner_language/results/significance/"):
 
 	system_file = input_dir + filename
-	n_samples = 1000
+	n_samples = 10
 	print("testing significance of " + filename)
 	# load source sentences and gold edits
 	source_sentences, gold_edits = m2scorer.load_annotation(gold_file)
@@ -58,15 +58,17 @@ def m2score_sig(filename, gold_file=r"/home/borgr/ucca/data/conll14st-test-data/
 
 	statfunction = lambda source, gold, system: m2scorer.get_score(system, source, gold, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
 	data = (source_sentences, gold_edits, system_sentences)
-	# test_significance(statfunction, data, output_dir + str(n_samples)+"_2changes" + filename, n_samples=n_samples)
-	n_samples = 1403
-	def temp(x,y,z):
-		global count
-		count += 1
-		print (count)
-		print(x[0],y[0],z[0])
-		return np.random.rand(3)
-	test_significance(temp, data, None, n_samples=n_samples)
+	test_significance(statfunction, data, output_dir + str(n_samples)+"_2changes" + filename, n_samples=n_samples)
+	# n_samples = 1403
+	# def temp(x,y,z):
+	# 	global count
+	# 	count += 1
+	# 	# print(len(x),len(y),len(z))
+	# 	# print (count)
+	# 	# print(x[0],y[0],z[0])
+	# 	print(y)
+	# 	return np.random.uniform(0,1), np.random.uniform(1,2), np.random.uniform(2,3)
+	# test_significance(temp, data, None, n_samples=n_samples)
 
 
 
@@ -76,7 +78,7 @@ def test_significance(statfunction, data, filename=None, alpha=0.05, n_samples=1
 		if filename is None the results are not save to any file"""
 	print("calculating for " + str(filename))
 	if filename == None:
-		res = scikits.bootstrap.ci(data, statfunction, alpha, n_samples, method, output, epsilon)
+		res = scikits.bootstrap.ci(data, statfunction, alpha, n_samples, method, output, epsilon, multi)
 	elif not os.path.isfile(filename):
 		res = scikits.bootstrap.ci(data, statfunction, alpha, n_samples, method, output, epsilon, multi)
 		with open(filename, "w") as fl:

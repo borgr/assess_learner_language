@@ -1,3 +1,4 @@
+import scikits.bootstrap
 import poisson_binomial as pb
 from multiprocessing import Pool
 from nltk import word_tokenize
@@ -216,6 +217,7 @@ def plot_covered_corrections_distribution(corrections_to_plot, dist, ax, title_a
 	if show:
 		plt.show()
 	plt.cla()
+
 def get_probability_with_belief(ps, n, belief=1, approximate=False, pdf=False, all=False):
 	""" given probabilities of rightly identifying a good correction as such for each sentence,
 		and a belief of the probability for an output to be correct, computes the probability 
@@ -398,6 +400,8 @@ def export_hists(l, data, comparison_by, HISTS_DIR):
 		with open(filename, "w+") as fl:
 			fl.writelines(y)
 
+def expected_accuracy(ps):
+	return pb.mu(ps)/len(ps)
 
 def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_name=None, xlabel=None):
 	""" plots a line for each sentence
@@ -411,14 +415,23 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 			if MEASURE_NAMES[i] == MEAN_MEASURE:
 				coverage_by_corrections_num.append(y)
 
+	top = []
+	bottom = []
+	cis = [bottom, top]
 	x = []
 	y = []
 	for correction_index, correction_num in enumerate(CORRECTION_NUMS):
 		ps = np.fromiter((coverage[correction_index] for coverage in coverage_by_corrections_num), np.float)
-		expected_accuracy = pb.mu(ps)/len(ps)
 		x.append(correction_num)
-		y.append(expected_accuracy)
-
+		y.append(expected_accuracy(ps))
+		if np.all(ps == ps*0) or np.all(ps - 1 == ps*0):
+			ci = [0,0]
+		else:
+			ci = scikits.bootstrap.ci(ps, expected_accuracy)
+			ci = [[y[-1] - float(ci[0])],[float(ci[1])] - y[-1]]
+		top.append(ci[1])
+		bottom.append(ci[0])
+	ax.errorbar(x, y, yerr=cis)
 	ax.plot(CORRECTION_NUMS, y)
 	ax.set_ylabel("Expected accuracy")
 	if xlabel:

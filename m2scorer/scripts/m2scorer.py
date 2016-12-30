@@ -135,10 +135,10 @@ def main():
     p, r, f1 = get_score(system_sentences, source_sentences, gold_edits, max_unchanged_words, beta, ignore_whitespace_casing, verbose, very_verbose)
 cache = {}
 def get_score(system_sentences, source_sentences, gold_edits, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=False, verbose=False, very_verbose=False):
-    hashable = tuple([system_sentences[i][20] for i in range(30)])
+    hashable = tuple([system_sentences[i][:20] for i in range(30)])
     if hashable in cache:
-    	print("caching")
-    	return cache[hashable]
+        print("caching")
+        return cache[hashable]
     p, r, f1 = levenshtein.batch_multi_pre_rec_f1(system_sentences, source_sentences, gold_edits, max_unchanged_words, beta, ignore_whitespace_casing, verbose, very_verbose)
     if verbose:
     	print(p,r,f1)
