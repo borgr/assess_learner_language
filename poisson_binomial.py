@@ -1,3 +1,6 @@
+ #!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 """ a class for different poisson binomial calculations, in all functions ps is expected to be a list with the probabilities"""
 import operator
 import functools
