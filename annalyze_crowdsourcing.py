@@ -26,6 +26,7 @@ from correction_quality import align_sentence_words
 from correction_quality import preprocess_word
 
 #file locations
+GOLD_FILE = r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2"
 corrections_dir = r"/home/borgr/ucca/assess_learner_language/batches/"
 TRIALS_FILE = "trials"
 DATA_DIR = r"/home/borgr/ucca/assess_learner_language/calculations_data/"
@@ -55,13 +56,15 @@ MEAN_MEASURE = "Mean coverage"
 MEASURE_NAMES = [MEAN_MEASURE] # all:["Mean coverage", "Probabillity of more than " + str(COVERAGE_GOAL) + " coverage "]
 # x
 CORRECTION_NUMS = list(range(21))
-
+ALTERNATIVE_GOLD_MS = [2,5,8]
 
 def main():
 	frames = []
 	for batch_file in BATCH_FILES:
 		frames.append(pd.read_csv(corrections_dir + batch_file))
 	db = pd.concat(frames)
+	create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
+
 	db = clean_data(db)
 	learner_sentences = db[LEARNER_SENTENCES_COL].unique()
 	show_correction = False
@@ -69,10 +72,8 @@ def main():
 	show_coverage = False
 	save_coverage = True
 
-
 	compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
-
-	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db[LEARNER_SENTENCES_COL], db[CORRECTED_SENTENCES_COL])
+	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
 	compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
 	for root, dirs, files in os.walk(HISTS_DIR):
 		for filename in files:
@@ -82,44 +83,178 @@ def main():
 	assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 	coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 
-def clean_data(db):
-	# clean rejections
-	db = db[db.AssignmentStatus != "Rejected"]
-	db.loc[:,CORRECTED_SENTENCES_COL] = db[CORRECTED_SENTENCES_COL].apply(normalize_sentence)
-	db.loc[:,LEARNER_SENTENCES_COL] = db[LEARNER_SENTENCES_COL].apply(normalize_sentence)
-	max_no_correction_needed = 8
-	# ignore sentences that many annotators say no corrections are needed for them
-	for sentence in db[LEARNER_SENTENCES_COL].unique():
-		if (len(db[(db[LEARNER_SENTENCES_COL] == db[CORRECTED_SENTENCES_COL]) &
-			     (db[LEARNER_SENTENCES_COL] == sentence)])
-			     >= max_no_correction_needed):
-			db = db[db[LEARNER_SENTENCES_COL] != sentence]
-	return db
+def create_golds(sentences, corrections, gold_file, ms):
+	""" writes a m2 file and a perfect output by sampling a sentence for sentences for each ungrammatical sentence in gold_file"""
+	for m in ms:
+		m2file, perfectOutput = choose_corrections_for_gold(gold_file, sentences, corrections, m)
+		filename = str(m) + "_sgss.m2"
+		with open(DATA_DIR + filename, "w") as fl:
+			fl.writelines(m2file)
+		filename = "perfect_output_for_" + str(m) + "_sgss.m2"
+		with open(DATA_DIR + filename, "w") as fl:
+			fl.writelines(perfectOutput)
+
+def choose_corrections_for_gold(gold_file, sentences, corrections, m):
+	""" creates (source_sentences, gold_edits, system_sentences) tuple that can be passed as data for m2scorer.
+		The function replaces sentences that need corrections with sentences from sentences and adds m corrections
+		to the gold edits and system sentences as needed. """
+	# print("_____\nsentences", sentences)
+	correction4gold = []
+	perfectOutput = []
+	with open(gold_file, "r") as fl:
+		lines = fl.readlines()
+	i = 0
+	while i < len(lines):
+		if lines[i].startswith("S"):
+			if i+1 == len(lines) or not lines[i+1].startswith("A"):
+				correction4gold.append(lines[i])
+				perfectOutput.append(lines[i][2:])
+			else:
+				chosen_index = -1
+				# while chosen_index not in sentences
+				chosen_index = np.random.randint(0, sentences.size - 1)
+				# print("chosen_index", chosen_index, "num of sentences", sentences.size)
+				chosen_sentence = sentences.iloc[chosen_index]
+				num_chosen = 0
+				# print(sentences, "\nchosen sentences:", chosen_sentence)
+				corresponding_corrections = corrections[sentences == chosen_sentence]
+				correction4gold.append("S " + chosen_sentence + "\n")
+				while num_chosen < m:
+					chosen_ind = np.random.randint(0, corresponding_corrections.size)
+					addition = convert_correction_to_m2(chosen_sentence, corresponding_corrections.iloc[chosen_ind], num_chosen)
+					if not addition:
+						addition = ["A -1 -1|||noop|||-NONE-|||REQUIRED|||-NONE-|||" + str(num_chosen) + "\n"]
+					correction4gold += addition
+
+					num_chosen += 1
+				chosen_ind = np.random.randint(0, corresponding_corrections.size)
+				perfectOutput.append(corresponding_corrections.iloc[chosen_ind]+"\n")
+			correction4gold.append("\n")
+		i+=1
+	return correction4gold, perfectOutput
 
 
-def get_trial_num(create_if_needed=True):
-	""" gets a uniqe trial number that changes with every change of COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS""" 
-	trial_indicators = (COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS)
-	trials = []
-	filename = DATA_DIR + TRIALS_FILE
-	if os.path.isfile(filename):
-		with open(filename, "rb") as fl:
-			trials = pickle.load(fl)
-			if trial_indicators in trials:
-				return trials.index(trial_indicators)
-	else:
-		print("trials file not found, creating a new one:" + filename)
-	# if this is a new trial
-	if create_if_needed:
-		trials.append(trial_indicators)
-		with open(filename, "wb+") as fl:
-			pickle.dump(trials, fl)
-			return trials.index(trial_indicators)
-	else:
-		return -1
+def convert_correction_to_m2(source, correct, annotator_num=0):
+	lines = []
+	correct = re.sub(r"(\w)([,\.\(\)])",r"\1 \2", correct)
+	source = re.sub(r"(\w)([,\.\(\)])",r"\1 \2", source)
+	# source = re.sub(r"(\w)\.",r"\1 .", source)
+	words_align, index_align = (align_sentence_words(source, correct, True))
+	s = source.split()
+	c = correct.split()
+	i, j = 0, 0
+	while i < len(s) or j < len(c):
+		error = None
+		if i >= len(s):
+			error = "Wform"
+			# print("i length", i, j, " ".join(c[j:]))
+			span = (len(s),len(s))
+			correction = " ".join(c[j:])
+			j = len(c)
+		elif j >= len(c):
+			error = "Wform"
+			# print("j length", i,j)
+			span = (i, len(s))
+			correction = ""
+			i = len(s)
+		elif not is_same_words(s[i], c[j]):
+			error = "Wform"
+			if (i, j) in index_align:
+				# print("same index", i, j)
+				#aligned change
+				span = (i, i+1)
+				correction = c[j]
+				i += 1
+				j += 1
+			elif (i, -1) in index_align:
+				# print("i unmapped", i, j)
+				# source mapped to nothing
+				span = (i, i + 1)
+				correction = ""
+				i += 1
+			# elif(-1, j):
+			# 	# correction mapped to nothing
+			# 	span = (i,tmpi)
+			# 	correction = " ".join(c[j:tmpj])
+			# 	j += 1
+			elif (i, j+1) in index_align:
+				# print("j+1 mapped to current i", i, j)
+				span = (i, i)
+				correction = c[j]
+				j += 1
+			elif (i+1, j) in index_align:
+				# print("i+1 mapped to current j", i, j)
+				span = (i, i+1)
+				correction = ""
+				i += 1
+			elif (i, j+2) in index_align:
+				# print("j+2 mapped to current i", i, j)
+				span = (i, i)
+				correction = " ".join(c[j:j+2])
+				j += 2
+			elif (i+2, j) in index_align:
+				# print("i+2 mapped to current j", i, j)
+				span = (i, i+2)
+				correction = ""
+				i += 2
+			elif (i, j+3) in index_align:
+				# print("j+3 mapped to current i", i, j)
+				span = (i, i)
+				correction = " ".join(c[j:j+3])
+				j += 3
+			elif (i+3, j) in index_align:
+				# print("i+3 mapped to current j", i, j)
+				span = (i, i+3)
+				correction = ""
+				i += 3
+			else:
+				# print("special case ", i, j)
+				# i,j are not aligned and not deleted but we still got here 
+				# print("test that. what happens when s longer? when c longer?")
+				tmpi = i + 1
+				tmpj = j + 1
+				while ((tmpi < len(s) and tmpj < len(c)) and
+					(not is_same_words(s[tmpi], c[tmpj])) and 
+					((tmpi, -1) in index_align or (-1, tmpj) in index_align)):
+					if (tmpi, -1) in index_align:
+						tmpi += 1
+					if (-1, tmpj) in index_align:
+						tmpj += 1
+				if (tmpi, tmpj) in index_align:
+					span = (i, tmpi)
+					correction = " ".join(c[j:tmpj])
+					i = tmpi
+					j = tmpj
+				else:
+					span = (i, i+1)
+					correction = c[j]
+					i += 1
+					j += 1
+		else:
+			i += 1
+			j += 1
+		if error:
+			# print("span:", span)
+			# print("correction", correction)
+			lines.append("A " + str(span[0]) + " " + str(span[1]) + "|||" + error + "|||" + correction+"|||REQUIRED|||-NONE-|||"+str(annotator_num) + "\n")
+	# last_source_index = 0
+	# for (w1, w2), (i, j) in zip(words_align, index_align):
+	# 	if not is_same_words(w1, w2):
+		# 	if i == -1:
+		# 		span = (last_source_index,last_source_index)
+		# 	else:
+		# 		span = (i, i+1)
+		# 		last_source_index = i
+		# 	error = "Wform"
+		# 	correction = w2
+		# 	lines.append("A " + str(span[0]) + " " + str(span[1]) + "|||" + error + "|||" + correction+"|||REQUIRED|||-NONE-|||"+str(annotator_num))
+		# else:
+		# 	last_source_index = i
+	return lines
 
 
 def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT_COMP, res_measure=MEAN_MEASURE):
+	""" runs all computations relevant to coverage assessments (calculations and plotting)""" 
 	trial_num = get_trial_num()
 	repeat = "" if only_different_samples else "_repeat"
 	repeat += "_" + str(REPETITIONS)
@@ -189,34 +324,6 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 					res.append(y)
 	return np.array(res)
 
-def plot_covered_corrections_distribution(corrections_to_plot, dist, ax, title_addition="", show=True, save_name=None, xlabel=None):
-	#corrections_num -> coverage 
-	coverage_by_corrections_num = []
-	for sent_key, ys in enumerate(dist):
-		for i, y in enumerate(ys):
-			if MEASURE_NAMES[i] == MEAN_MEASURE:
-				coverage_by_corrections_num.append(y)
-
-	ys = []
-	for correction_index, correction_num in enumerate(CORRECTION_NUMS):
-		if correction_num in corrections_to_plot:
-			ps = np.fromiter((coverage[correction_index] for coverage in coverage_by_corrections_num), np.float)
-			ys.append(get_probability_with_belief(ps, 1, pdf=True, all=True))
-
-	x = np.arange(len(ps) + 1)
-	colors = rainbow_colors(range(len(corrections_to_plot)))
-	for y, color, correction_num in zip(ys,colors.values(), corrections_to_plot):
-		ax.plot(x, y, color=color, label=correction_num)
-
-	ax.set_ylabel("probabillity")
-	ax.set_xlabel("number of covered sentences")
-	ax.set_title("probabillity distribution for correct sentences covered in g.s.\n" + "out of " + str(len(x)-1) + " " + title_addition)
-	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True, title="corrections in g.s.")
-	if save_name:
-		plt.savefig(save_name)
-	if show:
-		plt.show()
-	plt.cla()
 
 def get_probability_with_belief(ps, n, belief=1, approximate=False, pdf=False, all=False):
 	""" given probabilities of rightly identifying a good correction as such for each sentence,
@@ -276,6 +383,7 @@ def ranges_for_poisson_binomial_probability_mass(ps, mass, belief=1, approximate
 
 
 def find_changed_indexes(unique, sentences, corrections):
+	corrections = corrections.copy()
 	for sentence in unique:
 		converter = lambda x: convert_sentence_to_diff_indexes(sentence, x)
 		indexing = sentences == sentence
@@ -288,8 +396,10 @@ def remove_POS(sent, pos_tags):
 	sent = " ".join([word for word,tag in tags if tag not in pos_tags])
 	return sent
 
+
 def read_dist_from_file(filename):
 	return np.transpose(np.loadtxt(filename, skiprows=1))
+
 
 def assess_real_distributions(filename, minFrequency=0):
 	outfile = filename.replace(INPUT_HIST_IDENTIFIER, OUTPUT_HIST_IDENTIFIER)
@@ -402,6 +512,37 @@ def export_hists(l, data, comparison_by, HISTS_DIR):
 
 def expected_accuracy(ps):
 	return pb.mu(ps)/len(ps)
+
+
+def plot_covered_corrections_distribution(corrections_to_plot, dist, ax, title_addition="", show=True, save_name=None, xlabel=None):
+	#corrections_num -> coverage 
+	coverage_by_corrections_num = []
+	for sent_key, ys in enumerate(dist):
+		for i, y in enumerate(ys):
+			if MEASURE_NAMES[i] == MEAN_MEASURE:
+				coverage_by_corrections_num.append(y)
+
+	ys = []
+	for correction_index, correction_num in enumerate(CORRECTION_NUMS):
+		if correction_num in corrections_to_plot:
+			ps = np.fromiter((coverage[correction_index] for coverage in coverage_by_corrections_num), np.float)
+			ys.append(get_probability_with_belief(ps, 1, pdf=True, all=True))
+
+	x = np.arange(len(ps) + 1)
+	colors = rainbow_colors(range(len(corrections_to_plot)))
+	for y, color, correction_num in zip(ys,colors.values(), corrections_to_plot):
+		ax.plot(x, y, color=color, label=correction_num)
+
+	ax.set_ylabel("probabillity")
+	ax.set_xlabel("number of covered sentences")
+	ax.set_title("probabillity distribution for correct sentences covered in g.s.\n" + "out of " + str(len(x)-1) + " " + title_addition)
+	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True, title="corrections in g.s.")
+	if save_name:
+		plt.savefig(save_name)
+	if show:
+		plt.show()
+	plt.cla()
+
 
 def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_name=None, xlabel=None):
 	""" plots a line for each sentence
@@ -566,9 +707,45 @@ def rainbow_colors(labels):
 ###################################################################################
 ####							general\NLP	
 ###################################################################################
+def clean_data(db):
+	# clean rejections
+	db = db[db.AssignmentStatus != "Rejected"]
+	db.loc[:,CORRECTED_SENTENCES_COL] = db[CORRECTED_SENTENCES_COL].apply(normalize_sentence)
+	db.loc[:,LEARNER_SENTENCES_COL] = db[LEARNER_SENTENCES_COL].apply(normalize_sentence)
+	max_no_correction_needed = 8
+	# ignore sentences that many annotators say no corrections are needed for them
+	for sentence in db[LEARNER_SENTENCES_COL].unique():
+		if (len(db[(db[LEARNER_SENTENCES_COL] == db[CORRECTED_SENTENCES_COL]) &
+			     (db[LEARNER_SENTENCES_COL] == sentence)])
+			     >= max_no_correction_needed):
+			db = db[db[LEARNER_SENTENCES_COL] != sentence]
+	return db
+	
+def get_trial_num(create_if_needed=True):
+	""" gets a uniqe trial number that changes with every change of COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS""" 
+	trial_indicators = (COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS)
+	trials = []
+	filename = DATA_DIR + TRIALS_FILE
+	if os.path.isfile(filename):
+		with open(filename, "rb") as fl:
+			trials = pickle.load(fl)
+			if trial_indicators in trials:
+				return trials.index(trial_indicators)
+	else:
+		print("trials file not found, creating a new one:" + filename)
+	# if this is a new trial
+	if create_if_needed:
+		trials.append(trial_indicators)
+		with open(filename, "wb+") as fl:
+			pickle.dump(trials, fl)
+			return trials.index(trial_indicators)
+	else:
+		return -1
+
 
 def isBatchFile(filename):
 	return "batch" in filename and filename.split(".")[-1].lower() == "csv"
+
 
 def normalize_sentence(s):
 	s = re.sub(r"\W+", r" ", s)
@@ -581,6 +758,9 @@ def is_same_words(w1, w2):
 
 
 def convert_sentence_to_diff_indexes(original, sentence):
+	""" aligns the sentences and returns an ordered tuple of the places
+		where the original was changed,
+		new words are considered as changed at the end of the sentence."""
 	indexes = []
 	words_align, index_align = (align_sentence_words(original, sentence, True))
 	max_ind = max(index_align, key=lambda x:x[0])[0]
