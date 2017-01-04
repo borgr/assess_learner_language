@@ -467,17 +467,19 @@ def calculate_endings(sentences, paragraph):
 		endings.append(current)
 	return endings
 
-def align_sentence_words(s1, s2, bool, empty_cache=False):
+def align_sentence_words(s1, s2, isString, empty_cache=False):
+	"""aligns words from sentence s1 to s2m, allows caching
+		returns arrays of word tuplds and indexes tuples"""
 	if empty_cache:
 		align_sentence_words.cache={}
 		return
-	if (s1, s2, bool) in align_sentence_words.cache:
-		return align_sentence_words.cache[(s1, s2, bool)]
-	elif (s2, s1, bool) in align_sentence_words.cache:
-		return align_sentence_words.cache[(s2, s1, bool)]
+	if (s1, s2, isString) in align_sentence_words.cache:
+		return align_sentence_words.cache[(s1, s2, isString)]
+	elif (s2, s1, isString) in align_sentence_words.cache:
+		return align_sentence_words.cache[(s2, s1, isString)]
 	else:
-		res = align.align(s1, s2, bool)
-		align_sentence_words.cache[(s2, s1, bool)] = res
+		res = align.align(s1, s2, isString)
+		align_sentence_words.cache[(s2, s1, isString)] = res
 		return res
 align_sentence_words.cache={}
 
