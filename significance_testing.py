@@ -37,7 +37,7 @@ def main():
 	camb_file,
 	gold_file]
 	pool = Pool(3)
-	results = pool.imap(m2score_sig, files)
+	results = pool.imap_unordered(m2score_sig, files)
 	pool.close()
 	pool.join()
 	print(list(results))
