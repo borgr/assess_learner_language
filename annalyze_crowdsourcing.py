@@ -63,6 +63,7 @@ def main():
 	for batch_file in BATCH_FILES:
 		frames.append(pd.read_csv(corrections_dir + batch_file))
 	db = pd.concat(frames)
+
 	create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
 
 	db = clean_data(db)
@@ -107,9 +108,11 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m):
 	while i < len(lines):
 		if lines[i].startswith("S"):
 			if i+1 == len(lines) or not lines[i+1].startswith("A"):
+				# print("norm")
 				correction4gold.append(lines[i])
 				perfectOutput.append(lines[i][2:])
 			else:
+				# print("change")
 				chosen_index = -1
 				# while chosen_index not in sentences
 				chosen_index = np.random.randint(0, sentences.size - 1)
@@ -121,14 +124,24 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m):
 				correction4gold.append("S " + chosen_sentence + "\n")
 				while num_chosen < m:
 					chosen_ind = np.random.randint(0, corresponding_corrections.size)
-					addition = convert_correction_to_m2(chosen_sentence, corresponding_corrections.iloc[chosen_ind], num_chosen)
+					chosen_correction = corresponding_corrections.iloc[chosen_ind]
+					# if chosen_correction.count("\n") != 1:
+					# 	chosen_correction = chosen_correction.split("\n")[-1]
+					# 	print(chosen_correction)
+					addition = convert_correction_to_m2(chosen_sentence, chosen_correction, num_chosen)
 					if not addition:
 						addition = ["A -1 -1|||noop|||-NONE-|||REQUIRED|||-NONE-|||" + str(num_chosen) + "\n"]
 					correction4gold += addition
 
 					num_chosen += 1
 				chosen_ind = np.random.randint(0, corresponding_corrections.size)
-				perfectOutput.append(corresponding_corrections.iloc[chosen_ind]+"\n")
+				chosen_correction = corresponding_corrections.iloc[chosen_ind]
+				if chosen_correction.count("\n") != 0:
+					chosen_correction = chosen_correction.split("\n")[-1]
+				perfectOutput.append(chosen_correction + "\n")
+				if perfectOutput[-1].count("\n") != 1:
+					print("bad sentence",perfectOutput[-1])
+					raise("?")
 			correction4gold.append("\n")
 		i+=1
 	return correction4gold, perfectOutput
@@ -301,19 +314,19 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 			axes = [plt.subplot("1"+str(axis_num)+str(i+1)) for i in range(axis_num)]
 			if save:
 				fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
-				save = PLOTS_DIR + fig_prefix + r"_coverage" + ".svg"
+				save = PLOTS_DIR + fig_prefix + r"_coverage" + ".png"
 			title_addition = "using " + COMPARISON_METHODS[comparison_method_key] + " comparison"
 			plot_coverage_for_each_sentence(dist, axes, title_addition, show, save, xlabel)
 
 			if save:
 				fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
-				save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".svg"
+				save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
 
 			plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel)
 
 			if save:
 				fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
-				save = PLOTS_DIR + fig_prefix + r"_covered_corrections_dist" + ".svg"
+				save = PLOTS_DIR + fig_prefix + r"_covered_corrections_dist" + ".png"
 			plot_covered_corrections_distribution([correction for correction in CORRECTION_NUMS if correction > 0], dist, plt.subplot("111"), title_addition, show, save, xlabel)
 	# extract value for return
 	res = []
@@ -437,7 +450,6 @@ def compute_probability_to_account_async(distribution, samples, repetitions, onl
 	# it = pool.imap(lambda x: compute_coverage(cdf, probs, distribution, samples, only_different_samples), list(range(repetitions)))
 	it = []
 	it += list(pool.imap(__compute_coverage, [(cdf, probs, distribution, samples, only_different_samples)]*repetitions))
-	# print(np.array(it))
 	pool.close()
 	pool.join()
 	return np.array(it)
@@ -476,7 +488,7 @@ def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, sh
 		plot_differences_hist(learner_sentences, ax, concat, name)
 		print("amount of models ", amount_of_models)
 		if save:
-			plt.savefig(PLOTS_DIR + fig_prefix + r"_hist" + ".svg")
+			plt.savefig(PLOTS_DIR + fig_prefix + r"_hist" + ".png", bbox_inches='tight')
 		if show:
 			plt.show()
 
@@ -484,7 +496,7 @@ def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, sh
 		ax = plt.subplot("111")
 		plot_acounts_for_percentage(learner_sentences, ax, concat, name)
 		if save:
-			plt.savefig(PLOTS_DIR + fig_prefix + r"percentage_hist" + ".svg")
+			plt.savefig(PLOTS_DIR + fig_prefix + r"percentage_hist" + ".png", bbox_inches='tight')
 		if show:
 			plt.show()
 
@@ -493,7 +505,7 @@ def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, sh
 		# prefix_reverseXY = "_rev_" if reverseXY else ""
 		# plot_acounts_for_percentage(learner_sentences, ax, concat, name, reverseXY=reverseXY)
 		# if save:
-		# 	plt.savefig(PLOTS_DIR + fig_prefix + prefix_reverseXY + r"percentage_hist" + ".svg")
+		# 	plt.savefig(PLOTS_DIR + fig_prefix + prefix_reverseXY + r"percentage_hist" + ".png", bbox_inches='tight')
 		# if show:
 		# 	plt.show()
 	export_hists(learner_sentences, concat, name, HISTS_DIR)
@@ -538,7 +550,7 @@ def plot_covered_corrections_distribution(corrections_to_plot, dist, ax, title_a
 	ax.set_title("probabillity distribution for correct sentences covered in g.s.\n" + "out of " + str(len(x)-1) + " " + title_addition)
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True, title="corrections in g.s.")
 	if save_name:
-		plt.savefig(save_name)
+		plt.savefig(save_name, bbox_inches='tight')
 	if show:
 		plt.show()
 	plt.cla()
@@ -579,7 +591,7 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 		ax.set_xlabel(xlabel)
 	ax.set_title("Expected accuracy for perfect corrected text by corrections number\n" + title_addition)
 	if save_name:
-		plt.savefig(save_name)
+		plt.savefig(save_name, bbox_inches='tight')
 	if show:
 		plt.show()
 	plt.cla()
@@ -600,7 +612,7 @@ def plot_coverage_for_each_sentence(dist, axes, title_addition="", show=True, sa
 				ax.set_xlabel(xlabel)
 			ax.set_title(MEASURE_NAMES[i] + " of different amount of corrections\n" + title_addition)
 	if save_name:
-		plt.savefig(save_name)
+		plt.savefig(save_name, bbox_inches='tight')
 	if show:
 		plt.show()
 	plt.cla()
