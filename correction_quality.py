@@ -119,8 +119,8 @@ def main():
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
 		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
 		dump(res_list, filename)
-	else:
-		res_list.append(old_res[name])
+	# else:
+	# 	res_list.append(old_res[name])
 
 	# compare gold to origin
 	name = "gold"
@@ -951,7 +951,7 @@ def plot_comparison(l):
 	plot_aligned_by(l, ax)
 	ax = plt.subplot(224)
 	plot_not_aligned(l, ax)
-	plt.show()
+	# plt.show()
 	plt.clf()
 
 	data = []

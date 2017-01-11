@@ -584,7 +584,7 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 			ci = [[y[-1] - float(ci[0])],[float(ci[1])] - y[-1]]
 		top.append(ci[1])
 		bottom.append(ci[0])
-	ax.errorbar(x, y, yerr=cis, edgecolor=colors[i])
+	ax.errorbar(x, y, yerr=cis)
 	ax.plot(CORRECTION_NUMS, y)
 	ax.set_ylabel("Expected accuracy")
 	if xlabel:
