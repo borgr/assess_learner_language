@@ -12,6 +12,7 @@ def mu(ps):
 	return sum(ps)
 
 def std(ps):
+	ps = np.array(ps)
 	return np.sqrt(np.dot(ps,1-ps))
 
 def pval(ps, x, approximate=False):
@@ -28,6 +29,7 @@ def poisson_binomial_CDF_refined_normal_approximation(ps, n):
 	A refinement of normal approximation to Poisson binomial.
 	International Journal of Mathematics and Mathematical Sciences, 5, 717–728.
 	"""
+	ps = np.array(ps)
 	mu = mu(ps)
 	std = std(ps)
 	gamma = np.power(std, -3)*np.dot(np.multiply(ps,1-ps), 1-2*ps)
@@ -38,26 +40,36 @@ def poisson_binomial_CDF_refined_normal_approximation(ps, n):
 
 def poisson_binomial_CDF_normal_approximation(ps, n):
 	"""Based on central theorem"""
+	ps = np.array(ps)
 	mu = mu(ps)
 	std = std(ps)
 	gamma = np.power(std, -3)*np.dot(np.multiply(ps,1-ps), 1-2*ps)
 	x = (n + 0.5 - mu) / std
 	return scipy.stats.norm(0, 1).cdf(x)
 
-def poisson_binomial_PMF_DFT(ps, n):
-	return poisson_binomial_PMFS_DFT(ps)[n]
+def poisson_binomial_PMF_DFT(ps, n, emptyCache=False):
+	return poisson_binomial_PMFS_DFT(ps, emptyCache)[n]
 
-def poisson_binomial_CDF_DFT(ps, n):
-	return np.sum(poisson_binomial_PMFS_DFT(ps)[:n])
+def poisson_binomial_CDF_DFT(ps, n, emptyCache=False):
+	return np.sum(poisson_binomial_PMFS_DFT(ps, emptyCache)[:n])
 
 dft_cache = {}
-def poisson_binomial_PMFS_DFT(ps):
+def poisson_binomial_PMFS_DFT(ps, emptyCache=False):
 	""" calculates the whole distribution using DFT method
 		proposed by 
 		Hong, Yili. 
 		"On computing the distribution function for the Poisson binomial distribution."
 		Computational Statistics & Data Analysis 59 (2013): 41-51.
+		ps - an iterable of p values representing the distribution
+		emptyCache - If True empties the cache
+					 Should be checked if the user wishes no cache to be used,
+					  or wishes to discard the caching done so far 
+					  (e.g. when ps are not going to rpeat themselves).
 	"""
+	global dft_cache
+	if emptyCache:
+		dft_cache = {}
+	ps = np.array(ps)
 	hashable = tuple(ps)
 	if hashable not in dft_cache:
 		ps_num = len(ps)
