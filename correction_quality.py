@@ -60,9 +60,7 @@ NO_ALIGNED = ""
 def main():
 	global trial_name
 	trial_name = "_some_competitors"
-	change_date = "160918"
-	trial_name = "test"
-	change_date= "test"
+	change_date = "160111"
 	filename = "results/results"+ change_date + ".json"
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	learner_file = "conll.tok.orig"
@@ -409,19 +407,15 @@ def index_diff(s1, s2):
 	alignment, indexes = align_sentence_words(s1, s2, True)
 	sorted_alignment_indexes = [(w1, w2, i1, i2) for (w1, w2), (i1, i2) in zip(alignment, indexes)]
 	sorted_alignment_indexes = sorted(sorted_alignment_indexes, key = lambda x: x[3])
-	# print(alignment, indexes,s1,s2, sep="\n")
 	last = -1
 	res = 0
 
 	for w1, w2, i1, i2 in sorted_alignment_indexes:
-		# print(w1, w2, i1, i2)
 		if is_word(w1) and is_word(w2):
-			# print("both words, last was ",last)
 			if i1 < last:
 				assert (i1 != -1 and i2 != -1)
 				res += 1
 			last = i1
-	# print(res)
 	return res
 
 
@@ -445,7 +439,6 @@ def spearman_diff(s1, s2):
 
 def word_diff(s1, s2):
 	""" counts the number of aligned words that are not considered approximately the same word in 2 sentences"""
-	# print("\n----------------------------\n",s1,"\n---\n", s2)
 	alignment, indexes = align_sentence_words(s1, s2, True)
 	return sum(not approximately_same_word(preprocess_word(w1), preprocess_word(w2)) for i, (w1, w2) in enumerate(alignment) if is_word(w1) or is_word(w2))
 
@@ -520,22 +513,11 @@ def aligned_ends_together(shorter, longer, reg1, reg2, addition="", force=False)
 	mapping = dict(aligned)
 	rev = dict(align.reverse_mapping(aligned))
 	empty = preprocess_word(align.EMPTY_WORD)
-	print(rev)
-	print(reg2)
-	# print(aligned)
-	# if "annouance the potential" in sentence2 or "annouance the potential" in sentence1:
-	# 	print(sentence1,"\n_________\n",sentence2,"\n_________\n",aligned,"\n_________\n",reg1,"\n_________\n",reg2,"\n_________\n", addition_words,"\n_________\n", len(word_tokenize(shorter)),"\n_________\n",word_tokenize(longer))
-	# print(force)
+
 	if force or ((reg1, empty) in aligned):
-		# print(reg1,",",reg2,",")
-		# print("reg2 in addition_words",reg2 in addition_words)
-		# print("approximately_same_word(reg2, rev[reg2])",approximately_same_word(reg2, rev[reg2]))
-		# if reg2 in addition_words and approximately_same_word(reg2, rev[reg2]):
 		if  approximately_same_word(reg2, rev[reg2]):
 			return True
 	if force or ((empty, reg2) in aligned):
-		# print(reg1,",",reg2)
-		# if mapping[reg1] in addition_words and approximately_same_word(reg1, mapping[reg1]):
 		if approximately_same_word(reg1, mapping[reg1]):
 			return True
 	return False
@@ -551,6 +533,7 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 	aligned_by = []
 	s1 = sent_tokenize1(p1)
 	s2 = sent_tokenize2(p2)
+
 	# calculate sentence endings positions
 	endings1 = calculate_endings(s1, p1)
 	endings2 = calculate_endings(s2, p2)
@@ -578,7 +561,6 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 		position2, reg2 = _choose_ending_position(s2, endings2, j)
 		if approximately_same_word(reg1, reg2):
 
-			# print(ORDERED, " ",i)
 			aligned_by.append(ORDERED)
 			positions1.append(position1)
 			positions2.append(position2)
@@ -591,7 +573,6 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 		if i + 1 < len(s1) and slen1 < slen2:
 			pos_after1, one_after1 = _choose_ending_position(s1, endings1, i + 1)
 			if approximately_same_word(one_after1, reg2):
-				# print(FIRST_LONGER, " ", i)
 				aligned_by.append(FIRST_LONGER)
 				positions1.append(pos_after1)
 				positions2.append(position2)
@@ -601,7 +582,6 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 		if j + 1 < len(s2) and slen2 < slen1:
 			pos_after2, one_after2 = _choose_ending_position(s2, endings2, j + 1)
 			if approximately_same_word(reg1, one_after2):
-				# print(SECOND_LONGER, " ", i)
 				aligned_by.append(SECOND_LONGER)
 				positions1.append(position1)
 				positions2.append(pos_after2)
@@ -611,7 +591,6 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 		# no alignment found with 2 sentences
 		# check if a word was added to the end of one of the sentences
 		if aligned_ends_together(s1[i], s2[j], reg1, reg2):
-			# print(ORDERED_ALIGNED, " ",i)
 			aligned_by.append(ORDERED_ALIGNED)
 			positions1.append(position1)
 			positions2.append(position2)
@@ -620,16 +599,6 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 		# if no match is found twice and we had ORDERED match, it might have been a mistake
 		if (positions1 and positions2 and
 		   aligned_by[-1] == NO_ALIGNED and aligned_by[-2] == NO_ALIGNED):
-			print("using fallback")
-			# print (i, reg1, reg2, one_after1, one_after2)
-			# print("2before1", s1[i-2])
-			# print("2before2", s2[j-2])
-			# print("before1", s1[i-1])
-			# print("before2", s2[j-1])
-			# print("s1:",s1[i])
-			# print("s2:",s2[j])
-			# print("s1af:",s1[i+1])
-			# print("s2af:",s2[j+1])
 			removed_pos1 = positions1.pop()
 			removed_pos2 = positions2.pop()
 			aligned_by.append(REMOVE_LAST)
@@ -647,7 +616,6 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 		# Also, deal with addition or subtraction of a sentence ending
 		if i + 1 < len(s1) and slen1 < slen2:
 			if aligned_ends_together(s2[j], s1[i], reg2, one_after1, addition=s1[i + 1], force=force):
-				print(FIRST_LONGER_ALIGNED, " ",i)
 				aligned_by.append(FIRST_LONGER_ALIGNED)
 				positions1.append(pos_after1)
 				positions2.append(position2)
@@ -656,7 +624,6 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 
 		if j + 1 < len(s2) and slen2 < slen1:
 			if aligned_ends_together(s1[i], s2[j], reg1, one_after2, addition=s2[j + 1], force=force):
-				print(SECOND_LONGER_ALIGNED, " ", i)
 				aligned_by.append(SECOND_LONGER_ALIGNED)
 				positions1.append(position1)
 				positions2.append(pos_after2)
@@ -668,7 +635,6 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 			# try 3 distance
 			if i + 2 < len(s1) and slen1 < slen2:
 				if aligned_ends_together(s2[j], s1[i], reg2, two_after1, addition=s1[i + 1] + s1[i + 2], force=force):
-					print(FIRST_LONGER_ALIGNED, "*2 ! ",i)
 					aligned_by.append(FIRST_LONGER_ALIGNED)
 					aligned_by.append(FIRST_LONGER_ALIGNED)
 					positions1.append(pos_2after1)
@@ -677,7 +643,6 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 					continue
 			if j + 2 < len(s2) and slen2 < slen1:
 				if aligned_ends_together(s1[i], s2[j], reg1, two_after2, addition=s2[j + 1] + s2[j + 2], force=force):
-					print(SECOND_LONGER_ALIGNED, "*2 ! ", i)
 					aligned_by.append(SECOND_LONGER_ALIGNED)
 					aligned_by.append(SECOND_LONGER_ALIGNED)
 					positions1.append(position1)
@@ -685,7 +650,6 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 					j += 2
 					continue
 			# fallback was unnecesary
-			print("fallback unnecessary")
 			positions1.append(removed_pos1)
 			positions2.append(removed_pos2)
 			i += 2
@@ -700,19 +664,11 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 				comma_index = s1[i].find(splitter)
 			if comma_index != -1:
 				comma_index += len(splitter)
-				# print(s1[i])
-				# print(s2[j])
-				print(COMMA_REPLACE_SECOND)
 				aligned_by.append(COMMA_REPLACE_SECOND)
 				positions1.append(positions1[-1] + comma_index)
 				positions2.append(position2)
 				s1 = s1[:i] + [s1[i][:comma_index], s1[i][comma_index:]] + s1[i+1:]
 				endings1 = endings1[:i] + [endings1[i-1] + comma_index] + endings1[i:]
-				# print("____")
-				# print(s1[i:i+2])
-				# print(s2[j])
-				# print(s1[i+1])
-				# print(s2[j-1:j+2])
 				continue
 		if positions2 and slen1 < slen2:
 			splitter = reg1 + ","
@@ -722,27 +678,13 @@ def break2common_sentences(p1, p2, sent_tokenize1, sent_tokenize2):
 				comma_index = s2[j].find(splitter)
 			if comma_index != -1:
 				comma_index += len(splitter)
-				# print(s1[i])
-				# print(s2[j])
-				print(COMMA_REPLACE_FIRST)
 				aligned_by.append(COMMA_REPLACE_FIRST)
 				positions2.append(positions2[-1] + comma_index)
 				positions1.append(position1)
 				s2 = s2[:j] + [s2[j][:comma_index], s2[j][comma_index:]] + s2[j+1:]
 				endings2 = endings2[:j] + [endings2[j-1] + comma_index] + endings2[j:]
-				# print(s2[j+1])
-				# print(s1[i+1])
-
 				continue
 
-		# print (i, reg1, reg2, one_after1, one_after2)
-		# print("before1", s1[i-1])
-		# print("before2", s2[j-1])
-		# print("s1:",s1[i])
-		# print("s2:",s2[j])
-		# print("s1af:",s1[i+1])
-		# print("s2af:",s2[j+1])
-		# print("------------------")
 		aligned_by.append(NO_ALIGNED)
 
 	# add last sentence in case skipped
@@ -852,6 +794,7 @@ def plot_differences_hist(l, ax, pivot, diff_type, bottom):
 		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name])
 	plt.autoscale(enable=True, axis='x', tight=False)
 	plt.ylabel("amount")
+	ply.xlim(xmin=0)
 	plt.xlabel("number of " + diff_type + " changed")
 	plt.title("number of " + diff_type + " changed by method of correction")
 	plt.legend(loc=7, fontsize=10)
@@ -913,22 +856,11 @@ def boxplot_differences(l, ax, pivot, diff_type, bottom):
 
 	for i, tple in enumerate(l):
 		y = tple[pivot]
-		# print(y, tple[name])
-		# ys.append((y, tple[name], colors[i]))
 		x.append(y)
 		names.append(tple[name])
-		# max_len = max(max_len, len(y))
-	
-	# x = np.array(range(bottom, max_len+bottom))
 
-	# for y, name, color in ys:
-		# y = y + [0]*(max_len-len(y))
-		# ax.plot(x, np.cumsum(y), color=color, label=name)
-	# print(names, len(x))
 	plt.autoscale(enable=True, axis='x', tight=False)
 	ax.boxplot(x, labels=names, showmeans=True)
-	# plt.ylabel("amount")
-	# plt.xlabel("number of " + diff_type + " changed")
 	plt.title("box plot of " + diff_type + " changes")
 	plt.legend(loc=7, fontsize=10)
 
@@ -1018,41 +950,41 @@ def plot_comparison(l):
 	ax = plt.subplot(224)
 	plot_not_aligned(l, ax)
 	plt.show()
+	plt.clf()
 
 	data = []
-	plt.clf()
 	dirname = "./plots/"
 	ax = plt.subplot(111)
 	plot_spearman_differences(l, ax)
-	plt.savefig(dirname + r"spearman_differences" + trial_name + ".svg")
+	plt.savefig(dirname + r"spearman_differences" + trial_name + ".png", bbox_inches='tight')
 	plt.clf()
 	ax = plt.subplot(111)
 	plot_spearman_ecdf(l, ax)
-	plt.savefig(dirname + r"spearman_ecdf" + trial_name + ".svg")
+	plt.savefig(dirname + r"spearman_ecdf" + trial_name + ".png", bbox_inches='tight')
 	plt.clf()
 	ax = plt.subplot(111)
 	plot_words_differences(l, ax)
-	plt.savefig(dirname + r"words_differences" + trial_name + ".svg")
+	plt.savefig(dirname + r"words_differences" + trial_name + ".png", bbox_inches='tight')
 	plt.clf()
 	ax = plt.subplot(111)
 	plot_words_differences_hist(l, ax)
-	plt.savefig(dirname + r"words_differences_hist" + trial_name + ".svg")
+	plt.savefig(dirname + r"words_differences_hist" + trial_name + ".png", bbox_inches='tight')
 	plt.clf()
 	ax = plt.subplot(111)
 	plot_index_differences(l, ax)
-	plt.savefig(dirname + r"index_differences" + trial_name + ".svg")
+	plt.savefig(dirname + r"index_differences" + trial_name + ".png", bbox_inches='tight')
 	plt.clf()
 	ax = plt.subplot(111)
 	plot_index_differences_hist(l, ax)
-	plt.savefig(dirname + r"index_differences_hist" + trial_name + ".svg")
+	plt.savefig(dirname + r"index_differences_hist" + trial_name + ".png", bbox_inches='tight')
 	plt.clf()
 	ax = plt.subplot(111)
 	plot_aligned_by(l, ax)
-	plt.savefig(dirname + r"aligned_all" + trial_name + ".svg")
+	plt.savefig(dirname + r"aligned_all" + trial_name + ".png", bbox_inches='tight')
 	plt.clf()
 	ax = plt.subplot(111)
 	plot_not_aligned(l, ax)
-	plt.savefig(dirname + r"aligned" + trial_name + ".svg")
+	plt.savefig(dirname + r"aligned" + trial_name + ".png", bbox_inches='tight')
 
 
 ###########################################################
@@ -1082,10 +1014,6 @@ def convert_file_to_csv(filename):
 			row = []
 			for value in l.values():
 				value = value[1:]
-				# print(value[2])
-				# print(len(value[0]), type(value))
-				# print(value[1])
-				# raise
 				for lst in value:
 					if len(lst) > i:
 						row.append(lst[i])
