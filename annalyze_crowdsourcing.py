@@ -584,7 +584,7 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 			ci = [[y[-1] - float(ci[0])],[float(ci[1])] - y[-1]]
 		top.append(ci[1])
 		bottom.append(ci[0])
-	ax.errorbar(x, y, yerr=cis)
+	ax.errorbar(x, y, yerr=cis, edgecolor=colors[i])
 	ax.plot(CORRECTION_NUMS, y)
 	ax.set_ylabel("Expected accuracy")
 	if xlabel:
@@ -656,7 +656,7 @@ def plot_acounts_for_percentage(l, ax, data, comparison_by, bottom=1, reverseXY=
 		ax.scatter(x + i*width, y, color=colors[i], label=name)
 		plt.ylim(ymin=0, ymax=maxY)
 		plt.xlim(xmin=0)
-		# ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=name)
+		# ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=name, edgecolor=colors[i])
 	plt.autoscale(enable=True, axis='x', tight=False)
 	xlabel = "percentage of probability each correction accounts for"
 	ylabel = "amount of corrections"
@@ -679,7 +679,7 @@ def plot_differences_hist(l, ax, data, comparison_by, bottom=1, percentage=False
 			print("total number of corrections",Ysum)
 		print(comparison_by," hist results \n", name,"\n",y)
 		colors = rainbow_colors(range(len(l)))
-		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=name)
+		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=name, edgecolor=colors[i])
 	plt.autoscale(enable=True, axis='x', tight=False)
 	if percentage:
 		plt.ylabel("percentage from total corrections")

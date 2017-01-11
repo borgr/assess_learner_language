@@ -59,7 +59,7 @@ NO_ALIGNED = ""
 
 def main():
 	global trial_name
-	trial_name = "_some_competitors"
+	trial_name = ""
 	change_date = "160111"
 	filename = "results/results"+ change_date + ".json"
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
@@ -119,6 +119,8 @@ def main():
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
 		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
 		dump(res_list, filename)
+	else:
+		res_list.append(old_res[name])
 
 	# compare gold to origin
 	name = "gold"
@@ -133,24 +135,24 @@ def main():
 		origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
 		corrected_sentences = list(get_sentences_from_endings(gold, broken[1]))
 		res_list.append(old_res[name])
-		print("\nmany words changed")
-		for i, dif in enumerate(word_differences):
-			if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
-				print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
-				print ("word dif:", dif)
-				print("match num:", i)
-		print("\nmany indexes changed")
-		for i, dif in enumerate(index_differences):
-			if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
-				print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
-				print ("word dif:", dif)
-				print("match num:", i)
-		print("\nmany swaps changed (spearman)")
-		for i, dif in enumerate(spearman_differences):
-			if dif < 0.9: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
-				print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
-				print ("word dif:", dif)
-				print("match num:", i)
+		# print("\nmany words changed")
+		# for i, dif in enumerate(word_differences):
+		# 	if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+		# 		print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
+		# 		print ("word dif:", dif)
+		# 		print("match num:", i)
+		# print("\nmany indexes changed")
+		# for i, dif in enumerate(index_differences):
+		# 	if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+		# 		print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
+		# 		print ("word dif:", dif)
+		# 		print("match num:", i)
+		# print("\nmany swaps changed (spearman)")
+		# for i, dif in enumerate(spearman_differences):
+		# 	if dif < 0.9: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+		# 		print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
+		# 		print ("word dif:", dif)
+		# 		print("match num:", i)
 
 	# compare origin to cuui #1
 	name = "cuui"
@@ -184,7 +186,7 @@ def main():
 
 	# compare origin to ACL2016RozovskayaRoth autocorrect
 	name = "Rozovskaya Roth"
-	name = "RR"
+	name = "RoRo"
 	print(name)
 	if name not in old_res:
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, autocorrect)
@@ -285,7 +287,7 @@ def main():
 
 
 	dump(res_list, filename)
-	# plot_comparison(res_list)
+	plot_comparison(res_list)
 	convert_file_to_csv(filename)
 
 
@@ -791,10 +793,10 @@ def plot_differences_hist(l, ax, pivot, diff_type, bottom):
 		x = np.array(range(len(y)))
 		print(diff_type + " hist results ",tple[name],":",y)
 		colors = rainbow_colors(range(len(l)))
-		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name])
+		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
 	plt.autoscale(enable=True, axis='x', tight=False)
 	plt.ylabel("amount")
-	ply.xlim(xmin=0)
+	plt.xlim(xmin=0)
 	plt.xlabel("number of " + diff_type + " changed")
 	plt.title("number of " + diff_type + " changed by method of correction")
 	plt.legend(loc=7, fontsize=10)
@@ -875,7 +877,7 @@ def plot_aligned_by(l, ax):
 		print("first ordered and second longer",tple[name],":",y)
 		x = np.array(range(len(y)))
 		colors = rainbow_colors(range(len(l)))
-		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name])
+		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
 	ax.autoscale(tight=True)
 	plt.ylabel("amount")
 	plt.xlabel("number of sentence changes of that sort")
@@ -893,7 +895,7 @@ def plot_not_aligned(l, ax):
 		y = y = [y[FIRST_LONGER] + y[COMMA_REPLACE_FIRST], y[SECOND_LONGER] + y[COMMA_REPLACE_SECOND]]
 		x = np.array(range(len(y)))
 		colors = rainbow_colors(range(len(l)))
-		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name])
+		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
 	ax.autoscale(tight=True)
 	plt.ylabel("amount")
 	plt.xlabel("number of sentence changes of that sort")
@@ -905,7 +907,7 @@ def plot_not_aligned(l, ax):
 def plot_words_differences(l, ax):
 	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
 	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
-	plot_differences(l, ax, words_differences, "words", 1)
+	plot_differences(l, ax, words_differences, "words", 2)
 
 
 def plot_index_differences(l, ax):
@@ -934,7 +936,7 @@ def plot_differences(l, ax, pivot, diff_type, bottom):
 	plt.autoscale(enable=True, axis='x', tight=False)
 	plt.ylabel("amount")
 	plt.xlabel("number of " + diff_type + " changed")
-	plt.title("accumulative number of sentences by " + diff_type + " changed per")
+	plt.title("accumulative number of sentences by " + diff_type + " changed")
 	plt.legend(loc=7, fontsize=10)
 
 
