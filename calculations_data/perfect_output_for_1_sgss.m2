@@ -1,1312 +1,1312 @@
 Keeping the Secret of Genetic Testing
 What is genetic risk ?
-Travelers survive in the desert thanks to a GPS to guide them.
-Some people spend a lot of time in it and forget their real life .
+Rising life expectancy result in fewer work forces available .
+People can promote their friendship and relationship through these social medias.
 How much a genetic change tells us about your chance of developing a disorder is not always clear .
 If your genetic results indicate that you have gene changes associated with an increased risk of heart disease , it does not mean that you definitely will develop heart disease .
 The opposite is also true .
-We need to monitor in front of  ATMs to avoid intentional crime.
-RFID is also functional in police events.
-Firstly, someone having certain kinds of disease belongs to his or her privacy .
+Therefore, every country should try to maintain a balance of young and elderly generations.
+Students can exchange their study experiences even they are in different countries.
+But overall, the advantages far outweigh the disadvantages .
 My answer is no .
-Rising life expediencies is also an achievement to governments.
-We do not consider much for our offspring .
-RFID is also functional in police events.
-Then his or her mother will also know the emotion and feel the warmth.
-Rising life expectancies result in fewer young people available for the workforce.
-Without an advanced health care system, aged people have higher rate of death .
-In most countries, healthcare is provided free from the government .
-Privacy is a word that has become popular during the past few decades.
-Without such surveillance technology, we can still live a better future.
-The concurrent result is an increasing population size .
-This would result in the loss of manpower in a country .
+Rising life expectancies in a country are viewed by their governments as an achievement.
+Government should also make a larger amount of pension expenditure .
+By doing so, one will feel less stressed in facing such disorder and risk.
+Then his or her mother will also know the emotion and feel warm.
+The shortage of workers could also endanger the development of the society.
+Tracking people using surveillance technology can make for better security of peoples lives.
+Here, red means marriage and white means someone has passed away .
+The problem of abuse of surveillance is only the problem of abuse of power.
+Humans have their own rights and privacy.
+Most patients will be depressed after realizing his or her condition.
+Tracking people using surveillance technology can make people's lives more secure.
 In fact , requiring someone to communicate his or her own genetic risk to family members who are therefore also at risk is considered by many to be ethically dubious .
-Rising life expectancies can be considered an achievement of governments .
-Today, surveillance technology has become almost manifest wherever we go .
-Rising life expectancy results in a smaller available workforce.
-A summary of our views is that we respect every life and help people live longer .
-In most countries healthcare is provided freely from the government .
-Travelers survive in desert thanks to GPS guiding them.
-This would result in the loss of manpower in the country.
-'Privacy' has been the word that is popular in these few decades.
-Life is hard but people can not claim that life is unfair.
-It is also the advance of surveillance technology.
+However, the opposite is the phenomenon of ageing population.
+One can also easily see his loved one via the internet from miles away.
+This essay will illustrate two aspects.
+To summarize, we respect every life, and also help people live longer.
+It is also the advancement of surveillance technology .
+Nowadays, population aging is becoming a problem, especially in developed countries.
+In most countries, healthcare are provided freely from the government .
+'Privacy ' , is a word that is popular during these last few decades .
+Some people spend a lot of time in it and forget their real life .
+Actually, tracking systems have provided people safety indemnification.
 An example that may serve as an illustration is breast cancer .
 It is hereditary .
-RFID is also functional during police events.
-Nowadays population aging is becoming a problem, especially in the developed countries.
-Most patients will be depressed after realizing his or her condition .
-Other relatives may have the same possibilities to have such a kind of disease.
-Without such surveillance technology, we can still live a better future.
-In front of the ATM, we need a monitor to avoid intentional crime.
-Surveillance is only a problem if there is abuse of power.
-In front of the ATM, we need a monitor to avoid intentional crime.
-For example , a grandmother may have more authority to pass on information than an aunt , even when she is not at genetic risk herself while the aunt is .
-Tracking people using surveillance technology can make people's lives more secure.
-Without such surveillance technology, we can still live in a better future.
-The problem of the abuse of surveillance, is only a problem of abuse of power.
-By doing so one will feel less stress facing the risk of a disorder.
-When standing in front of an ATM, we need monitor our surroundings to avoid intentional crime .
-Here, red things mean marriage and white means someone passing away.
-I agree with this statement to a large extent .
-Secondly,  the workforce shortage can endanger the development of society .
-Actually, tracking system has provided people safety indemnification .
-The problem of abuse of surveillance is only the problem of abuse of power.
-Travelers survive in the desert thanks to GPS that can guide them .
-Travelers can survive in the desert thanks to GPS guiding them.
-Government should also make a bigger amount of pension expenditure.
-The concurrent result is an increasing size of population.
-This is also the advance of surveillance technology.
-Cars and trucks diminish the redundancy of long time shipment.
-It is better for both parties to be honest .
-By doing so, one will feel less stressful in facing such disordered risks.
-The concurrent result is increasing size of population.
-Cars and trucks diminish the redundancy of long shipments.
-Travelers survive in desert thanks to GPS guiding them.
-Travelers survived in the desert thanks to a GPS that guided them .
-In most countries, healthcare is provided by government .
-Even without such surveillance technology, we can still live in a better future.
-This essay will illustrate two key factors .
-Humans have their own rights and privacy .
-Tracking people using surveillance technology can make people's lives more secure.
-Every country should try to maintain both young and old generation balanced .
-It is immoral and impractical .
-Most patients will be depressed after realizing their condition.
-By using the surveillance technology to track all these contributions make the environment safer.
-With the development of modern society, people live longer.
-Most patients will be depressed after realizing his or her condition .
-Here , red means marriage and white means someone passing away .
-Rising life expediencies result in fewer work forces available.
-Without surveillance technology, we can still live a better future.
-Humans have their own rights and privacy .
-Life is hard but people can not blame it on it being unfair.
-Life is hard but people cannot always consider it unfair.
-However, as life expectancy rises, some social challenges occur as well.
-More people ( relatives ) know her problem , more information is provided.
-With the development of modern society, people live longer.
-All of these contributions using the surveillance technology to track, makes the environment safer .
-Conversely, they can choose to keep silent until the next carrier is diagnosed.
-Students can exchange their experiences in study even though they are in different countries.
-Life is hard but people can not blame it for being unfair.
-In the first place , rising life expectancy may cause resources to be challenged .
-A carrier of a known genetic risk should be obligated to tell his or her relatives.
-Students can exchange their experiences in study, even if they are in different countries.
-However, aging population is a phenomenon opposite to it.
-RFID technology is also functional in police events .
-More relatives know her problem, more people is provided information channel.
-Health care by far has been expensive to carry out.
-This would result in the loss of manpower in a country.
-The concurrent result is the increasing size of the population .
-Rising life expectancies is also an achievement of governments.
-In the first place, rising life expectancy could cause a challenge regarding resources.
-Today, surveillance technology has become almost manifest wherever we go.
-In the first place , rising life expectancies could challenge resources .
-Firstly, if someone has a type of disease he or she is entitled to his or her privacy .
-All of these contributions by surveillance technology make the environment safer .
-People can develop their friendship and relationship through social media.
-But overall, the advantages far outweigh the disadvantages.
-Nowadays , population aging is becoming a problem, especially in the developed countries .
-Since ancient times, human have interacted with others face to face .
-The more people (relatives) know her problem, the more information is provided.
-Life is hard but people can not blame it on it being unfair .
-RFID is also involved in police events .
-The abuse of surveillance is caused by the abuse of power .
-The concurrent result is increasing size of population.
-There needs to be someone monitoring ATM activity to avoid crime.
-This would result in the loss of manpower in a country.
-Students can share their experiences in a study, even if they are in different countries.
-Or they can choose to keep silent until the next carrier is diagnosed.
-Rising life expediencies is also an achievement.
-To summarize, we respect every life and also help people to live longer.
-The rising average life expectancy can surely cause some problems.
-In most countries healthcare is provided freely from the government.
-"Privacy"--this is the word that is popular these days.
-Therefore , every country should try to maintain balance between the young and older generations.
-In most countries, healthcare is provided by government .
-Tracking people using surveillance technology can lead to better security in people's lives.
-Government should also make a larger amount of pension expenditure.
-The problem of surveillance abuse is part of the problem of abuse of power.
-A carrier of a known genetic risk should be obligated to tell their relatives.
-Here, red means marriage and white means someone has passed away .
-People can promote their friendships and relationships through this type of social media .
-People can promote their friendships and relationships through social media .
-Or, they can choose to keep silent until the next carrier is diagnosed.
-Most patients will be depressed after realising his or her condition.
-Then his or her mother will also know the emotion and feel warm .
-A carrier of a known genetic risk should be obligated to tell his or her relatives.
-With the development of modern society, people live longer.
-Here, red means marriage and white means someone passing away.
-'Privacy', this is the word that has increased in popularity these last few decades.
-Cars and trucks diminish the redundancy of long term shipment .
-The abuse of power is the problem with main problem with the use of surveillance.
-But overall, the advantages far outweigh the disadvantages.
-This would result in the loss of manpower in a country.
-Healthcare has by far, been expensive to carry out.
-Without an advanced health care system, aged people will have a higher rate of death .
-However, there are both sides of the story.
-Most patients will be depressed after realising his or her condition.
-The carrier of a known genetic risk, should be obligated to inform his or her relatives.
-Life is hard, but people can not blame it for being unfair .
-One can also easily see his loved one, through internet from miles away.
-Cars and trucks diminish the redundancy of long time shipment.
-Other relatives may have the same possibilities to have such a kind of disease.
-Humans have their own rights and privacy.
-W e need monitor in front of ATMs to avoid intentional crime .
-However , as life expectancy rises , some social challenges will occur as well .
-Without advanced health care, the elderly have a higher death rate.
-In the modern society, privacy is a hot topic in peoples' minds .
-We do not consider much for our offspring.
-Other relatives may have the same possibility to have the same kind of disease.
-Life is hard, but people cannot blame that on unfairness.
-Health caring by far has been expensive to carry out .
-By doing so, one will feel less stressful in facing such disorder risk.
-Carriers of a known genetic risk should be obligated to tell his or her relatives about their condition.
-Here , the red thing means marriage and white means someone passing away .
-Therefore , every country should try to maintain a balance of young and old generations .
-The more people ( relatives ) that know her problem, the more information channels are provided .
-In my opinion , the carrier should tell his or her relatives about it .
-All these contributions by using the surveillance technology to track make the environment safer.
-The rising average life expectancy can surely cause some problems.
-Cars and trucks diminish the redundancy of long time shipment.
-All these contributions by using the surveillance technology to track, make the environment safer.
-In the first place, rising life expectancies could cause challenge in resources.
-Most patients will be depressed after realizing their condition.
-Students can exchange their experiences in study even when they are in different countries .
-Carriers of a known genetic risk should be obligated to tell their relatives.
-In the first place, rising life expectancy could cause resource shortages.
-Here, red means marriage and white means someone passed away .
-In front of the ATM we need a monitor to avoid intentional crime .
-With the development of modern society, people live longer.
-All of these contributions by surveillance technology make the environment safer .
-At ATMs, we need monitors to avoid intentional crime.
-Tracking people using surveillance technology can make people's lives more secure.
-This is the interpretation of challenges for rising life expectancies.
-The rising average life expectancy can surely cause some problems.
-In modern day society, privacy is a hot topic and on peoples' minds.
-In most countries, healthcare is provided freely by the government.
-The concurrent result is the increasing size of population .
-All these contributions make the environment safer when using surveillance technology tracking.
-RFID is also functional in police events.
-'Privacy', this is a word that has become popular in the last few decades.
-Actually, a tracking system has provided people with a safety indemnification.
-Firstly , genetic testing is not something that is compulsory .
-It is also due to the advance of surveillance technology .
-Nowadays, population-aging is becoming a problem, especially in developed countries.
-RFID is also functional at police events.
-Today, surveillance technology has become almost manifest to wherever we go.
-Humans have their own rights and privacy.
-Via the internet, one can see their loved ones from miles away .
-It is also the advance of surveillance technology .
-RFIDs are also functional at police events .
-RFID is also functional in police events.
-People can promote their friendships and relationships through social media.
-Actually, the tracking system has provided people with safety indemnification.
-However, as life expectancy rises, some social challenges occurr as well .
-This would result in the loss of manpower in a country.
-However, there are two sides to every story.
-Life is hard but people can not blame it on it being unfair .
-This would result in the loss of manpower in countries.
-Rising life expectancies are also an achievement of governments.
-With the development of modern society, people live longer.
-Other relatives may have the same possibilities to have such a disease .
-By doing so, one will feel less stress in facing such disorder and risk .
-Rising life expectancies result in fewer workers being available .
-However , the ageing population is a phenomenon in opposition to it .
-Here , the color red indicates a wedding or marriage, while white means someone passed away .
-People can promote their friendships and relationships through these social media.
-Rising life expectancy is also an achievement to governments.
-Or, they can choose to keep silent until the next carrier is diagnosed.
-The problem with the abuse of surveillance is not the only problem with the abuse of power.
-Or, they can choose to keep silent until the next carrier is diagnosed.
-Students can exchange their experiences in the study even they are in different countries .
-However, there are two sides to every story.
-Rising average life expectancies can surely cause some problems .
-To summarize,, we respect every life, and also help people to live longer.
-In the first place, rising life expectancy could cause resource challenges.
-Cars and trucks diminish the redundancy of long term shipment .
-This is the interpretation of challenges for raising life expectancy.
-Nowadays, population aging is becoming a problem especially in the developed countries.
-This essay will illustrate two aspects.
-Without such invasive technology, we could have a better future.
-Firstly , what disease someone has is part of his or her privacy.
-Government can also be credited with the rising life expectancy.
-" This issue has been discussed for a long time .
-The concurrent result is an increasing population.
-By doing so, one will feel less stressed about facing such disorder risk.
-In the first place, a rising life expectancy could cause a resources challenge.
-First off, what type of disease one has is private.
-Without an advanced health care system, aged people have a higher rate of death.
-Without such surveillance technology , we can still live a better future.
-Then his or her mother will also feel the emotion and feel warm .
-Today, surveillance technology has become almost manifest to wherever we go .
-The concurrent result is increasing size of population.
-However, as life expectancy rises, some social challenges occur as well .
-This essay will illustrate two aspects.
-In the first place, rising life expectancies could challenge resources.
-Radio-frequency identification is also functional at police events.
-In conclusion, the shadow always exists when there is light.
-Tracking people using surveillance technology can help improve security for others
-Health care, by far, has been expensive to carry out.
-With the development of the modern society, people live longer .
-The concurrent result is the increasing size of population.
-Since ancient times , humans have interacted with others face to face .
-Any carrier of a known genetic risk should be obligated to tell his or her relatives.
-It is also the advance of surveillance technology.
-This is the challenge of interpreting rising life expectancies.
-The concurrent result is increasing size of population.
-Second, a workforce shortage can also endanger the development of society.
-In conclusion , a carrier of a known genetic risk is encouraged to tell his or her relatives about the known genetic risk .
-Due to the developments of the modern society, people tend to live longer lives.
-We need to monitor in front of the ATM to avoid intentional crime.
-This would result in the loss of manpower in a country.
-Tracking people using surveillance technology can make people's lives more secure.
-Actually, the tracking system has provided people safety indemnification.
-However, there are both sides to the story.
-Rising life expectancy results in fewer workforce's available .
-Therefore, every country should try to maintain both young and old generations in balance.
-The concurrent result is increasing the size of the population.
-Without an advanced health care system, aged people have a higher rate of death.
+In modern society, privacy is a hot topic.
 Healthcare, by far, has been expensive to carry out.
-Then his or her mother will also know the emotion and feel the warmth.
-By doing so, one will feel less stressed in facing such a disorder risk.
-This would result in the loss of manpower in a country.
-They can also choose to keep silent until the next carrier is diagnosed.
-Even without surveillance technology, we can still live a better future.
-Since ancient times , human have interacted with others face-to-face .
-Rising life expectancies results in a smaller available workforce .
-Other relatives may have the same risk of having such a disease.
-Tracking people using surveillance technology can make people's lives more secure.
-It is also the advance of surveillance technology.
-Nowadays, an aging population is becoming a problem, especially in the developed countries.
-Even without such surveillance technology, we can still live in a better future.
-However, there are both sides to the story.
-Carriers of a known genetic risk should be obligated to tell his or her relatives
-I agree that a carrier of a known genetic risk is obligated to tell his or her relatives .
-Students can exchange their experiences in study even though they are in different countries.
-RFID is also functional in police events .
-Since ancient times , humans have interacted with others face to face .
-By doing so, one will feel less stressed about facing such disorder risk.
+The concurrent result is increasing size of population.
+This is the challenge of interpreting rising life expectancies.
+Aging populations have recently become a problem, especially in developed countries .
+This is the interpretation of rising challenge for life expectancies.
+All these contributions of surveillance technology in tracking make the environment safer .
+Since ancient times humans have interacted with others face to face.
+For example , a grandmother may have more authority to pass on information than an aunt , even when she is not at genetic risk herself while the aunt is .
 Humans have their own rights and privacy.
+To summarize, we respect every life and help people live longer.
+Nowadays, population aging is becoming a problem especially in the developed countries.
+Privacy, this is the word that has  been popular these last few decades.
+Rising life expectancies result in fewer available jobs in the workforce.
+However, there are two sides to every story.
+I agree with this statement to a large extent .
+With the development of modern society, people live longer.
+First, the kind of disease a person has is part of his or her privacy.
+We need to monitor in front of ATM's in order to avoid intentional crime.
+Life is hard but people can not claim that life is unfair.
+Rising life expectancies result in fewer work being available .
+Without an advanced health care system, aged people have a higher rate of death.
+Travelers survive in deserts thanks to GPS to guide them.
+Nowadays, population aging is becoming a problem, especially in the developed countries.
+Travelers survive in the desert due to a GPS to guide them .
+It is better for both parties to be honest .
+In summary, we respect every life and also help people live longer.
+The current result is increasing size of population.
+Here, red things means marriage and white means someone passed away .
+In the modern society privacy is a hot topic in peoples' minds.
+However, aging population is a phenomenon opposite to it .
+Most patients will be depressed after realizing their condition.
+Actually, tracking systems have provided people with safety indemnification .
+If more people ( relatives ) know her problem , more information channels are provided .
+The rising average life expectancy can surely cause some problems.
+Increased life expectancy results in higher populations and therefore fewer available employment opportunities.
+All of these contributions due to use of surveillance technology to track make the environment safer.
+It is immoral and impractical .
+Without such surveillance technology, we can still live a better future .
+Other relatives may have the same possibilities to have the same kind of disease .
+However, as life expectancy rises, some social challenges occurr as well .
+The rising average life expectancy can surely cause some problems .
+By doing so, one will feel less stressed in facing such a disorder risk.
+However, as life expectancy increases, some social challenges occur as well.
 We do not consider much for our offspring.
-The concurrent result is an increasing size in population .
-In today's society, technology is universal.
-By doing so, one will feel less stressed in facing the risk of having a disorder.
-Privacy: this is the word that is popular in these few decades.
-'Privacy' , this is the word that is popular in these few decades.
-This would result in the loss of manpower in a country.
-In the modern society, privacy is a hot topic in peoples ' minds .
-Cars and trucks diminish the redundancy of long term shipment.
-Students can exchange their experiences in study, even if they are in different countries.
-'Privacy', this is a word that has become popular in the last few decades.
-Thirdly , some diseases are not noticeable and may lead to serious health problems .
-Rising life expectancy is also an achievement to governments .
-Actually, the tracking system has provided people with safety indemnification.
+Even without such surveillance technology, we can still have a better future.
+In most countries, healthcare is provided freely from the government.
+To summarize, we respect every life and also help people to live longer.
+Today, surveillance technology has become almost manifest wherever we go.
+The concurrent result is the increasing size of the population .
+Using surveillance technology to track people can bring security to people's lives.
 Second, the shortage of workforce can also endanger the development of the society.
-People can promote their friendship and relationship through social media.
-When their children become teenagers , a lot of social problems may arise .
-By doing so, one will feel less stressful in facing such disordered risk.
-Privacy - this is the word that is popular in these last few decades.
+Without an advanced health care system, aged people have a higher rate of death.
+Health care has been expensive to implement.
+Students can exchange their study experiences even they are in different countries.
+In the first place, rising life expectancy could cause resources challenge.
+People can promote their friendships and relationships through social media .
+Travelers survive in desert thanks to GPS guide them.
+To summarize, we respect every life and help people live longer.
+Humans have a right to their own privacy .
+However, as life expectancies rise, some social challenges occur as well .
+Then his or her mother will also know that emotion, and feel warm.
+Government should also make a bigger amount of pension expenditures.
+Actually, tracking systems have provided people with greater assurance of safety.
+Overall, the advantages far outweigh its disadvantages.
+Firstly, rising life expectancy could cause a challenge in resources.
+This essay will elaborate in two aspects.
+Cars and trucks diminish the redundancy of long time shipment.
+In the modern society, privacy is a hot topic in peoples ' minds .
+In conclusion, the shadow always exists when there is light.
+But overall, the advantages far outweigh its disadvantage.
+In modern society,  privacy is a hot topic on people's  minds.
+This would result in the loss of manpower in a country.
+Second, the shortage of workforce can also endanger the development of the society.
+Today , the surveillance technology has become manifest to almost wherever we go .
+Travelers survived in the desert thanks to a GPS that guided them .
+We do not consider much about our offspring.
+Other relatives may have the same probability of having this disease .
+Second, the shortage of workforce can also endanger the development of the society.
+By doing so one will feel less stress facing the risk of a disorder.
+Or they can choose to keep silent until the next carrier is diagnosed.
+Without an advanced health care system, aged people have a higher rate of death.
+In the modern society privacy is a hot topic in peoples' minds.
+Other relatives may have the same chances of having the same kind of disease.
+This is the interpreted challenge for rising life expectancies .
+In most countries, healthcare is provided by government .
+This essay will illustrate two aspects.
+This would result in the loss of manpower in a country.
+Tracking people with surveillance technology can make their lives more secure.
+This essay will illustrate two aspects.
+However , there are two sides to stories .
+In the first place , rising life expectancy could cause a challenge in resources
+Two aspects will be illustrated in this essay.
+Life is hard, but people can not place blame on life being unfair .
 In conclusion, the shadow always exists when there is light .
-We need a monitor in front of the ATM to avoid intentional crime.
-"Privacy." This is the word that has been popular during these few decades.
-Firstly, someone's kinds of disease belongs to his or her privacy.
-Tracking people using surveillance technology can bring more security to people's life.
+In the first place , rising life expectancies could cause resource challenges .
+Travelers can survive in the desert thanks to GPS guidance.
+By doing so, one will feel less stressed in facing the risk of having a disorder.
+Government should also make a larger amount of pension expenditure .
+Using surveillance technology to track people can make people's lives more secure.
+However, as life expectancy rises, some social challenges occur as well .
+Travelers survive in the desert due to a GPS to guide them .
+One can also easily see his loved one through internet from miles away.
+In modern society, privacy is a hot topic on people's minds.
+Healthcare is very expensive to provide.
+Without an advanced health care system, older people have higher rate of death .
+Since ancient times, humans interact with others face to face.
+One can also easily see his deeply loved one, through the internet, from miles away.
+Carriers of a known genetic risks should be obligated to tell his or her relatives
+The concurrent result is the size of the population increases.
+Even without technology we can live a better life in the future.
+Since ancient times, humans interact with others face to face .
+Second , the shortage of work forces can also endanger the development of the society .
+Students can exchange their experiences in studies, even they are in different countries.
+Therefore, every country should try to maintain a balance of both young and old generations .
+We do not consider much about our offspring.
+However, the ageing population is an opposite phenomenon.
+Anyone who is a carrier of a known genetic risk should be obligated to tell his or her relatives.
+Health care by far has been expensive to carry out .
+Humans have their own right to privacy.
+One can also easily see his deeply loved one through the internet from miles away .
+However, there are two sides to a story.
+Also, it is the advance of surveillance technology .
+It is also the advance of surveillance technology .
+The government should also make a larger expenditure for pensions.
+Governments should also make a spend a larger amount on pensions.
+This would result in the loss of manpower in a country.
+This is the interpretation of a challenge for raising life expectancies .
+It is also an advance of surveillance technology.
+Surely, the rising average life expectancies can cause some problems.
+Without an advanced health care system, aged people have a higher rate of death.
+In my opinion , the carrier should tell his or her relatives about it .
+Problems could arise with the rising average life expectancies.
+Rising life expectancy results in fewer jobs available.
+They can also choose to keep silent until the next carrier is diagnosed.
+Cars and trucks diminish the redundancy of long time shipments.
+It is also the advance of surveillance technology.
+However, the aging population is a phenomenon opposing it.
+Travelers survived in the desert thanks to a GPS that guided them .
+One can also easily see his deeply loved one through the internet from miles away.
+We need to monitor In front of an ATM in order to avoid intentional crime .
+With the development of modern society , people live longer .
+A carried of a genetic disease should be required to disclose information to their relatives.
+However, there are two sides to every story.
+Then his or her mother will also experience the emotion and feel warm .
+Rising life expectancies is also an achievement for governments.
+Most patients will be depressed after realising his or her conditions .
+However , as life expectancy rises , some social challenges occur as well .
+Tracking people using surveillance technology can make people's lives more secure.
+Increasing population is a concurrent result.
+Actually, tracking systems have provided people safety indemnification.
+Using tracking surveillance security technology can make people's life better .
+Without an advanced health care system , elderly people have higher rates of death .
+Other relatives may have the same possibility to have such a kind of disease .
+A carrier of a known genetic risk should be obligated to tell his or her relatives.
+By doing so, one will feel less stressed in facing such disorder and risk.
+Firstly , genetic testing is not something that is compulsory .
+The problem of abuse of surveillance is only the problem of abuse of power.
+We do not consider much for our offspring.
+However , there are two sides to all stories .
+The contribution of using surveillance technology to track makes the environment safer.
+RFID is also functional in police events.
+Nowadays, population aging is becoming a problem especially in the developed countries.
+Tracking people using surveillance technology can improve security in people 's lives.
+'Privacy', this is a word that has become popular in the last few decades.
+However, as life expectancy rises, some social challenges occur as well.
+Taking care of health is expensive.
+In most countries, healthcare is provided freely from the government.
+With the developments of modern society, people live longer.
+People are able to promote their friendships and relationships through social media .
+However , as life expectancy rose , some social challenges occurred as well .
+To summarize, we respect every life, we also help people to live longer .
+Other relatives may possibly have the same such kind of disease .
+Life is hard, but people can not blame it for being unfair .
+The concurrent result is an increasing size of population .
+This is the interpretation of a challenge for rising life expectancy's
+In the modern society, privacy is a hot topic in people's minds .
+This is the challenge of interpreting rising life expectancies.
+This essay will illustrate two aspects .
+However, as life expectancy rises, some social challenges occurr as well .
+Firstly , whether or not someone has a disease is his or her own privacy .
+A carrier with a known genetic risk should be obligated to tell his or her relatives
+However, aging population is a phenomenon opposite to it.
+The concurrent result is increasing the size of population.
+Rising life expectancy is also an achievement from the government.
+In front of an ATM, we need monitor to avoid intentional crime .
+But overall, the advantages far outweigh its disadvantages.
+Travelers can survive in the desert thanks to having GPS to guide them .
+Firstly, someone having this kind of disease has a right to his/her privacy.
+We do not consider much for our offspring.
+Every human deserves their own rights and privacy.
+We need to monitor in front of  ATMs to avoid intentional crime.
+In modern society, privacy is a hot topic.
+Someones disease condition is private information.
+In most countries, healthcare is provided freely by the government.
+The rising average life expectancies can surely cause some problems.
+Actually, a tracking system has provided people safety indemnification .
+" This issue has been discussed for a long time .
+In most countries, free healthcare is provided by the government.
+Since ancient times, human have interacted with others face to face.
+However, there are two sides to every story.
+But overall, the advantages far outweigh its disadvantage.
+In conclusion, the shadow always exists when there is light.
+The problem with the abuse of surveillance is only the problem with the abuse of power.
+But overall , the advantages far outweigh the disadvantages.
+Therefore , every country should try to maintain a balance of young and old generations .
+Without surveillance technology, we can still have a better future.
+They can choose to keep silent until the next carrier is diagnosed .
+However, as life expectancy rises, some social challenges occurred as well.
+But over all, the advantages far outweigh the disadvantages.
+To summarize, we respect every life  and also help people to live longer .
+The shortage in the workforce population can cause problems in the development of society.
+Cars and trucks diminish the redundancy of long-time shipments.
+To summarize, we respect every life, we also help people to live longer .
+Carriers of a known genetic risk should be obligated to tell their relatives.
+Since ancient times, humans interact with others face to face.
+However, as life expectancy rises, some social challenges will occur.
+Life is hard but people can not blame it on being unfair.
+Today , the surveillance technology has become manifest to almost wherever we go .
+In modern society, privacy is a hot topic.
+The more family members she tells about her problem, the more advice she can receive.
+A carrier of a known genetic risk should be obligated to tell his or her relatives.
+In conclusion , a carrier of a known genetic risk is encouraged to tell his or her relatives about the known genetic risk .
+Actually, tracking systems have provided people safety indemnification.
+However, some social challenges occur as life expectancy rises.
+However , as life expectancy rises , some social challenges occur as well .
+By doing so, one will feel less stressed in facing such a disorder risk.
+Without an advanced health care system aged people will have a higher rate of death .
+Without an advanced health care system , elderly people have higher rates of death .
+In the first place, rising life expectancies could cause resources challenges.
+Therefore, every country should try to maintain a both young and old generation balance.
+The rising average life expectancies can surely cause some problems.
+Alternatively, they can choose to keep silent until the next carrier is diagnosed .
+Then, his or her mother will also know the emotion and feel warm.
+This is an interpretation of the challenges of rising life expectancies.
+Here , the red thing means marriage and white means someone passing away .
+'Privacy ' is a word that is popular these past few decades .
+A carrier of a known genetic risk should be obligated to tell his or her relatives.
+However , as life expectancy rises , some social challenges occur as well .
+We are not being very considerate of our offspring.
+In the modern society privacy is a hot topic in peoples' mind .
+This is the interpretation of  the challenges for rising life expectancy .
+Without such surveillance technology, we can still live a better future.
+Tracking people using surveillance technology can improve the security of peoples' lives.
+A carrier of a known genetic risk should be obligated to tell his or her relatives.
+Humans have their own right to privacy.
+By doing so, one will feel less stressed in facing such a disorder risk .
+However, as life expectancy rises, some social challenges occur as well .
+I agree that a carrier of a known genetic risk is obligated to tell his or her relatives .
+Overall, the advantages far outweigh the disadvantages.
+Today, the surveillance technology has almost manifested to wherever we go .
+In most countries, healthcare is provided for free by the government.
+One can also easily see his deeply loved one through the internet from miles away.
+Therefore, every country should try to maintain, both young and old, generation balance.
+RFID is also functional in police events.
+Or they can choose to keep silent until the next carrier is diagnosed.
+However, aging population is a phenomenon opposite to it .
+But overall , the advantages far outweigh its disadvantages .
+One can also easily see his deeply loved one through internet from miles away.
+To summarize, we respect every life, and also help people to live longer.
+Nowadays, an aging population is becoming a problem - especially in the developed countries .
+More people, relatives know her problem, more information channel is provided .
+Travelers survived in the desert thanks to a GPS that guided them .
+The carrier of a known genetic risk should be obligated to tell his or her relatives.
+Since ancient times, human have interacted with others face to face.
+Thirdly , some diseases are not noticeable and may lead to serious health problems .
+In conclusion, the shadow always exists when there is light.
+'Privacy', this is the word that is popular in these few decades.
+Other relatives may have the same possibilities to have this kind of disease .
+Today, the surveillance technology has become almost manifest wherever we go.
+When their children become teenagers , a lot of social problems may arise .
+Cars and trucks diminish the redundancy of long shipment times.
+With the development of the modern society, people live longer.
+Alternatively, they can choose to keep silent until the next carrier is diagnosed .
+We do not consider much for our offspring.
+More relatives know her problem , more information will be provided .
+One can also see the one he deeply loves from miles away, through the internet.
+A carrier of a known genetic risk should be obligated to tell his or her relatives.
 However , once a test has been conducted and the results are known , a family-related ethical dilemma is born .
 The question is whether a carrier of a known genetic risk should tell his or her relatives .
 In my opinion , the carrier of a known genetic risk has to tell his or her relatives about this .
-This essay will illustrate two aspects.
-In most countries, healthcare is provided freely from government.
-Most patients will be depressed after realizing his or her conditions.
-Health care by far has been very expensive to carry out .
-Without an advanced health care system , aged people have a higher rate of death..
-However, there are two sides to the story.
-The rising average life expectancy can surely cause some problems.
-First off, what type of disease one has is private.
-"Privacy", this is the word that has become popular in these last few decades.
-This would result in the loss of manpower in a country.
-Some people spend a lot of time in it and forget their real life .
+Life is hard, but people can not blame it for being unfair .
+The problem of abuse of surveillance is only the problem of abuse of power.
+Health care, by far, has been expensive to carry out.
+Here, red means marriage and white means someone passed away .
+Firstly, someone having any kind of disease has a right to his or her privacy.
+Or they can choose to keep silent until the next carrier is diagnosed.
+Students can exchange their experiences in study even though they are in different countries.
+Humans have their own rights and privacy.
+Other relatives may have the same possibilities to have such kinds of diseases.
+Government should also spend more on pensions.
+By doing so, one will feel less stress in facing such disorder and risk .
 For example , hypertension is partially due to genetic factors , but environmental factors also play an important role .
-In modern society, privacy is a hot topic in peoples ' minds .
+We need to avoid intentional crime in front of ATM's .
 To sum up , a carrier of a known genetic risk should be obligated to tell his or her relatives .
-Privacy is a word that has been popular the last few decades.
-The more information that is provided, the more relatives and others know her problem.
-The problem of abuse of surveillance is only the problem of abuse of power.
-'Privacy,' this is a word that has been popular in these last few decades .
-To summarize, we respect every life, and also help people to live longer.
-Most patients will be depressed after realizing his or her conditions.
-This is the interpretation of challenges for greater life expediencies.
-Actually, tracking systems have provided people with safety indemnification .
-People can promote their friendships and relationships through social media.
-But overall , the advantages far outweigh the disadvantages .
-Rising life expectancies result in fewer available people in the workforce.
-However, the aging population is a phenomenon opposite to it.
-In modern society, privacy is a hot topic in people's minds.
-Tracking people using surveillance technology can improve security in people's lives.ֲ 
-Without an advanced health care system, aged people have a higher rate of death.
-Some people spend a lot of time in it and forget their real life.
+Here, something red means marriage and white means someone passing away .
+This is the interpretation of challenge for rising life expectancy.
+The concurrent result is increasing size of population.
+All these contributions of surveillance technology in tracking make the environment safer .
+By doing so, one will feel less stressful when facing such a risk.
+In the first place, higher life expectancies could cause challenges to resources.
+The more people (relatives) know her problem, the more information is able to be provided.
+By doing so, one will feel less stressful in facing such a disorderly risk .
+To summarize, we respect every life and also help people live longer .
+Then his or her mother will also know the emotion and warm feeling.
+Here , red means marriage and white means someone passing away .
+RFID is also functional at police events.
+Most patients will be depressed after thinking about their diagnosis.
+All of these contributions due to use of surveillance technology to track make the environment safer.
+The concurrent result is an increasing size of population.
+With the development of the modern society , people live longer .
 Without trust and love , there is no difference between a family and a bunch of strangers living together .
-Tracking people using surveillance technology can make better security of people's lives.
-In most countries, free healthcare is provided by the government.
-Government should also make a bigger amount of pension expenditure.
-Humans have their own rights and privacies.
-The more people that know of her situation, the more support she may be provided.
-Students can exchange their study experiences even if they are in different countries.
-Without such surveillance technology, we can still have a better future.
-However, ageing population is a phenomenon opposite to it.
-An additional result is an increase in population.
-Humans have their own rights and privacy.
-The more people ( relatives ) that know her problem, the more information channels are provided .
-Health care by far has been expensive to carry out.
-Travelers survive in the desert thanks to a GPS to guide them.
-RFID is also functional for police events.
-Travelers survived in the desert thanks to a GPS that guided them .
-Students can change their experience in studying, even when they are in a different country.
+Some people spend a lot of time in it and forget their real life.
+By doing so one will feel less stress facing the risk of a disorder.
+Then, his or her mother will also know the emotion and feel warm.
+Other relatives may have the same chance of having that kind of disease.
+Some people spend a lot of time in it, and then forget their real life.
+Other relatives may have the same possibility to have such kinds of diseases.
+However, there are two sides to the story.ֲ 
+Nowadays, population aging is becoming a problem especially in developed countries.
+Government should also make a larger pension expenditure.
+Increased life expectancy results in higher populations and therefore fewer available employment opportunities.
+This would result in the loss of manpower in a country.
+Rising life expectancy is also an achievement of government.
+Since ancient times, humans interact with each other face to face.
+The increasing size of the population is another result.
+Without advanced health care systems, the elderly have a higher rate of death.
+Some people spend a lot of time in it and forget their real life.
 In those diseases , many who are affected do actually have different physical characteristics compared to those without the genetic diseases .
-Every country should try to maintain an age balanced population.
-Rising life expectancies is also an achievement to governments.
-The rising average life expectancies can cause problems .
-The problem of abuse of surveillance is only the problem of abuse of power.
-All the contributions from using the surveillance technology to track make the environment safer.
-Government should also make a bigger amount of pension expenditures.
-The more people ( relatives ) that know her problem , the more information channel is provided .
-RFID is functional in police events .
-Other relatives may have the same possibility of having this kind of disease .
+Therefore, every country should try to maintain a balance of younger and older generations.
+This essay will illustrate two aspects .
+The rising average life expectancy  can potentially  cause some problems .
+Here , red means marriage and white means someone passing away .
+In the first place, rising life expectancies could cause resource challenges.
+To summarize, we respect every life and also help people to live longer.
+This is the interpretation of challenges for rising life expectancies.
+Without such surveillance technology, we can still live a better future.
+However , there are two sides to every story .
 This information needs to be at least acknowledged by the other party before they make the decision to get married and have children .
-Then his or her mother will also know that emotion, and feel warm.
+Then his or her mother will also feel the warm emotion.
 Or in a less extreme case , the child may be disabled .
-Travelers survive in desert thanks to GPS guide them.
-However , as life expectancy rises , some social challenges occur as well .
-Without an advanced health care system, aged people have a higher rate of death.
+Tracking people using surveillance technology can make people feel more secure. .
+This is the interpretation of challenges for rising life expectancies.
+However , there are two sides to each story.
 We all know that life is priceless and we have no right to judge a person 's death .
-People using Security of  tracking technology  surveillance can  make peoples life's better.
-One can also easily see his deeply loved one through the internet from miles away.
+Rising life expectancy is an achievement to government.
+By using surveillance technology to track, the environment is made safer.
 Then his or her mother will also know the emotion and feel warm.
-Government should also ensure a bigger amount of pension expenditure .
-However, as life expectancy rises, some social challenges occurred as well.
-Since ancient times, human have interacted with others face to face .
-Here, a red thing means marriage and a white thing means someone passed away.
-Rising life expectancy is also an achievement to governments.
-Other relatives may have the same possibilities to have such a disease .
-Health care has been by far too expensive to carry out.
-Without such surveillance technology , we can still live a better future.
-This essay will illustrate two aspects.
+Since ancient times, humans interact with other face to face.
+Students can exchange their study experiences even if they are in different countries.
+Life can feel more secure when one can track people using surveillance technology.
+Privacy - this is the word that is popular in these last few decades.
+We do not consider much for our offspring.
+Students can compare their experiences in study even when they are in different countries.
+The problem of abuse of surveillance is only the problem of abuse of power.
+Government can also be credited with the rising life expectancy.
+Therefore, every country should try to maintain both a young and old generation balance.
 The other reason that parents should know the baby they have is a carrier of genetic risk is for a nation 's good .
-The rising average life expectancy will surely cause some problems .
-Humans have their own rights and privacy.
-More people (relatives) know her problem; more information channels are provided. .
-Humans have their own rights and privacy .
-Government should also increase pension expenditures .
-Second , the shortage of workforce,  can also endanger the development of the society .
+The problem with the abuse of surveillance is only the problem of the abuse of power .
+In the modern society, privacy is a hot topic in people's minds .
+It is also the advancement of surveillance technology .
+Most patients will become depressed after learning of his or her condition.
+Government should also make a larger amount of pension expenditure .
+In modern society, privacy is a hot topic in people's minds.
 It is easier for people to accept it morally .
-Abuse of power includes among other things, abuse of surveillance.
-It is possible that other relatives may have the same kind of disease .
-Health caring by far has been expensive to carry out .
-This is the interpretation of the challenge for rising life expectancy.
-Other relatives may have the same probability of having this disease .
+Rising average life expectancies can surely cause some problems .
+Without surveillance technology , we can still live a better future .
+However, an aging population is a phenomenon opposite to it.
+This essay will illustrate two aspects.
+Sometimes people can spend a lot of time in it to the extent of forgetting their real lives .
 I think a carrier of a known genetic risk should not be obligated to tell his or her relatives .
 Genetic testing is a personal choice .
-To summarize, we respect every life and help people to live longer.
-The rise in average life expectancy can surely cause some problems .
-Cars and trucks diminish the length of shipment time.
+Carriers of a known genetic risk should be obligated to tell their relatives.
+However, as life expectancy rises, some social challenges occur as well.
+Therefore, every country should try to maintain both its young and old generational balance.
 This is not the case I am talking about here .
-Since ancient times , humans interact face to face.
-They have the right to know whether they are at risk .
-However , as life expectancy rises , some social challenges occur as well .
-They can also take immediate measures to reduce the possibility of having this disease .
-Any human has their own rights and privacy .
-Privacy is a hot topic in society today.
-Without an advanced health care system, aged people have higher death rates.
-In modern society, privacy is a hot topic in most people's mind.
-However, as life expectancy rises, some social challenges occur as well .
-People can promote their friendships and relationships through these social media.
-Students can exchange their study experiences even when they are in different countries.
-Travelers survive in the desert thanks to GPS that guides them.
-Without an advanced health care system, ageing people have a higher rate of death .
-The rising average life expectancy can surely cause some problems.
-Overall, the advantages far outweigh the disadvantages.
-Students can exchange their experiences in studying even though they are in different countries.
-Overall, however, the advantages far outweigh the disadvantages.
-In summary, we help people to live longer and we respect every life.
-Therefore, every country should try to maintain both young and old generation in balance.
-Third , it is hard to define relatives .
-In the first place, rising life expectancies could cause resources challenges.
-'Privacy', is a popular word these past few decades .
-This essay will illustrate two aspects of this.
-We need a monitor in front of ATMs to avoid intentional crime.
-Then wife D might tell her mother , who likes to gossip on her way to the theatre .
-However, as life expectancy rises some social challenges occurred as well .
-Then nobody wants to marry A , or his relatives .
-It is related to the advance of surveillance technology.
-In conclusion , a carrier of a known genetic risk should not be obligated to tell his or her relatives .
 With the development of modern society, people live longer.
-We need monitor the front of ATM machines to avoid intentional crime .
-Nowadays, average population age is becoming a problem, especially in developed countries.
-All these contributions by using the surveillance technology to track makes the environment safer .
-Actually, tracking systems have provided people safety identification.
+They have the right to know whether they are at risk .
+Via the internet, one can see their loved ones from miles away .
+They can also take immediate measures to reduce the possibility of having this disease .
+Then his or her mother will also know the same emotion and feel warmth .
+More people (relatives) know her problem. An information channel is provided.
+Travelers survive in deserts thanks to GPS guiding them.
+Without such surveillance technology, we can have a better future.
+A carrier of a known genetic risk should be obligated to tell his or her relatives.
+'Privacy '; this is the word that has been popular these past few decades.
+This would result in the lose of manpower in a country.
+This would result in the loss of manpower in a country.
+The concurrent result is increasing population size.
+Government should make a a larger amount of pension expenditures.
+Tracking people via surveillance technology can enhance security for citizens.
+Here, red things mean marriage and white means someone passing away.
+Since ancient times, human interact with others face to face.
+Every country should try to maintain both young and old generation balanced .
+In most countries, healthcare is provided free from the government.
+Third , it is hard to define relatives .
+Then his or her mother will also know that emotion, and feel warm.
+With the internet, one can easily connect with a loved one from miles away.
+Secondly, the shortage of a workforce can also endanger the development of the society.
+Today , the surveillance technology has become manifest to almost wherever we go .
+Then wife D might tell her mother , who likes to gossip on her way to the theatre .
+The redundancy of extended shipment time is diminished with cars and trucks.
+Then nobody wants to marry A , or his relatives .
+It is also the advancement of surveillance technology .
+In conclusion , a carrier of a known genetic risk should not be obligated to tell his or her relatives .
+Life is hard but people cannot blame it on life being unfair.
+In most countries healthcare is provided freely from government.
+Humans have their own rights and privacy.
+Second, a workforce shortage can also endanger the development of society.
+However, an aging population is a dissimilar phenomenon.
 And there are two basic reasons .
-We need a monitor in front of the ATM to avoid intentional crime.
 Then his or her mother will also know the emotion and feel warm.
-Here, red means marriage and white means someone passing away.
+Then his or her mother will also know emotion and warmth?
+People can promote their friendships and relationships through these social medias.
 The genetic risk that you carry may or may not affect your health and put you in danger .
-This is the interpretation of challenge for rising life expectancies .
-Here , red means marriage and white means someone has passed away .
-The problem of abuse of surveillance is only the problem with abuse of power.
-Actually, tracking systems have provided people safety indemnification.
-All these contributions by using the surveillance technology to track things make the environment safer.
-Nowadays, the aging population is becoming a problem, especially in the developed countries.
-Rising life expectancies result in fewer workforces available .
-Therefore, every country should try to maintain both young and old generation balance.
-First, someone having a disease belongs to his or her privacy.
-To summarize, we respect every life, we also help people to live longer .
+It is also the advance of surveillance technology .
+We do not consider much for our offspring.
+But overall, the advantages far outweigh the disadvantage.
+However, as life expectancy rises, some social challenges occur as well.
+This would result in the loss of manpower in a country.
+Travelers survive in deserts thanks to GPS to guide them.
+First, what diseases someone may have should remain private.
+The problem of surveillance abuse is a symptom of abuse of power .
+However, aging populations are an opposing phenomenon.
+This is the interpretation of challenge for rising life expectancy.
 This is the responsibility of being a parent .
-In the first place, rising life expectancy could cause resource challenges.
-But overall , the advantages far outweigh the disadvantage.
-The more people (relatives) who knows her problem, the more information is provided.
-Nowadays the aging population is becoming a problem especially in the developed countries.
-With the development of modern society, people are living longer.
-Other relatives may be at risk to have the same disease.
+The carrier of a known genetic risk should be obligated to tell his or her relatives.
+This essay will illustrate in two aspects.
+All these contributions from using the surveillance technology to track make the environment safer.
+Today, surveillance technology has manifested to become present almost anywhere we go .
+In the first place, rising life expectancies could cause resource challenges.
+'Privacy', this is the word that has been popular in the last few decades.
 There are really a lot of things we need to consider .
-Without an advanced health care system , aged people have a higher rate of death .
+Healthcare has become expensive.
 As a result , what should we do ?
 Tell them or keep this secret until we die ?
-Government should also increase the amount of pension expenditures.
+Many patients will be depressed after realizing his or her conditions .
 For example , diabetes is a kind of genetic disease .
-The rising average life expectancy can cause some problems .
-Without advanced health care system , aging people have a higher rate of death .
-Without such surveillance technology, we can still have a bright future.
-With the development of a modern society , people live longer .
-However, there are two sides to the story.
-However, as life expectancy rises, some social challenges occur as well .
-The redundancy of extended shipment time is diminished with cars and trucks.
-The problem with the abuse of surveillance is not the only problem with the abuse of power.
+With the development of modern society, people live longer.
+The more people (relatives) that know of her problem, the more information is provided.
+Travelers survive in the desert thanks to a GPS to guide them.
+Most patients will be depressed after realizing his or her condition.
+Government should also make a bigger pension expenditure.
+RFID is also functional in police events.
+To summarize, we respect every life and also help people live longer.
+By doing so, one will feel less stressful in facing such disorder risk .
 It may affect our daily lives and we will think about it every day .
-People can promote their friendships and relationships through these social media.
-Today, surveillance technology has become almost manifest to wherever we go .
-Firstly, someone having a disease is a matter of privacy .
-The carrier of a known genetic risk, should be obligated to inform his or her relatives.
+A carrier of a known genetic risk should be obligated to tell his or her relatives.
+In this country, red things symbolize marriage and white symbolizes death.
+In modern society, privacy is a hot topic in people's minds.
+Most patients feel depressed after learning about his or her conditions .
 We can not let it go .
 We should know that although we may affect their lives , we can still let them make correct choices in the future .
-This is the interpretation of challenge, for increasing life expectancy.
-Carriers of a known genetic risk should be obligated to tell their relatives.
+In most countries healthcare is provided free by the government .
+More people ( relatives ) know her problem, the more information that is provided.
 They always have a choice about whether to undergo the genetic test or not .
 Maybe after we tell them , they will go for it and know more about themselves .
-Then his or her mother will also know that emotion, and feel warm.
-Some people spend a lot of time in it and forget their real life.
-We need a monitor in front of ATM to avoid intentional crime.
-The carrier of a known genetic risk should be obligated to tell his or her relatives.
-With the development of modern society, people live longer.
+Firstly, someone having any kind of disease has a right to his or her privacy.
+'Privacy ' , is a word that is popular during these last few decades .
+However, there are two sides to stories.
+This essay will illustrate two aspects.
+In the first place, rising life expectancy could cause a resources challenge.
 He or she has the right not to tell anyone .
 However , in my opinion , it is the obligation of a carrier of a known genetic risk to tell his or her relatives about his or her actual situation .
-To summarize, we respect every life and also help people to live longer.
-Firstly, someone having a disease belongs to his or her privacy.
-Then his or her mother will also know the emotion and feel warm.
-Life is hard, but people can not place blame on life being unfair .
+Rising life expectancy is also an achievement for governments .
+In the first place, rising life expectancy could cause resource challenges.
+But overall, the advantages far outweigh the disadvantages.
+Rising life expectancy is also an achievement of governments.
 Some of the diseases may not show symptoms until the carrier is old enough .
-Rising life expectancies can be considered an achievement of governments .
-Life is hard but people can not blame it on being unfair.
-However, there are two sides to the story.
-Nowadays, population aging is becoming a problem — especially in the developed countries.
-can be provided to assist with her problem..
-Rising life expectancies result in lower availability in the workforces.
-To summary, we respect every life, also help people to live longer.
-Travelers survive in the desert thanks to a GPS to guide them.
-Howeve, the aging population is a phenomenon opposite it.
-We do not consider our children much.
-The carrier of a known genetic risk, should be obligated to inform his or her relatives.
-It is also the advance of surveillance technology.
-The more people (relatives) who knows her problem, the more information is provided.
-One can also easily see his deeply loved one through internet from miles away.
-We do not consider much for our offspring.
-Nowadays, population aging is becoming a problem especially in developed countries.
-This essay will illustrate two aspects.
-The rising life expectancy averages can surely cause some problems.
-By doing so, one will feel less stress in facing such risk .
-Since ancient times, humans have interacted with others face to face.
-Cars and trucks diminish the redundancy of long time shipments.
-It is also due to advances in surveillance technology.
-To prevent crime, a monitor is needed in front of the ATM.
-The advances in surveillance technology can also be credited.
-In modern society, privacy is a hot topic in people's minds.
-Rising life expectancies is also an achievement for governments.
-A carrier of a known genetic risk should be obligated to tell his or her relatives.
-Carrier of a known genetic risk should be obligated to tell his or her relatives.
-We can live a better future without such surveillance technology.
-As life expectancy rises , some social challenges occurred as well .
-We do not consider much for our offspring.
-Then his or her mother will also know the emotion and feel warm.
-The abuse of surveillance is an abuse of power.
-Students can exchange their experiences in study even if they are in different countries .
-Without such surveillance technology, we can still have a better future .
-In conclusion, a shadow always exists when there is light .
-In front of the ATM, we need a monitor to help prevent intentional crime .
-One can also easily see his deeply loved one through the internet from miles away.
-This is the interpretation of the challenge of rising life expectancies .
-The concurrent result is an increasing population size .
-Therefore, every country should try to maintain a balance between both young and old generations.
-All these contributions using the surveillance technology to track make the environment safer.
-Anyone who is a carrier of a known genetic risk should be obligated to tell his or her relatives.
-By doing so, one will feel less stressful in facing such disorder risk.
-Secondly, the shortage of workforce can also endanger the development of the society.
-Then his or her mother will also know the emotion, and feel warm.
-The government should also increase their pension expenditure.
-A Carrier of a Known Genetic Risk Should be Obligated to Tell His or Her Relatives
-Nowadays, population aging is becoming a problem, especially in developed countries.
-Students can exchange their experiences with studying even they are in different countries .
-If there is no problem , that will be wonderful .
-'Privacy', is a word that has been popular in the last few decades.
-In the modern society, privacy is a hot topic in peoples' minds .
-This is the interpretation of a challenge for raising life expectancies .
-Without such surveillance technology, we can still create a better future .
-In the first place , rising life expectancy may cause resources to be challenged .
-Without such invasive technology, we could have a better future.
-In modern society, privacy is a hot topic in peoples' minds.
-Today, surveillance technology has become almost manifest wherever we go.
-In conclusion, life itself should be respected for us to live a longer one.
-Without an advanced health care system, aged people have higher rates of death.
-Then they can have a healthy baby with the help of the doctors .
-First, what kinds of diseases someone has is a matter of privacy .
-There is a story I watched on TV .
-Government should also have a larger pension expenditure.
-Then his or her mother will also know emotion and warmth.
-In modern society, privacy is a hot topic on people's minds.
-RFID is also involved in police events .
-Other relatives may have the same possibilities to have such kinds of diseases.
-In modern society privacy is a hot topic in peoples' mind .
-But overall, the advantages far outweigh its disadvantage.
-'Privacy' is the word that has become popular in the last few decades.
-Other relatives may also be predisposed to the same kind of diseases.
-Today, surveillance technology has become almost manifest wherever we go.
-Or, they can choose to keep silent until the next carrier is diagnosed.
-This essay will illustrate this in two aspects.
-The answer is simply that everyone , especially our family , has the right to know the truth .
-This is the interpretation of challenge for rising life expectancy.
-Firstly,someone having  that kind of disease belongs to his or her privacy.
-Most patients will be depressed after realizing their condition .
-In the first place , rising life expectancies could cause a challenge with resources .
-People may feel angry , depressed , or even guilty about their results .
-Therefore, every country should try to maintain a balance between both young and old generations.
-Government should also make a bigger pension expenditure.
-Travelers can survive in the desert thanks to GPS guidance.
-However, as life expectancy rises some social challenges will occur as well.
-However, as life expectancy rises, some social challenges occur as well.
-Both sides of stories are there, however.
-Rising life expectancy is also an achievement for governments.
-Other relatives may have the same possibilities of having that kind of disease.
-Nowadays, population aging is becoming a problem, especially in developing countries.
-In most countries healthcare is provided at no cost  from government .
-Most patients will be depressed, after realizing his or her condition.
-The concurrent result is increasing the size of the population.
-The rising average life expectancies can cause problems .
-The Impact Of Social Media
-All these contributions by using the surveillance technology to track makes the environment safer .
-Actually, the tracking system has provided people safety indemnification.
-We do not consider much for our offspring.
-Rising average life expectancies can surely cause some problems .
-Second, the shortage of workforce can also endanger the development of the society.
-There are, however, two sides to every story. 
-Nowadays, an aging population is becoming a problem - especially in the developed countries .
-And if you are not on it , you will just get lost .
-Therefore , every country should try to maintain a balance of both young and old generations.
-With the development of modern society, people live longer .
-All these contributions by using surveillance technology to track make the environment safer.
-This is an interpretation of the challenge of rising life expectancies.
-In China , a lot of government organizations have open blogs to communicate with people , like firefighters , police stations and so on .
-The rising average life expectancy will surely cause some problems .
-However, as life expectancy rises, some social challenges occur as well.
-Then his or her mother will know the emotion and also feel warm .
-Healthcare by far has been expensive to carry out.
-The rising average life expectancy can surely cause some problems.
-Other relatives may have the same possibility of having the disease.
-Without such surveillance technology, we can still live in a better future.
-Humans have their own rights and privacy.
-However, as life expectancy rises, some social challenges will occur as well.
-However, aging population is a phenomenon opposite of it.
-Government should also increase pension expenditure.
-Then his or her mother will also feel the warm emotion.
-Other relatives may have the same possibility to have such kinds of disease .
-In the modern society, privacy is a hot topic in peoples' mind.
-In the first place, rising life expectancy could cause resources challenge .
-In front of the ATM we need to monitor to avoid intentional crime.
-It is also the advance of surveillance technology.
-Today, surveillance technology has become almost manifest wherever we go.
-Then his or her mother will also know the emotion and feel warm .
-Tracking people using surveillance technology can improve the security of peoples' lives.
-Nowadays, the population aging is becoming a problem, especially in developed countries.
-This improves the connectivity between the users .
-In summary, we respect every life and help people live longer.
-Tracking people using surveillance technology can make them feel safer.
-Overall, the advantages outweigh the disadvantages.
-'Privacy ' is a word that is popular these past few decades .
-Overall, the advantages far outweigh the disadvantages.
-Rising average life expectancies can surely cause some problems .
-We do not consider our offspring much.
-'Privacy '; this is the word that has been popular these past few decades.
-Cars and trucks diminish the redundancy of shipping for a long time.
-Rising life expectancy is also an achievement for governments.
-But overall , the advantages far outweigh its disadvantages.
-Carriers of a known genetic risk should be obligated to tell his or her relatives
-Or they can choose to keep silent until the next carrier is diagnosed.
-The more people (relatives) know her problem, the more information is able to be provided.
-In front of the ATM, we need to monitor and avoid intentional crime .
-Health care, by far, has been expensive to implement .
-The concurrent result is an increasing population size .
-RFID is practical too in police events.
-However, there are two sides to most stories.
-The types of use must also be taken note of - informing , interacting , discussion and others .
-Tracking people using surveillance technology can enhance their security.
-In conclusion, the shadow always exists when there is light .
-In modern society, privacy is a hot topic in people's minds.
-People can promote their friendships and relationships through social media. .
-In front of the ATM we need monitor to avoid intentional crime.
-In front of ATMs we need a monitor to deter crime .
-Secondly, a shortage in the workforce can also endanger the development of the society.
-Other relatives may have the same possibilities to develop such a disease.
-Tracking people using surveillance technology can make people 's life more secure.
-Firstly, information about a disease one has is a private matter.
-However, as life expectancy rises, some social challenges occur as well.
-However , as life expectancy rises , some social challenges occur as well .
-Then their mother will also know the emotion and feel warm .
-In this case , the social network helps people to increase the frequency of talk .
-The concurrent result is increasing the population size.
-In front of an ATM, we need a monitor to avoid intentional crime .
-Without an advanced health care system , aged people have a higher rate of death..
-To summarize, respecting every life, also helps people to live longer.
-The abuse of surveillance is caused by the abuse of power .
-This is the interpretation of the challenges for rising life expectancies.
-The advances in surveillance technology can also be credited.
-But overall, the advantages far outweigh the disadvantages.
-We do not consider much for our offspring.
-In conclusion, the shadow always exists when there is light.
-Healthcare is very expensive to provide.
-Rising life expectancies result in fewer workers in the workforce.
-GPS's guidance can help travelers survive in the desert.
-Without an advanced health care system aged people have greater rate of death .
-Travelers survive in the desert thanks to a GPS to guide them .
-In most countries healthcare is provided freely from government.
-Other relatives may have the same risk of having such a disease.
-Students can exchange their study experiences even they are in different countries.
-However , there are two sides to stories .
-People can promote their friendships and relationships through social media.
-Without such surveillance technology, we can still have a better future.
-In the modern society privacy is a hot topic in peoples' mind .
-'Privacy', this is the word that became popular in these past few decades.
-However, aging population is a phenomenon opposite to it .
-Rising life expectancies result in fewer young people available for the workforce.
-Secondly, a shortage in the workforce can also endanger the development of the society.
-This essay will illustrate two aspects.
-Rising life expediencies is also an achievement.
-Tracking people using surveillance technology can make the security of peoples lives better.
-In conclusion, a shadow always exists when there is light.
-People can promote their friendships and relationship through social media .
-Today, the surveillance technology has become almost manifest to wherever we go.
-Most patients will be depressed after realizing his or her conditions.
-Cars and trucks diminish the redundancy of long time shipments.
-This essay will illustrate two aspects.
-Then his or her mother will also know the emotion and feel warm.
-By doing so, one will feel less stress regarding facing such risk.
-Some people spend a lot of time in it and forget their real life.
-Here, red means marriage, and white means someone passing away.
-They can also choose to keep silent until the next carrier is diagnosed.
-Cars and trucks diminish the redundancy of long time shipments.
-The modes of communication have been changing over the years , from letter writing to social networking .
-With the development of modern society, people live longer.
-The rising average life expectancy can surely cause some problems.
-This essay will illustrate two aspects.
-Without such surveillance technology, we can still have a better future .
-We do not consider much for our offspring.
-Nowadays , social media are able to disseminate information faster than any other media .
-People can promote their friendship, and relationship, through social media.
-The carrier of a known genetic risk should be obligated to tell his or her relatives.
-The concurrent result is an increasing population size .
-With the development of modern society, people live longer.
-Actually, a tracking system has provided people safety indemnification .
-There might be false information or hoaxes spreading around on social media .
-Rising life expectancy is also an achievement from the government.
-Here, red things mean marriage and white means someone passing away.
-Without an advanced health care system, ageing people have a higher rate of death .
-Without an advanced health care system, aged people have a higher rate of death.
-People can promote their friendships and relationships through social media.
-In summary, we respect every life and help people live longer.
-More relatives know her problem , more information will be provided .
-However , there are two sides to the story .
-Humans have their own rights and privacy.
-Also, it is the advance of surveillance technology .
-Students can exchange their experiences in the study even they are in different countries .
-Due to the developments of the modern society, people tend to live longer lives.
-Government should also make a bigger amount of pension expenditure.
-This will result in unnecessary conflicts between two parties over miscommunication .
-Rising life expectancies result in fewer available workforces.
-Government should also contribute a larger pension expenditure .
-However , there are risks of false information and chances of miscommunication .
 With the development of the modern society, people live longer.
-'Privacy ' , is a word that is popular during these last few decades .
-In most countries healthcare is provided freely from the government .
-In most countries healthcare is provided freely from government .
-Without such surveillance technology, we can still live a better future .
-Therefore, every country should try to maintain both a young and an old generation balance.
-Howeve, the aging population is a phenomenon opposite it.
-Some people spend a lot of time in it and forget about their real life.
-Without such surveillance technology, we could still see a better future.
-Tracking people using surveillance technology can better security for people 's lives .
-RFID is also functional at police events .
-This will greatly help a society to progress rapidly .
-Life is hard but people can not blame it on being unfair.
-Carriers of a known genetic risk should be obligated to tell his or her relatives
-Carriers of a known genetic risk should be obligated to tell his or her relatives.
-Some people spend a lot of time in it and forget their real life .
-In most countries, healthcare is provided freely from the government .
-Thus , the lack of face-to-face human contact through social media restricts actual interaction which can be stimulated through the media .
-However , as life expectancy rose , some social challenges occurred as well .
-Today, surveillance technology has become almost manifest wherever we go.
-The problem of abuse of surveillance is only a problem of the abuse of power.
 In conclusion, the shadow always exists when there is light.
-Travelers survive in deserts thanks to having GPS guide them.
-In most countries, healthcare is provided freely from the government.
-In summary, we respect every life and also help people to live longer.
-Actually , tracking systems have provided people safety and identfiication .
+One can also easily see his deeply loved one through the internet from miles away .
+The government should also increase the amount of pension expenditure.
+Some people spend a lot of time in it and forget their real life .
+However, there are two sides to every story.
+Without an advanced health care system , aged people have higher rates of death .
+The problem with the abuse of surveillance is only the problem of the abuse of power .
 The rising average life expectancies can surely cause some problems .
-Travelers survive in the desert, thanks to the GPS that guides them.
-This would result in the lose of manpower in a country .
-In modern society privacy is a hot topic in peoples' mind .
-Government should contribute more to pension expenditures.
-It is also the advance of surveillance technology.
-Today, the surveillance technology has become almost constant wherever we go.
-People can promote their friendship and relationship through social media .
-This can be easily seen in restaurants or cafes nowadays .
-Therefore, every country should try to maintain a balance of both a young and old generation.
-But overall, the advantages far outweigh the disadvantages.
-Rising life expectancies result in fewer available people in the workforce.
-All of these contributions made by using surveillance technology to track make the environment safer.
-Nowadays, population aging is becoming a problem especially in the developed countries.
-In most countries healthcare is provided freely by the government .
-'Privacy' has been a popular word these last few decades.
+Life is hard but people can not claim that life is unfair.
+With the development of modern society, people live longer.
+Without such surveillance technology, we can still live a better future.
+Health care, by far, has been expensive to implement .
+In most countries healthcare is provided freely from government.
+We do not consider that much for our offspring .
+They can also choose to keep silent until the next carrier is diagnosed.
 In most countries, healthcare are provided freely from the government .
-Without such surveillance technology, we can live in a better future.
+Most patients will be depressed after realizing his or her condition .
+Other relatives may have the same chance of contracting the same kind of disease.
+Nowadays, population aging is becoming a problem, especially in the developed countries.
+The carrier of a known genetic risk, should be obligated to inform his or her relatives.
+In conclusion, shadow always exists when there is light.
+Actually, the tracking system has provided people with safety indemnification .
+Therefore, every country should try to maintain a balance between both young and old generations.
+In front of the ATM we need monitor to avoid intentional crime.
+Rising life expectancies are also an achievement of governments.
+Since ancient times, humans interact with others face to face .
+Today, the surveillance technology manifests itself almost wherever we go.
+Government should also have a larger pension expenditure.
+Life is hard, but people can not blame it on being unfair .
+Health care has been expensive to carry out .
+Nowadays , population aging is becoming a problem, especially in developed countries.
+Rising life expectancy results in fewer jobs available.
+However, there are both sides to the story.
+Therefore , every country should try to maintain a balance of young and old generations .
+Without advanced health care system , aging people have a higher rate of death .
+First, someone having a disease deserves to have his or her privacy.
+All of these contributions using the surveillance technology to track, makes the environment safer .
+Abuse of power includes among other things, abuse of surveillance.
+But overall, the advantages far outweigh the disadvantages.
+In this particular society, red represents marriage while white represents someones passing.
+Surveillance is only a problem if there is abuse of power.
+It is also due to the advance of surveillance technology .
+With the development of the modern society,  people live longer .
+People can promote their friendships and relationships through these social media.
+Nowadays, population aging is becoming a problem especially in the developed countries.
+Then his or her mother will also experience the emotion and feel warm .
+A Carrier of a Known Genetic Risk Should be Obligated to Tell His or Her Relatives
+However, an aging population is a phenomenon opposite to it .
+In most countries, healthcare is provided freely by the government.
+If there is no problem , that will be wonderful .
+With the development of modern society, people live longer .
+This would result in the loss of manpower in a country .
+This would result in a loss of manpower in a country.
+Tracking people using surveillance technology can make their lives safer.
+The problem of surveillance abuse is one of abuse of power.
+In the first place, rising life expectancy could cause resource challenges.
+When more people, namely relatives, know of her problems, more information will be provided.
+Firstly, someone's kinds of disease belongs to his or her privacy.
+Some people spend a lot of time in it and forget their real life .
+Any carrier of a known genetic risk should be obligated to tell his or her relatives.
+Then they can have a healthy baby with the help of the doctors .
+Other relatives may have the same possibility of having said disease.
+There is a story I watched on TV .
+In front of an ATM we need a monitor to avoid intentional crimes.
+The abuse of surveillance is an abuse of power.
+Government should also spend more on pensions.
+In the first place , rising life expectancy could cause a challenge in resources
+Then his or her mother will also know the emotion and feel warm.
+Since ancient times , human have interacted with others face by face .
+In most countries, healthcare is provided freely by the government.
+Health care has been, by far, the most expensive to carry out .
+Overall , the advantages far outweigh the disadvantages .
+This would result in the lose of manpower in a country.
+In front of the ATM we need monitor to avoid intentional crime.
+Tracking people using surveillance technology can enhance the security of people 's lives .
+The answer is simply that everyone , especially our family , has the right to know the truth .
+By doing so, one will feel less stressed about facing such disorder risk.
+With the development of modern society, people live longer.
+We need a monitor in front of ATMs to avoid intentional crime.
+Rising life expectancies are also an achievement to governments .
+People may feel angry , depressed , or even guilty about their results .
+The word that has been popular in these last few decades  is 'Privacy.'
+Here, red things mean marriage and white means someone passed away .
+However, there are both sides to the story.
+Since ancient times, humans have interacted with others face to face .
+Firstly, someone having this kind of disease has a right to his/her privacy.
+The problem of abuse of surveillance is only the problem of abuse of power.
+Therefore, every country should try to maintain a balance between both the younger and older generations.
+All these contributions using surveillance technology make the environment safer.
+Actually, tracking system has provided people safety indemnification.
+Second, the shortage of workforce can also endanger the development of the society.
+Nowadays, an aging population is becoming a problem - especially in the developed countries .
+Therefore, every country should try to maintain a balance between both young and old generations.
+By doing so, one will feel less stress in facing such risk .
+The Impact Of Social Media
+However, there are two sides of every story.
+By using surveillance technology to track, the environment is made safer.
+First, someone having whatever kind of disease is entitled to his or her privacy.
+Some people spend a lot of time in it and forget about their real life.
+People are able to promote their friendships and relationships through social media .
+However, the ageing population is an opposite phenomenon.
+First , the type of disease someone has is a matter of privacy .
+And if you are not on it , you will just get lost .
+In modern society privacy is a hot topic in people's mind.
+All of these contributions, by using the surveillance technology to track, make the environment safer. .
+People can promote their friendships and relationships through these social media.
+In conclusion, the shadow always exists when there is light.
+In China , a lot of government organizations have open blogs to communicate with people , like firefighters , police stations and so on .
+Firstly, what disease a person may have is private information and belongs to that person.
+However, as life expectancy rises, some social challenges occur as well .
+All these contributions using the surveillance technology to track make the environment safer.
+This essay will demonstrate two aspects.
+Someone having a disease has the right to his or her privacy .
+Health care by far has been expensive to carry out .
+Health care by far has been expensive to carry out .
+Firstly, the disease some has in a private matter.
+In most countries free healthcare is provided from the government.
+With the development of modern society, people live longer.
+Therefore, every country should try to maintain a balance of both young and old generations .
+Tracking people using surveillance technology can give people's lives more security.
+Humans have their own rights and privacy.
+Without advanced health care system, aged people have higher death rate .
+Other relatives may have the possibility of having the same kind of disease.
+'Privacy ' , this is a popular word in these few decades .
+Firstly, what kind of diseases a person has is a private matter .
+People can promote their friendships and relationships through these social medias.
+In most countries, healthcare is provided freely from the government.
+People can develop a relationship through social media.
+This essay will illustrate this in two aspects .
+This improves the connectivity between the users .
+This essay will illustrate two aspects of this.
+Here , red things mean marriage and white means someone passing away.
+However, there are two sides to the story.
+Rising life expectancies is also an achievement for the government.
+Overall, the advantages far outweigh the disadvantages.
+People can promote their friendship and relationship through social media .
+But overall, the advantages far outweigh its disadvantage.
+Due to the developments of the modern society, people tend to live longer lives.
+The concurrent result is increasing the size of the population.
+Here, red means marriage and white means someone passed away.
+Tracking people using surveillance technology can make their lives more secure. .
+Cars and trucks diminish the redundancy of long time shipment.
+Rising life expectancies is also an achievement for governments.
+More people (relatives) know her problem, more information channel is provided.
+Cars and trucks reduce the delivery time of long distance shipments.
+Cars and trucks diminish the redundancy of lengthy shipments.
+Travelers survive in the desert thanks to GPS guiding them .
+Other relatives may have the same chance of contracting the same kind of disease.
+In most countries healthcare is provided freely from government .
+The types of use must also be taken note of - informing , interacting , discussion and others .
+The rising average life expectancy can surely cause some problems.
+Actually, tracking system has provided people safety indemnification.
+The problem of the abuse of surveillance is only the problem of the  abuse of power .
+Nowadays, population aging is becoming a problem especially in developed countries.
+The concurrent result is increasing size of population.
+With the development of the modern society, people live longer .
+Then the person's mother will also know the emotion and feel warm.
+RFID can also be functional in police events .
+First of all, what kinds of diseases someone has is a private matter.
+Secondly, the workforce shortage can also endanger the development of the society.
+In the modern society, privacy is a hot topic in people's minds .
+Carriers of a known genetic risk should be obligated to tell their relatives.
+Without an advanced health care system, aged people will have a higher rate of death .
+In this case , the social network helps people to increase the frequency of talk .
+Tracking people with surveillance technology can make their lives more secure.
+Students can exchange their experiences in study even when they are in different countries .
+Without an advanced health care system, aged people have a higher rate of death.
+Since ancient times, human interact with others face by face.
+Rising life expectancy results in fewer workforces available.
+Travelers survive in the desert thanks to GPS that guides them.
+In the first place, rising life expectancy could cause resource challenges.
+This is an interpretation of the challenges of rising life expectancies.
+'Privacy' is a word that has become popular in the past few decades .
+The government should also increase the amount of pension expenditure.
+By doing so, one will feel less stressful in facing such disorder risks.
+This essay will illustrate two aspects.
+However, aging population is a phenomenon opposite of it .
+People can promote their friendships and relationships through social media .
+Actually, tracking system has provided people safety indemnification.
+Today , the surveillance technology has become manifest to almost wherever we go .
+To summarize, we respect every life and endeavor to help people live longer.
+Students can exchange their experiences in study even if they are in different countries.
+Humans have their own rights to privacy .
+We need a monitor in front of the ATM in order to avoid intentional crime.
+This would result in the loss of manpower in a country.
+RFID is also functional in police events.
+More people (relatives), know her problem, and more information channels are provided.
 One can also easily see his deeply loved one, through the internet, from miles away.
 This would result in the loss of manpower in a country.
-The rising average life expectancy can surely cause some problems.
-Some people spend a lot of time in it, and then forget their real life.
-This is the interpretation of challenge for rising life expectancies.
-The contributions made by surveillance technology in tracking have made the environment safer.
-Travelers survive in desert conditions, thanks to having a GPS to guide them.
-Here, red means marriage and white means someone passing away.
-Rising life expectancy results in fewer workforce's available .
-Humans have their own rights and privacy .
+By doing so, one will feel less stress while facing such a disorder risk .
+Alternatively, they can choose to keep silent until the next carrier is diagnosed .
+Rising life expediencies is also an achievement to governments.
+However, the rise in life expectancy has caused  the occurrence of some social challenges.
+Travelers survive in the desert thanks to a GPS to guide them.
+With the development of modern society, people live longer.
+Then, his or her mother will also know the emotion and have a warm feeling.
+All these contributions using surveillance technology to track make the environment safer .
+Rising life expectancies result in fewer workforces being available.
+Today surveillance technology is almost everywhere we go .
+But overall, the advantages far outweigh its disadvantage.
+The problem with abuse of surveillance is only the problem of abuse of power.
+However, there are two sides to every story.
+This is the challenge of rising life expectancies.
+Other relatives may have the same chance to have the same disease.
+Travelers can survive in the desert thanks to having a GPS system to guide them .
+The modes of communication have been changing over the years , from letter writing to social networking .
+"Privacy"--this is the word that is popular these days.
+The problem with surveillance is abuse of power.
 Therefore, every country should try to maintain a balance of both young and old generations.
+In conclusion, a shadow always exists when there is light.
+Cars and trucks diminish the redundancy for shipment that takes a long time.
+Nowadays , social media are able to disseminate information faster than any other media .
+'Privacy ' , this is the word that is popular in the past few decades .
+Other relatives may have the same chance of suffering such diseases.
+By doing so, one will feel less stressful in facing such disorder risk.
+Today, surveillance technology has become almost manifest to wherever we go .
+Firstly, someone having this kind of disease deserves their privacy .
+There might be false information or hoaxes spreading around on social media .
+All of these contributions using the surveillance technology to track, makes the environment safer .
+The contributions by using the surveillance technology, make the environment safer
+By doing so, one will feel less stressed in the face of such a disordered risk.
+With the development of modern society, people live longer.
+Government should also make a bigger amount of pension expenditure.
+Without an advanced health care system , elderly people have higher rates of death .
+In conclusion, the shadow always exists when there is light .
+Cars and trucks diminish the redundancy of a long-term shipment.
+Humans have a right to their own privacy .
+RFID is also functional at police events.
+This is the interpretation of the challenge for rising life expectancies .
+In conclusion, the shadow always exist when there is light.
+Rising life expectancies is also an achievement attributable to governments .
+This will result in unnecessary conflicts between two parties over miscommunication .
+Other relatives may have the same possibilities of having such a disease .
+Since ancient times, humans have interacted with each other face to face.
+However , there are risks of false information and chances of miscommunication .
+Here, red thing means marriage and white means someone passing away .
+One can also easily see his deeply loved one through the internet from miles away.
+Some people spend a lot of time in it and forget their real life .
+In most countries, healthcare is provided freely by the government.
+Actually, tracking systems provide people with safety indemnification.
+We need to monitor in front of the ATM to avoid crime.
+In the modern society, privacy is a hot topic in people's minds.
+When more people (relatives) know her problem, more information is provided .
+In the modern society, privacy is a hot topic in peoples' mind.
+The rising average life expectancy can surely cause some problems.
+Rising life expectancies result in lower availability in the workforces.
+This will greatly help a society to progress rapidly .
+This would result in the loss of manpower in a country .
+Without such surveillance technology, we can have a better future.
+Tracking people using surveillance technology can increase the security of people's lives .
+This essay will illustrate in two aspects.
+Actually, tracking system has provided people safety indemnification.
+Thus , the lack of face-to-face human contact through social media restricts actual interaction which can be stimulated through the media .
+Humans have their own rights and privacy.
+However, there are two sides to this story.
+Travelers survive in the desert thanks to the GPS that guides them .
 In summary, we respect every life and help people live longer.
-In the first place, rising life expectancies could cause resources challenges.
-All these contributions using the surveillance technology to track, make the environment safer.
-Here, red thing means marriage and white means someone passing away.
-In conclusion, shadow always exists when there is light.
+Rising life expectancies result in fewer available workforces .
+One can also easily see his deeply-loved one through the internet, from miles away.
+Life is hard, but people cannot blame it on a lack of fairness.
+Students can exchange their experiences in studies even when they are in different countries.
+One can also easily see his love for one miles away through the internet.
+But overall, the advantages far outweigh the disadvantages.
+This essay will illustrate two aspects.
+This is the interpretation of challenges for rising life expectancies .
+Privacy - this is the word that is popular in these last few decades.
+The more people (relatives) who know her problem, the more information channels are provided.
+The problem of abuse of surveillance is only the problem of abuse of power.
 Students can exchange their experiences in study even though they are in different countries.
-It is also the advancement surveillance technology .
+This can be easily seen in restaurants or cafes nowadays .
+To summarize, we respect every life , and also help people to live longer .
+In the first place , rising life expectancy could cause resource challenges .
+In conclusion, a shadow always exists when there is light .
+More people (relatives) may know her problem as more information channels are provided.
+Rising life expectancy is also an achievement for governments .
+The problem with abuse of surveillance is also the problem of abuse of power .
+The rising average life expectancies can surely cause some problems.
+Humans have their own rights and privacy.
+One can also easily see a loved one through the internet, from miles away .
+However, there are both sides to a story.
+The concurrent result is increasing size of population .
+Since ancient times , human have interacted with others face by face .
+Without such surveillance technology, we can live a better future.
+However, as life expectancy rose, some social challenges occurred as well.
+Today, the surveillance technology has become almost manifest to wherever we go .
+By doing so, one will feel less stress in facing such risk .
+However , there are two sides to every story .
+The concurrent result is the increasing size of population.
+One can also easily see his loved one through internet from miles away.
+Tracking people using surveillance technology can make their lives more secure. 
+The rising average life expectancy can surely cause some problems.
+Therefore, every country should try to maintain a balance of younger and older generations.
+Most patients will become depressed after learning of his or her condition.
+With the development of the modern society, people live longer .
+All of these contributions due to use of surveillance technology to track make the environment safer.
+Actually, the tracking system has provided people safety.
+In conclusion, a shadow always exists where there is light.
 Nevertheless,everything in life has positive and negative effects .
 This is applicable to these social media sites .
-Actually, the tracking system has provided people a safety indemnification .
+In the first place, rising life expectancies could cause resource challenges.
 With the help of social media tools , we can stay in contact and keep ourselves up to date with our family and friends even though we are away from them .
-Firstly , whether or not someone has a disease is his or her own privacy .
-Tracking people using surveillance technology can increase the security of people's lives .
-In modern society, privacy is a hot topic in peoples ' minds .
-The concurrent result is the increase in size of the population .
-The rising average life expectancies can surely cause some problems.
-Healthcare by far has been expensive to carry out .
-'Privacy', this is the word that is popular in these few decades.
-Here, red things mean marriage and white things mean someone passed away.
-In conclusion, the shadow always exists when there is light .
+The shadow always exists when there is light .
+Today , the surveillance technology has become manifest to almost wherever we go .
+This essay will illustrate this in two aspects.
+Some people spend a lot of time in their fantasies, and they forget their real life.
+Second, the shortage of workforce can also endanger the development of the society.
+Increasing life expectancy is also an achievement of the governments.
+Other relatives may have the same possibilities to have such kinds of diseases.
+All of these contributions, by using the surveillance technology to track, make the environment safer. .
+Then his or her mother will also know the emotion and feel the warmth.
 As a result , it could affect their lives and studies .
-We do not consider much for our offspring.
-In this case, the red item means marriage while the white item means someone has passed away.
-Tracking people using surveillance technology can make people's lives more secure.
-However , an aging population is its opposite phenomenon .
-Students can exchange their experiences in study, even if they are in different countries.
-Today, the surveillance technology has almost manifested wherever we go.
-Some people spend a lot of time in it and forget their real lives.
-The government should also have a bigger amount of pension expenditure.
-Life is hard, but people cannot blame it on a lack of fairness.
-Humans have their own rights and privacy.
-"Privacy" is a word that has become popular in these past few decades .
-This essay will illustrate two aspects.
-RFID technology is also functional in police events .
-Even without such surveillance technology , we can live a better future .
-Travelers survive in deserts thanks to having GPS guide them.
-In summary , we respect every life , also help people to live longer .
-Students can exchange their experiences in study even though they are in different countries .
-Carrier of a known genetic risk should be obligated to tell his or her relatives.
-Overall, the advantages far outweigh the disadvantages.
-Other relatives may have the same chances of having the same kind of disease.
-This is the interpretation of a challenge for rising life expediencies.
-However, as life expectancy rises, some social challenges occur as well.
-This is the interpretation of challenge, for increasing life expectancy.
-Students can exchange their experiences in study even if they are in different countries.
-Today, surveillance technology has become almost manifest wherever we go.
-If more people-especially relatives- know her problem , it provides more channels for information .
-The concurrent result is the increasing size of population .
-Then his mother will also know the emotion and feel warmth.
-One can also easily see, from miles away, he is deeply loved.
-A carrier of a known genetic disease should be obligated to tell his or her relatives.
-However, as life expectancy rises, some social challenges occur as well.
-But overall, the advantages far outweigh the disadvantages.
-First , the type of disease someone has is a matter of privacy .
-Some people spend a lot of time in it and forget their real life.
-Nowadays, population aging is becoming a problem, especially in the developed countries .
-Since ancient times, humans interact with others face to face.
-Most patients will be depressed after realising his or her condition.
-The concurrent result is an increasing size of population .
-In the modern society, privacy is a hot topic in peoples' minds.
-Hence , our social circle is indeed expanding .
-The concurrent result is increasing the size of population.
-'Privacy', has been a popular word for the past few decades .
-Rising life expectancies are also an achievement of governments.
-However, as life expectancy rises, some social challenges occur as well.
-In fact , we may have just forgotten our friend 's birthday .
-With the development of the modern society , people live longer .
-They can choose to keep silent until the next carrier is diagnosed.
-Without such surveillance technology , we can still live a better future.
-Nowadays the aging population is becoming a problem especially in the developed countries.
-Therefore, every country should try to maintain both young and old generations in balance.
-The concurrent result is increasing size of the population.
-In modern society, privacy is a hot topic.
-Since ancient times, human have interacted with others face to face.
-More people (relatives) know her problem; more information channels are provided. .
-These sites play the role of connecting people around the world .
-Overall, however, the advantages far outweigh the disadvantages.
-Other relatives may have the same possibility to have such kind of a disease .
-We need a monitor in front of the ATM in order to avoid intentional crime.
-All of these contributions due to use of surveillance technology to track make the environment safer.
-Actually , tracking systems have provided people safety indemnification .
-But overall, the advantages far outweigh its disadvantage.
-Healthcare by far has been expensive to carry out .
-We do not have much consideration for our children.
-RFID is also functional in police events.
-Firstly, someone having a disease, belongs to his or her privacy.
-More people (relatives) know her problem, more information channel is provided.
-Surveillance technology has almost become routine wherever we go.
-In front of an ATM, we need a monitor to avoid intentional crime .
-However, as life expectancy rises, some social challenges occurr as well.
-Healthcare by far has been expensive to carry out .
+Carriers of a known genetic risk should be obligated to tell their relatives.
+However, the ageing population is an opposite phenomenon.
 We do not consider much of our offspring.
-Actually, tracking system has provided people safety indemnification.
-With the development of the modern society,  people live longer.
-Rising life expectancies result in fewer workforces being available.
-Tracking people using surveillance technology can make security of people's lives better.
-Other relatives may have similar possibilities to have the same disease.
-Tracking people using surveillance technology can increase the security of people's lives .
-A carrier of a known genetic risk should be obligated to tell his or her relatives.
-I believe that most of us agree with these terms .
-Every country should try to maintain both young and old generation balanced .
-This is the interpretation of challenges facing a rise in life expectancy.
-Most patients will become depressed after learning of his or her condition.
-A carrier of a known genetic risk should be obligated to tell his or her relatives .
-Therefore, every country should try to maintain a balance between both young and old generations.
-It is our responsibility to identify the advantages and disadvantages of social media sites .
-In the first place, rising life expectancy could cause a challenge regarding resources.
-Tracking people using surveillance technology can better secure people's life.
-This essay will illustrate two aspects.
-However, there are two sides to a story.
-With this situation , both advantages and disadvantages of using social media apply to our daily life .
-In the first place, rising life expectancies could make finding resources challenging.
-Other relatives may have the same possibilities to have such a disease .
-RFIDs are also functional at police events.
-However, the aging population is a phenomenon opposite to it.
-Travelers survive in the desert thanks to a GPS to guide them .
-Life is hard but people can not blame it on being unfair .
-Without advanced health care system , aging people have a higher rate of death .
-To summarize, we respect every life, and also help people to live longer.
-Travelers survive in deserts thanks to using GPS to guide them.
-In front of the ATM, we need a monitor to avoid intentional crime.
-Firstly , interpersonal skills may be affacted by the reduction in face-to-face human contact .
-It is also the advance of surveillance technology.
+Life is hard, but people can not blame it for being unfair .
 We do not consider much for our offspring.
-In conclusion, the shadow always exists when there is light.
-With the development of modern society, people live longer.
-Tracking people, using surveillance technology, can make better security of peoples lives.
-First, someone having what-kinds-of-disease belongs to his or her privacy.
-Lastly , it is easy for people to waste a lot of time using social media .
-It is also the advancement of surveillance technology.
-The contributions made by surveillance technology in tracking have made the environment safer.
-Privacy: this is the word that is popular in these few decades.
-Rising life expectancy is also an achievement of governments .
-Second , the shortage of the workforce can also endanger the development of the society .
-However, as life expectancy rises, some social challenges occur as well .
-In summary, we respect every life and also help people live longer.
-Those who are related may have the same chances of acquiring certain diseases.
-With the development of the modern society, people live longer .
-Rising life expectancy results in fewer work forces available.
-Government should also allot for a larger amount of pension expenditure.
-Therefore, every country should try to maintain a balance between young and old.
+Health care by far has been expensive to carry out.
+Today, the surveillance technology has become almost manifest wherever we go.
+One can also easily see his deeply loved one, who is miles away, by using the Internet.
+Most patients will be depressed after realizing his or her condition.
+We need monitors in front of ATMs to avoid intentional crime.
+Some people spend a lot of time in it, and forget their real lives.
+Nowdays, population aging is becoming a problem, especially in the more developed countries.
+We do not consider much for our children.
+Students can exchange their experiences in study, even when they are in different countries.
+Other relatives may have the same chance of contracting the same kind of disease.
+The more people (relatives) that know of her problem, the more information is provided.
+Nowadays, an aging population is becoming a problem - especially in the developed countries .
+The current result is increasing size of population.
+Firstly,someone having  that kind of disease belongs to his or her privacy.
+This essay will illustrate two perspectives .
+We do not consider our offspring much.
+Rising life expectancy results in fewer workforces available.
+More people (relatives) may know her problem as more information channels are provided.
+Rising life expectancies results in a smaller available workforce .
+All of these efforts to track using surveillance technology make the environment safer.
 This would result in the loss of manpower in a country.
-First, someone having a disease deserves to have his or her privacy.
-The problem of the abuse of surveillance, is only a problem of abuse of power.
-In the first place , rising life expectancies could cause resource challenges .
+This is the interpreted challenge for rising life expectancies .
+One can also easily see his deeply loved one, through the internet, from miles away.
+This essay will illustrate two aspects.
 This would result in the loss of manpower in a country.
-All these contributions, by using surveillance technology to track, will make the environment safer.
-Rising life expectancies result in fewer workforces available.
-Life is hard but people can not claim that life is unfair.
-Here, a red thing means marriage and a white means someone has passed away .
-By doing so, one will feel less stressful in facing such disorder risk.
-Or they may choose to keep silent until the next carrier is diagnosed .
-Here, red means marriage and white means someone passed away .
-This is my interpretation of the challenges of rising life expectancies .
-Government should also have a larger pension expenditure.
-Most patients will be depressed after discovering his or her conditions .
-Here, red means marriage and white means someone passing away.
-All these contributions by using the surveillance technology to track things make the environment safer.
-Other people then are influenced by us and tend to do the same .
-Here, red means marriage and white means someone passed away.
-It also reduces our sympathy .
-Without such surveillance technology, we can still live a better future.
-Howeve , there are two sides of the story .
-One can also easily see he deeply loved one through the internet from miles away .
-'Privacy', this is the word that has increased in popularity these last few decades.
-One can also easily see his deeply loved one through the internet from miles away.
-The concurrent result is the increase in the size of the population.
-People can promote their friendships and relationships through these social medias.
+The essay is written from two aspects.
+In modern society, privacy is a hot topic on people's minds.
+The concurrent result is increasing the population size.
+By doing so, one will feel less stressed when facing such disorder and risk.
+This would result in the lose of manpower in a country.
+One can also easily see his loved ones through the internet from miles away.
+More people (relatives) that know her problem , the more an information channel is provided .
 Therefore, every country should try to maintain a balance between both young and old generations.
-But overall, the advantages far outweigh the disadvantage.
+In front of the ATM, we need a monitor to avoid intentional crime.
+Hence , our social circle is indeed expanding .
+Nowadays, population aging is becoming a problem, especially in developing countries.
+Humans have their own rights and privacy .
+Government should also make a bigger amount of pension expenditure.
+Tracking people using surveillance technology improves security in people's lives. 
+In fact , we may have just forgotten our friend 's birthday .
+By doing so one will feel less stress facing the risk of a disorder.
+In front of the ATM, we need a monitor to help prevent intentional crime .
+Therefore , every country should try to maintain a balance of young and old generations .
+Even without such surveillance technology, we can still have a better future.
+In the first place , rising life expectancy could cause a challenge in resources
+Health care has been, by far, the most expensive to carry out .
+Healthcare has by far been the most expensive to carry out .
+Some people spend a lot of time in it and forget their real lives.
+Firstly, information about a disease one has is a private matter.
+These sites play the role of connecting people around the world .
+To summarize, we respect every life, and help people to live longer.
+Students can exchange their experiences in study even though they are in different countries .
+This is the interpretation of challenge for rising life expectancies.
+Without access to an advanced health care system, elderly people have a higher rate of death.
+It's also possible for other relatives to have the same kind of disease.
+This is the interpretation of challenge for rising life expectancies.
+Since ancient times, humans interact with others face by face.
+The aging population is becoming a problem, especially in developed countries.
+This essay will illustrate two key factors .
+Some people spend a lot of time in it and forget their real lives.
+Second , the shortage in the workforce can also endanger the development of the society .
+This essay will illustrate two aspects.
+The rising average life expectancy can surely cause some problems.
+We need a monitor in front of ATMs to avoid intentional crime.
+Here, red things mean marriage and white means someone passing away.
 Some people spend a lot of time in it and forget their real life .
-Life is hard, but people cannot blame it for being unfair.
-Rising life expectancies could cause resources to dwindle.
+Nowadays , population aging is becoming a problem, especially in developed countries.
+Life is hard, but people cannot blame it on being treated unfairly.
+Life is hard, but people can not blame it on being unfair.
+With the development of the modern society, people live longer.
+People can promote their friendships and relationships through social media .
+First, rising life expectancy could strain resources.
+The child's parents will understand their feelings better.
+I believe that most of us agree with these terms .
+However, as life expectancy rises, some social challenges occur as well .
+In the modern society privacy is a hot topic in peoples' mind .
+With the development of modern society, people live longer.
+Some people spend a lot of time on it and forget their real lives.
+RFID is also involved in police events .
+It is our responsibility to identify the advantages and disadvantages of social media sites .
+RFID is also functional at police events.
+Therefore, every country should try to maintain a balance of younger and older generations.
+Government should also allow a larger amount of pension expenditure .
+Health care has been expensive to carry out .
+With this situation , both advantages and disadvantages of using social media apply to our daily life .
+Then his or her mother will also know the emotion and feel warm.
+One can also easily see his loved one through internet from miles away.
 Second, the shortage of workforce can also endanger the development of society.
+More people (relatives) that know her problem , the more an information channel is provided .
+Tracking people using surveillance technology can lead to better security in people's lives.
+Every person has the right to his or her privacy.
+In today's society, technology is universal.
+This is the interpretation of the challenge for rising life expectancy.
+Rising life expectancies is also an achievement for the government.
+We do not consider enough for our offspring .
+Firstly , interpersonal skills may be affacted by the reduction in face-to-face human contact .
+People can promote their friendship and relationship through social media.
+Some people spend a lot of time on it and forget their real life.
+Today, surveillance technology has become almost manifested wherever we go.
+Actually, a tracking system has provided people with safety indemnification.
+Cars and trucks lessen the frequency of slow shipping times.
+Life is hard but people can not blame it on unfairness.
+Lastly , it is easy for people to waste a lot of time using social media .
+One can also easily see their deeply loved one through the internet from miles away.
+This essay will illustrate two aspects .
+Health care has been by far too expensive to carry out.
+Rising life expediencies is also an achievement to governments.
+Or they can choose to keep silent until the next carrier is diagnosed.
+As life expectancy rises , some social challenges occurred as well .
+Students can exchange their studying experiences even when they are in different countries.
+Without an advanced health care system aged people have higher rate of death.
+Most patients will be depressed after realising his or her conditions .
+Health care has been, by far, the most expensive to carry out .
+'Privacy', this is the word that became popular in these past few decades.
+Some people spend a lot of time in it and forget their real life.
+But overall, the advantages far outweigh its disadvantage.
+However , there is more than one side to each story.
+Government should also make a larger pension expenditure.
+Rising life expectancy is also an achievement of our governments.
+This essay will illustrate the two aspects .
+Rising life expectancies result in fewer workers being available .
+Tracking people using surveillance technology can make people 's life more secure.
+Nowadays, population aging is becoming a problem especially in the developed countries.
+Rising life expediencies is also an achievement to governments.
+Humans have their own rights and the right to privacy .
+The more people (relatives) who know her problem, the more information channels are provided.
+Here, the red thing means marriage and the white means someone is passing away.
+Without an advanced health care system, aged people have a higher rate of death.
+People can promote their friendships and relationships through social media.
+People can promote their friendships and relationships through these social media.
+Rising life expectancies is also an achievement of governments.
+The rising average life expectancy can surely cause some problems .
+Other people then are influenced by us and tend to do the same .
+People can promote their friendships and relationship through social media .
+It also reduces our sympathy .
+However, there are two sides to every story.
+Here, red things mean marriage and white means someone passing away .
+With the development of modern society, people live longer.
+All these contributions make the environment safer when using surveillance technology tracking.
+Students can change their experience in studying, even when they are in a different country.
+More people (relatives), know her problem, and more information channels are provided.
+People can promote their friendship and relationship through these social media.
+RFID is also functional in police events.
+The increasing size of the population is another result.
+Second , the shortage of workforce,  can also endanger the development of the society .
+Health care has been very expensive to carry out.
+Healthcare by far has been expensive to carry out.
+More relatives know her problem. More channels of information are provided.
 Therefore , this advantage of social media sites saves money and time , and also provides convenience for many people .
 Humans have their own rights and privacy.
-The problem of abuse of surveillance is only the problem of abuse of power.
-This essay will illustrate two aspects .
-Without an advanced health care system, aging people have higher rate of death.
-Second, the shortage of workforce can also endanger the development of society.
-Rising life expectancies result in fewer workers available .
-All these contributions, by using surveillance technology to track, will make the environment safer.
-In modern society, privacy is a hot topic in people's minds.
-Using surveillance technology to track people can bring security to people's lives.
-Some people spend a lot of time in it and forget their real life .
-Here, red means marriage, and white means someone passing away.
-The more relatives that know her problem, the more information channels are provided.
-Since ancient times , human have interacted with others face-to-face .
-Some people spend a lot of time in it and forget their real lives.
+Some people spend a lot of time in it and forget their real life.
+The problems with abuse of surveillance, is only the problem of abuse of power .
+RFID is also functional in police events.
+Some people spend a lot of time in it and forget their real life.
+Overall, the advantages outweigh the disadvantages.
+A carrier of a known genetic risk should be obligated to tell his or her relatives.
+Therefore, every country should try to maintain both young and old generation balanced.
+Government should also allot a bigger amount for pension expenditure.
+The problem of abuse of surveillance is also the problem of abuse of power .
+This is the challenge of rising life expectancy.
+In the first place, rising life expectancies could cause resources challenges.
+Without advanced health care systems, aged people have higher rates of death .
+All these contributions by using the surveillance technology to track makes the environment safer .
 In conclusion , social media sites cause both positive and negative consequences for people and society .
-However , there are both sides to each of the stories .
-It is possible that other relatives may have the same kind of disease .
+The government should also increase the amount of pension expenditure.
+Firstly, what diseases someone has is their private information.
 Some of the famous examples would be social media sites like Twitter and Facebook .
-Firstly, what disease a person may have is private information and belongs to that person.
-Surveillance technology has almost become routine wherever we go.
+The concurrent result is increasing the size of the population.
+Nowadays, population aging is becoming a problem especially in the developed countries.
 Let 's examine the advantages and disadvantages of using social media in our daily life and society .
 First and foremost , all social media sites are free .
-Life is hard, but people can not blame it on being unfair.
-Today , the surveillance technology has become almost manifested to wherever we go .
-People can promote their friendship and relationship through social media .
+Population aging iscurrently becoming an issue, most significantly in developed countries.
+We need a monitor in front of the ATM to avoid intentional crime .
+We do not think much of our offspring.
 Social media helps to lessen the hassle of geographical distance and brings people closer .
-Carriers of a known genetic risk should be obligated to tell his or her relatives
-Health care, by far, has been most expensive to carry out .
-Today, surveillance technology has become almost manifested wherever we go.
-Rising life expectancies result in fewer available workforces.
-In the first place, rising life expectancy could create a resources challenge.
-This essay will illustrate the two aspects .
-Life is hard, but people can not blame it on being unfair.
-Without an advanced health care system, aged people have a higher rate of death.
+Or they can choose to keep silent until the next carrier is diagnosed.
+This essay will illustrate two aspects.
+Rising life expectancies result in fewer workforces being available.
+In modern society, privacy is a hot topic in peoples' minds.
+It's also possible for other relatives to have the same kind of disease.
+In modern society, privacy is a hot topic in people's minds.
+Life is hard, but people can not blame it on being unfair .
+The carrier of a known genetic risk should be obligated to tell his or her relatives.
+With the development of the modern society, people live longer.
+Therefore, every country should try to maintain a balance of both young and old generations .
+Rising life expectancies is also an achievement attributable to governments .
+They can choose to keep silent until the next carrier is diagnosed.
+Or they can choose to keep silent until the next carrier is diagnosed.
 Some people spend a lot of time in it, and forget their real life.
-To summarize, we respect every life, and we also help people to live longer.
-Students can exchange their experiences in study even if they are in different countries.
-.
-However, there are two sides to every story.
-Students can experience study exchanges even in different countries.
-Travelers survive in the desert, thanks to having GPS technology to guide them.
-In the first place , rising life expectancies could cause resource challenges .
-This would result in the lose of manpower in a country.
+The concurrent result is due to the increasing size of population .
+Some people spend a lot of time in it and forget their real life .
+Since ancient times, humans have interacted with each other face to face.
 The convenience is beyond description .
-In the modern society privacy is a hot topic in many people's minds.
-Students can exchange their experiences with studying even they are in different countries .
-Since some of the information has already been revealed on the home page , it is also easier to find some common topics to talk about .
-Other relatives may have the same strong possibility to have such kinds of disease.
-Using surveillance technology to track people can bring security to people's lives.
-In conclusion, the shadow always exists when there is light.
-In conclusion, the shadow always exists when there is light.
 Government should also make a bigger expenditure of pension amount.
-Another advantage of social media is in aiding the spread of democracy .
+This essay will illustrate two aspects.
+Since some of the information has already been revealed on the home page , it is also easier to find some common topics to talk about .
+Many patients will be depressed after realizing his or her conditions .
+One can also easily see his loved one, through internet from miles away.
+Then, his or her mother will also know the emotion and feel warm.
+Humans have their own rights and privacy.
 Most patients will be depressed after realizing his or her condition.
-The rising average life expectancy  can potentially  cause some problems .
-Actually, tracking systems have provided people safety identification.
-They can also choose to keep silent until the next carrier is diagnosed.
-Travelers survive in the desert thanks to a GPS to guide them.
-Healthcare by far has been expensive to carry out .
-We can live a better future without such surveillance technology.
-The problem of abuse of surveillance is only the problem of abuse of power.
-The contributions by using the surveillance technology, make the environment safer
-Nowadays,  population aging is becoming a problem especially in the developed countries .
+Another advantage of social media is in aiding the spread of democracy .
+Cars and trucks diminish the redundancy of long term shipment .
+Tracking people via surveillance technology can enhance security for citizens.
+'Privacy ' , this is the word that is popular in the past few decades .
+Without an advanced health care system, aged people have higher rates of death.
+By doing so, one will feel less stress while facing such a disorder risk .
+Today, surveillance technology has become almost manifest to wherever we go.
+More people (relatives) know her problem. An information channel is provided.
+All of these contributions made by using surveillance technology to track makes the environment safer .
+In most countries healthcare is provided freely from government .
+With the development of the modern society people live longer.
 They are too busy with their way too many virtual friends and some of them neglect the feelings of their real-life friends .
 In this case , I have to say that to err is human .
-Radio-frequency identification is also functional at police events.
-In modern society, privacy is a hot topic in people's minds.
+Second, the shortage of workforce can also endanger the development of the society.
+Today, the surveillance technology has almost manifested to wherever we go .
 What we can do is to cautiously manage our time spent online and manage our words used online .
 With the regulation of government and relevant authorities , the virtual world would be a better world .
-Healthcare has by far been the most expensive to carry out .
-The more people know about their problem, the more relative information can be channeled .
-In the modern society, privacy is a hot topic in peoples' minds .
-RFID is also functional at police events.
+Then, his or her mother will also know the emotion and feel warm .
+All of the contributions made by using the surveillance technology for tracking makes the environment safer.
+Tracking people using surveillance technology can make people 's lives more secure.
+We do not consider much for our offspring.
 Twitter , Facebook and Skype are some social media sites which enable us to keep in touch with our friends or family who are in other cities or countries .
-The more family members she tells about her problem, the more advice she can receive.
-With the development of modern society, people live longer.
-The rising average life expectancies can surely cause some problems.
-RFID is also functional in police events .
-Even without such surveillance technology, we can still have a better future.
-All these contributions by using the surveillance technology to track, make the environment safer.
-In the modern society, privacy is a hot topic in people's minds.
-Rising average life expectancy will surely cause some problems.
-'Privacy' is a popular word these last few decades.
-One can also easily see his deeply loved one through internet from miles away.
-However, there are both sides to the story.
-The carrier of a known genetic risk, should be obligated to inform his or her relatives.
-Government should also make a bigger expenditure of pension amount.
-This essay will illustrate two aspects.
-Nowadays, population aging is becoming a problem especially in the developed countries.
+Then, his or her mother will also know the emotion and feel warm.
+Overall, the advantages far outweigh the disadvantages.
+The only problem of surveillance abuse is the problem of abuse of power .
+In the first place, rising life expectancy could cause resource challenges.
+It is also the advance of surveillance technology.
+Healthcare has become expensive.
+Students can exchange their experiences in study even if they are in different countries .
+Since ancient times, human interact with others face by face.
+Abuse of power is the only problem in the abuse of surveillance.
+We do not consider much for our offspring .
+People can promote their friendship and relationship through these social medias.
+Students can exchange their experiences in study, even they are in different countries.
+But overall, the advantages far outweigh the disadvantages .
+To summarize, we respect every life and we also help people live longer.
+Tracking people using surveillance technology can make people's lives more secure.
+However, as life expectancy rises, some social challenges occur as well.
+With the development of the modern society people live longer.
+Since ancient times, humans have interacted with each other face by face .
+In the following, a red symbol means marriage, while a white symbol means someone passed away.
+With the development of modern society, people live longer .
+This would result in the loss of manpower in a country.
+Most patients will be depressed after realizing his or her conditions .
+Nowadays,  population aging is becoming a problem especially in the developed countries .
+Or they can choose to keep silent until the next carrier is diagnosed.
+However, there are two sides to every story.ֲ 
+In the modern society, privacy is a hot topic in peoples' minds.
+Secondly, the shortage of a workforce can also endanger the development of the society.
+Most patients will be depressed after realizing their condition.
+Without an advanced health care system , aged people have a higher rate of death .
+Therefore , every country should try to maintain balance between both young and old generations .
+By doing so, one will feel less stressed when facing such disorder risk.
+This is an interpretation of the challenge of rising life expectancies.
+It is also the advancement of surveillance technology.
 People can promote their friendships and relationships through social media.
-This would result in the loss of manpower in a country.
-Health care, by far, has been expensive to carry out .
-However, there are two sides of the story.
-The rising average life expectancy can surely cause some problems.
-This is also the advance of surveillance technology.
-Some people spend a lot of time on it and forget their real lives.
-The rising average life expectancies can surely cause some problems .
-Without such surveillance technology, we could still live a better future.
-Then the person's mother will also know the emotion and feel warm.
-Government should also make a bigger amount of pension expenditures.
+'Privacy', this is the word that has increased in popularity these last few decades.
+One can also easily see his deeply loved one, through the internet, from miles away.
+One can also easily see a deeply loved one through Internet from miles away.
+However, an aging population is a dissimilar phenomenon.
 RFID is also functional in police events.
-To prevent crime, a monitor is needed in front of the ATM.
-This would result in the loss of manpower in a country.
-It is also the advance of surveillance technology .
-In most countries healthcare is provided free by the government .
-But overall, the advantages far outweigh its disadvantages.
-Rising life expectancy is also an achievement of governments .
-First off, what type of disease one has is private.
-We need to monitor in front of the ATM to avoid international crime.
-This essay will illustrate two aspects.
-However, aging populations are a phenomenon opposite to it.
-Then their mother will also know the emotion and feel warm .
-In summary, we respect every life, and help people to live longer.
-Health care, by far, has been expensive to carry out.
-Even through the use of technology, loved ones can see each others emotions.
-In modern society, privacy is a hot topic in most people's mind.
-Human have their own rights and privacy .
-There are two sides to every story.
-A carrier of a known genetic risk should be obligated to tell his or her relatives.
-Tracking systems have actually provided people with safety identification.
-The problem with the abuse of surveillance is only the problem with the abuse of power.
-This would result in the loss of manpower in a country.
-Humans have their own rights and privacy.
-Rising life expectancy results in fewer available people in the work force.
-The problem of abuse of surveillance is only the problem of abuse of power .
+In summary, we must respect every life and help people to live longer.
+'Privacy ' is a word that has become popular in these few decades.
+Today, surveillance technology has become almost manifest wherever we go .
+By doing so, one will feel less stressful in facing such a disorder risk.
+People can develop a relationship through social media.
+Without advanced health care, the elderly have a higher death rate.
+Even without such surveillance technology, we can still live in a better future.
+In most countries, health care is provided at no charge by the government.
+This would result in a loss of manpower in a country.
+Nowadays, population aging is becoming a problem — especially in the developed countries.
+Aging populations have recently become a problem, especially in developed countries .
+The rising average life expectancy  can potentially  cause some problems .
 In real life , we communicate with one another as equal participants .
-Then his or her mother will also know the emotion and feel warm.
+Some people spend a lot of time in it, and forget their real life.
 However , communication on social media is largely based on " broadcasting and listening " .
-Second , the shortage in the workforce can also endanger the development of the society .
-This would result in the loss of manpower in a country.
-Students can exchange their experiences in study even though they are in different countries .
-Life is hard but people can not blame it on being unfair.
-Students can exchange their experiences in study even when they are in different countries .
+First , the type of disease someone has is a matter of privacy .
+But overall, the advantages far outweigh its disadvantage.
+Carrier of a known genetic risk should be obligated to tell his or her relatives.
+Today, the surveillance technology has become almost manifest to wherever we go.
+Firstly, what kinds of disease someone has is part of his or her privacy.
 The audience is not some specific person , but everyone we might know , or even the entire world .
-However, as life expectancy rises, some social challenges occur as well .
-By doing so, one will feel less stressful in facing such disordered risk.
-The more people (relatives) who knows her problem, the more information is provided.
+In conclusion, the shadow always exists when there is light.
+Some people spend a lot of time in it and forget their real life .
+Rising life expectancy results in fewer jobs being available.
 It is not the broadcasters themselves they care about , but the content .
-Secondly , the shortage of young people entering the workforce could also endanger the development of society .
-The rising average life expectancy can surely cause some problems.
-We too seldom consider how current factors will affect our offspring .
-By doing so, one will feel less stressed about facing such disorder risk.
-Life may be difficult, but people can not blame it on being unfair .
+However, as life expectancy rises, some social challenges are occurred as well.
+'Privacy ' , this is a popular word in these few decades .
+'Privacy' is a word that has become popular in the past few decades .
+However , there are two sides of the story.
+Health care has been by far too expensive to carry out.
 The broadcasting and viewing model is not good for forging relationships .
 However , it is good for sharing information .
 On social media , everyone is a broadcaster and a viewer .
-But overall, the advantages far outweigh its disadvantage.
-Humans have their own rights and privacies.
-However , there are two sides to every story .
-In most countries healthcare is provided freely from the government.
-Humans have their own rights and privacy.
-A carrier of a known genetic risk should be obligated to tell his or her relatives
-In this case, the red item means marriage while the white item means someone has passed away.
-However, aging population is a phenomenon opposite to it.
-Nowadays, population aging is becoming a problem, especially in developing countries.
-Travelers survive in deserts thanks to GPS guiding them.
-Some people spend a lot of time in it and forget their real life .
-Or, they can choose to keep silent until the next carrier is diagnosed.
-Nowadays, population aging is becoming a problem, especially in the developed countries.
-Students can exchange their experiences in study even if they are in different countries.
-Tracking people with surveillance technology can make their lives more secure.
-With the development of modern society, people live longer .
+It is also the advancement of surveillance technology.
+Health care has been very expensive to carry out.
+Government should make a a larger amount of pension expenditures.
+Travelers survive in the desert thanks to a GPS to guide them.
+Tracking people using surveillance technology can enhance their security.
+Most patients will be depressed after realizing his or her conditions.
+One can also easily see his loved one via the internet from miles away.
+Most patients will be depressed after realizing his or her condition.
+In most countries, healthcare is provided freely from the government.
+This would result in the loss of manpower in a country.
+The problem of surveillance abuse is a symptom of abuse of power .
+Carriers of a known genetic risk should be obligated to tell his or her relatives.
+By doing so , one will feel less stressful risk in facing such disorder.
+"Privacy" , this is the word that's popular in these few decades .
+In front of ATM we need security to avoid intentional crime .
+Without an advanced health care system, aged people have a higher rate of death.
 It is just different .
 Advantages and disadvantages of using social media in daily life
-The rising average life expectancy can surely cause some problems.
-Life is hard, but people can not place blame on life being unfair .
-In the modern society, privacy is a hot topic in peoples' minds.
-Since ancient times, human have interacted with others face to face.
-Tracking people using surveillance technology can make security better for people's lives.
+The rising average life expediencies can surely cause some problems.
+Travelers survive in the desert due to a GPS to guide them .
+In conclusion, the shadow always exists when there is light.
+RFID is also functional at police events.
+Abuse of power is the only problem in the abuse of surveillance.
 Instead , all of them were more interested in posting pictures of this " cheerful " meeting on their social media sites .
-In the first place, rising life expectancies could cause resource challenges.
-In the first place, rising life expectancies could create more resource challenges.
-Since ancient times, humans interact with other face to face.
-But overall, the advantages far outweigh its disadvantages.
-Since ancient times, humans have interacted with each other face to face.
-More relatives know her problem, and more information channels are provided.
-This essay will illustrate two aspects of this.
+Therefore, every country should try to maintain a balanced between both the young and old generation.
+Life is hard but people can not blame it on being unfair.
+Students can exchange their study experiences even when they are in different countries.
+Therefore, every country should try to maintain both young and old generational balances.
+The rising average life expectancy can cause some problems .
+Second, the shortage of workforce can also endanger the development of the society.
+In front of ATM's we need monitors to avoid intentional crime.
 However , when people become more and more addicted to this convenience and fail to communicate with people who are close to them , their face-to-face interpersonal skills are lost .
-Greater life expectancy causes less available jobs.
-Students can exchange their experiences in study even when they are in different countries .
-For more convenience , sentences are shortened to simply three or four words such as lol ( which means laugh intensively ) and " asap " ( which means as soon as possible ) .
-Then his or her mother will also know the emotion and feel the warmth.
-To summarize,, we respect every life, and also help people to live longer.
-The concurrent result is an increasing population size .
-This would result in the loss of manpower in a country .
-However, there are two sides to every story.ֲ 
-Government should also allow a larger amount of pension expenditure .
-Without such surveillance technology, we can still live a better future.
-Furthermore , not everyone on the social media sites is honest .
-This would result in the loss of manpower in a country.
-The reason might just be that he or she just wants to " decorate " his or her face .
-Actually, tracking systems have provided people safety identification.
-In most countries healthcare is provided at no cost  from government .
-Today, the surveillance technology has become present wherever we go.
-This would result in the loss of manpower in a country.
-And it becomes more convenient to obtain and update information by using social media .
-Here, red means marriage and white means someone passed away.
-How do social media help change our lives ?
-In conclusion, the shadow always exists when there is light.
-Other relatives may have the same chance of having that kind of disease.
-In most countries, healthcare is provided by the government.
-Even without such surveillance technology, we can still live in a better future.
-Tracking systems have provided people with safety indemnification.
-In the modern society, privacy is a hot topic in people's minds.
-The carrier of a known genetic risk should be obligated to tell his or her relatives.
-It is also due to the advance of surveillance technology .
-The abuse of power is the problem with main problem with the use of surveillance.
-Students can compare their experiences in study even when they are in different countries.
-Or they can choose to keep silent until the next carrier is diagnosed.
-Or they can choose to be silent until the next carrier is diagnosed.
-Some people spend a lot of time in it, and forget their real life.
-RFID is also functional in police events .
-By doing so, one will feel less stress in facing such risk .
-Most patients will be depressed after realizing their condition.
-However, there are two sides to each story.
-Therefore , every country should try to maintain a balance of young and old generations.
-Some people spend a lot of time in it and forget about their real life.
-Other relatives may have the same possibilities of having the same kind of disease.
-Students can exchange their experiences in study, even if they are in different countries.
-Life is hard, but people cannot blame it on being unfair.
-More people, relatives know her problem, more information channel is provided .
-As a result , it is important for people to know that we need to be cautious about the time we spend on these social media .
-As life expectancy rises , some social challenges occurred as well .
-However, as life expectancy rose, some social challenges occurred as well.
-This would result in the loss of manpower in a country.
-In conclusion, the shadow always exists when there is light.
-Tracking people, using surveillance technology, can make better security of peoples lives.
-This essay will illustrate the pros and cons of using social media in modern society .
-Nowadays, population aging is becoming a problem especially in developed countries.
-More relatives know her problem, and so the information channel is widened.
-Overall, however, the advantages far outweigh the disadvantages.
-The government should also increase the amount of pension expenditure.
-RFID is also functional in police events.
-However, as life expectancy rises, some social challenges occur as well.
-The concurrent result is due to the increasing size of population .
-Secondly, the shortage of workforce can also endanger the development of society.
-Without such surveillance technology, we can still have a better future.
-Healthcare has been expensive to carry out .
-It is also the advance of surveillance technology.
-Most patients will be depressed after realizing his or her conditions.
 Actually, tracking systems have provided people safety indemnification.
+In modern society, privacy is a hot topic in most people's mind.
+For more convenience , sentences are shortened to simply three or four words such as lol ( which means laugh intensively ) and " asap " ( which means as soon as possible ) .
+Tracking people using surveillance technology can lead to better security in people's lives.
+The shadow always exists when there is light .
+Radio-frequency identification is also functional at police events.
+Every country should try to maintain an age balanced population.
 In conclusion, the shadow always exists when there is light.
-One can also easily see, from miles away, he is deeply loved.
-Rising life expectancies result in fewer workforces available.
-'Privacy ' is a word that has become popular in these few decades.
+In most countries healthcare are provided freely from government.
+The rising average life expectancy can surely cause some problems.
+Furthermore , not everyone on the social media sites is honest .
+But overall, the advantages far outweigh the disadvantages.
+The reason might just be that he or she just wants to " decorate " his or her face .
+In the first place, rising life expectancy could cause resource challenges.
+Other relatives may have the same risk of having such a disease.
+Most patients will be depressed after realizing their condition.
+In front of an ATM we need a monitor to avoid intentional crimes.
+And it becomes more convenient to obtain and update information by using social media .
+Actually, the tracking system has provided people safety indemnification.
+How do social media help change our lives ?
+In modern society, privacy is a hot topic in peoples ' minds .
+All of these contributions from the data that surveillance technology tracks make the environment safer.
+This would result in the loss of manpower in a country.
+Health care, by far, has been expensive to carry out.
+Rising average life expectancy will surely cause some problems.
+The concurrent result is the increased size in population .
+Today, the surveillance technology manifests itself almost wherever we go.
+In the modern society, privacy is a hot topic in people's minds .
+Other relatives may have the possibility of having the same kind of disease.
+Without an advanced health care system, aged people have a higher rate of death.
+The rising average life expectancy can surely cause some problems .
+An increase in the size of the population results.
+The problem of abuse of surveillance is entirely a problem of abuse of power .
+The concurrent result is increasing the size of the population .
+Health care by far has been expensive to carry out .
+The concurrent result is an increasing population .
+Some people spend a lot of time in it and forget about their real life.
+With the development of the modern society , people live longer .
+However, as life expectancy rises, some social challenges occur as well.
+A summary of our views is that we respect every life and help people live longer .
+Therefore, every country should try to maintain a balance of both young and old generations.
+With the development of modern society people live longer.
+All these contributions that come from using surveillance technology to track help to make the environment safer.
+As a result , it is important for people to know that we need to be cautious about the time we spend on these social media .
+This would result in the lose of manpower in a country .
+The more people that know of her situation, the more support she may be provided.
+Without such surveillance technology, we can have a better future.
+The concurrent result is the increased size in population .
+This essay will illustrate two aspects.
+This essay will illustrate the pros and cons of using social media in modern society .
+All of these contributions from the data that surveillance technology tracks make the environment safer.
+Here , red means marriage and white means someone passing away .
+In front of the ATM, we need a monitor to avoid intentional crime.
+Humans have their own rights and privacy.
+Nowadays, the aging population is becoming a problem, especially in the developed countries.
+The problem with abuse of surveillance is also the problem of abuse of power .
+Travelers survive in deserts thanks to having GPS guide them.
+The concurrent result is increasing the size of the population .
+This is the interpretation of challenges for rising life expectancies.
+Without such surveillance technology , we can still have a better future .
+In modern society privacy is a hot topic in peoples' mind .
+This would result in a loss of manpower in a country.
+'Privacy' is the word that has become popular in the last few decades.
+Life may be difficult, but people can not blame it on being unfair .
+RFID is also functional in police events.
+Health care by far has been expensive to carry out.
+'Privacy ' , this is a popular word in these few decades .
 They may feel uncomfortable when they communicate with people face to face .
-Here, a red thing means marriage and a white thing means someone passed away.
+RFID is functional at police events .
 Moreover , some wrong values on the websites will affect teenagers and confuse them .
 Some may even do something wrong .
-The problem of with surveillance is only the abuse of power .
+Or they can choose to remain silent until the next carrier is diagnosed.
 It can make our life simpler .
-They can choose to keep silent until the next carrier is diagnosed.
-'Privacy ' , this is the word that is popular in the past few decades .
-It is also the advancement of surveillance technology.
-Cars and trucks diminish the redundancy of long-time shipment .
-In summary, we help people to live longer and we respect every life.
-Rising life expectancies result in fewer available people in the workforce.
+To summarize, we respect every life and also help people live longer.
+Life is hard, but people can not blame it on the act of being unfair.
+Firstly, what kind of disease someone has belongs to his or her privacy.
+The concurrent result is increasing size of population.
+This would result in the loss of manpower in a country.
+'Privacy', this is the word that has been popular in the last few decades.
 Nowadays , with the advancement of technology , it is easy to communicate wherever you are .
 The appearance of social media sites truly connects people closely .
+This is the interpretation of challenge for rising life expectancy.
+Rising life expectancies results in a smaller available workforce .
+In modern society,  privacy is a hot topic on people's  minds.
+The concurrent result is an increasing population.
+Ultimately, shadow only exists when there is light.
+Students can exchange their experiences in study, even when they are in different countries.
+Many patients will be depressed after coming to terms with their condition.
+In most countries healthcare is provided, freely, by the government .
+More people (relatives) may know her problem as more information channels are provided.
+'Privacy ' , this is the word that is popular in the past few decades .
+Health care has been expensive to carry out.
+Tracking people using surveillance technology can make better security of people 's life .
+By doing so, one will feel less stressed when facing such disorder risk.
+However, as life expectancy rises, some social challenges will occur.
+The rising average life expectancy can surely cause some problems.
+The child's parents will understand their feelings better.
+In the modern society privacy is a hot topic in peoples' mind .
+This essay will illustrate two aspects.
+A carrier of a known genetic risk should be obligated to tell his or her relatives
+Students can exchange their experiences in study even if they are in different countries.
+We do not think much about our children.
 Then his or her mother will also experience the emotion and feel the warmth.
-A carrier of a known genetic risk should be obligated to tell his or her relatives.
-Aging population is an entirely opposite phenomenon.
-However, aging population is a phenomenon opposite to it.
-Rising life expectancies result in lower availability in the workforces.
-In most countries, healthcare is provided freely from government .
-Actually,tracking systems have provided people with safety indemnification .
-The tracking system has provided people with safety indemnification.
-Healthcare by far has been expensive to carry out .
-Therefore, every country should try to maintain a balance of both a young and old generation.
-Secondly, the shortage of labor can also endanger the development of the society.
-Firstly, rising life expectancy could cause a resource challenge.
-Students can exchange their experiences in study even when they are in different countries .
-In the first place, rising life expectancy could cause a resources challenge.
-Rising life expectancy is also an achievement of governments.
-Raising life expectancy results in a smaller available workforce.
-The word that has been popular in these last few decades  is 'Privacy.'
-'Privacy '; this is the word that has been popular these past few decades.
-In most countries, healthcare is provided freely from the government.
-But overall, the advantages far outweigh its disadvantages.
-Other relatives may have the same possibilities to have such a kind of disease.
-Or they can choose to keep silent until the next carrier is diagnosed.
-Government should also allow for a larger amount of pension expenditure .
-The increasing average of life expectancies can surely cause some problems.
-Firstly, what kinds of disease someone has is his or her own private matter.
-All these contributions by the surveillance technology make the environment safer.
-Cars and trucks diminish the redundancy of long time shipment.
-By doing so one will feel less stressed in facing such disordered risk.
-Rising life expectancy is also an achievement for governments.
-Rising life expectancy is also an achievement to governments.
-In modern society privacy is a hot topic in peoples' mind .
-Most patients will be depressed after realizing his or her conditions.
-However , there are two sides of the story .
-Some people spend a lot of time in it and forget about their real life.
-All these contributions, by using the surveillance technology to track, make the environment safer.
-Then his or her mother will also know the emotion and feel the warmth.
+'Privacy ' is a word that is popular these past few decades .
+If more people ( relatives ) know her problem , more information channels are provided .
 In the first place, rising life expectancies could cause resource challenges.
-The rising average life expectancies can surely cause some problems.
-Rising life expectancies result in fewer workforces available.
-Some people spend a lot of time in it and forget their real life.
-The concurrent result is increasing the size of the population .
-Nowadays, the population's aging is becoming a problem, especially in the developed countries.
-Since ancient times , human have interacted with others face by face .
-Rising life expectancy results in fewer workers available.
-'Privacy ' , this is a popular word in these few decades .
-Since ancient times, humans interact with others face to face .
-Humans have their own rights and privacy.
-This essay will illustrate in two aspects.
-This would result in the country's loss of manpower.
-The more people (relatives) know her problem, the more information is able to be provided.
-All these contributions are made by using the surveillance technology to track make the environment safer.
-First, rising life expectancy could strain resources.
-However, an ageing population is a phenomenon opposite to it .
-More people (relatives), know her problem, and more information channels are provided.
-First, someone with this kind of disease may keep it private.
-Today, surveillance technology has become almost manifest to wherever we go.
-In front of the ATM, we need to monitor and avoid intentional crime .
-In the following, a red symbol means marriage, while a white symbol means someone passed away.
+Rising life expectancy is also an achievement to governments.
+With the development of modern society, people live longer.
+By doing so, one will feel less stressful in facing such a disorder risk.
+Tracking people using surveillance technology can make better security of people's lives.
+We must interpret the challenges to raise life expectancies.
+To summarize, we respect every life and we also help people live longer.
+Other relatives may have the same possibilities to have this kind of disease.
+In most countries, healthcare is provided by the government for free.
+In most countries, free healthcare is provided by the government.
+The more family members she tells about her problem, the more advice she can receive.
+Here, red means marriage and white means someone passed away.
+Tracking people using surveillance technology can enhance the security of people 's lives .
+Rising life expectancies are also an achievement to governments .
+In the modern society , privacy is a hot topic in people's minds .
+In the first place, rising life expectancies could cause resources challenges.
+Some people spend a lot of time on it and forget their real life.
+This would result in the loss of manpower in a country.
+Then his or her mother will also know the emotion and feel warm .
+It is possible other relatives may have the same kind of disease .
+But overall, the advantages far outweigh its disadvantage.
+It is the advance of surveillance technology as well.
+This is the interpretation of challenge for rising life expectancy.
+People can promote their friendships and relationships through these social media.
+Human has their own rights and privacy.
+RFID is also functional in police events.
+With the development of the modern society, people live longer.
+However, aging population is a phenomenon opposed to it.
+In modern society, privacy is a hot topic on people's minds.
+One can also easily see their deeply loved one through the internet from miles away.
+Travelers survive in the desert thanks to GPS guiding them .
+This would result in the lose of manpower in a country.
+There are, however, two sides to every story. 
+Government can also be credited with the rising life expectancy.
 More importantly , it is cheap and easy to use social media .
-Privacy is a hot topic in society today.
+Today , population aging is becoming a problem especially in the developed countries .
 A lot of fresh graduates can find jobs thanks to Facebook and Twitter .
-This would result in the loss of manpower in a country .
-The rising average life expectancy can surely cause some problems.
-More people ( relatives ) know her problem, the more information that is provided.
-However, there are both sides of the story.
-The rising average life expectancy can surely cause some problems.
-Life can feel more secure when one can track people using surveillance technology.
+However , there are two sides to every story.
+Secondly , the shortage of young people entering the workforce could also endanger the development of society .
+More people (relatives) know her problem  more information is provided.
+In conclusion, a shadow always exists when there is light .
+The word privacy has become popular in the past few decades.
+In conclusion, the shadow always exists when there is light.
 They can become anyone .
-However, there are two sides to every story.
-Here , the red thing means marriage and white means someone passing away .
+Rising life expectancy results in a smaller available workforce.
+In conclusion, the shadow always exists when there is light.
 In the chat room , she created a close relationship with eight people .
-They can also choose to keep silent until the next carrier is diagnosed.
-Since ancient times, humans have interacted with others face to face.
+The rising average life expectancies can surely cause some problems.
+Other relatives may have the same chance of suffering such diseases.
 Furthermore , the convenience of social media is also its weakness .
 A lot of people use their true information on social media sites , which can lead to crimes and deception .
 People can use the information to deceive family and friends and banks to do bad things such as blackmail , ATM theft and so on .
-However, ageing population is the opposite of a natural phenomena.
+RFID is also functional in police events.
 Recent research has shown that the more people spend time on social media sites , the less they become ambitious .
-Students can exchange their experiences during study even if they are in different countries .
-Some people spend a lot of time in it, and forget their real life.
-Travelers survive in the desert thanks to GPS guiding them.
-Nowadays, population aging is becoming a problem especially in the developed countries.
-Most patients will be depressed after realizing his or her conditions .
+Without an advanced health care system, aged people have a higher rate of death.
+One can easily see their loved one through the internet, while their loved one is miles away,
+Travelers can survive in the desert thanks to GPS guiding them.
+Increasing life expectancy is also an achievement of the governments.
+People can promote their friendships and relationships through social media .
