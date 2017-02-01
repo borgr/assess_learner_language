@@ -119,8 +119,8 @@ def main():
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
 		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
 		dump(res_list, filename)
-	# else:
-	# 	res_list.append(old_res[name])
+	else:
+		res_list.append(old_res[name])
 
 	# compare gold to origin
 	name = "gold"
@@ -175,7 +175,7 @@ def main():
 		res_list.append(old_res[name])
 
 	# compare origin to AMU #3
-	name = "AMU"	
+	name = "amu"	
 	print(name)
 	if name not in old_res:
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, amu)
@@ -190,6 +190,36 @@ def main():
 	print(name)
 	if name not in old_res:
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, autocorrect)
+		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+		dump(res_list, filename)
+	else:
+		res_list.append(old_res[name])
+
+	# compare origin to rac
+	name = "rac"
+	print(name)
+	if name not in old_res:
+		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, rac)
+		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+		dump(res_list, filename)
+	else:
+		res_list.append(old_res[name])
+
+	# compare origin to umc
+	name = "umc"
+	print(name)
+	if name not in old_res:
+		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, umc)
+		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+		dump(res_list, filename)
+	else:
+		res_list.append(old_res[name])
+
+	# compare origin to sjtu
+	name = "sjtu"
+	print(name)
+	if name not in old_res:
+		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, sjtu)
 		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
 		dump(res_list, filename)
 	else:
@@ -245,26 +275,6 @@ def main():
 	else:
 		res_list.append(old_res[name])
 
-	# compare origin to rac
-	name = "rac"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, rac)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-	else:
-		res_list.append(old_res[name])
-
-	# compare origin to sjtu
-	name = "sjtu"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, sjtu)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-	else:
-		res_list.append(old_res[name])
-
 	# compare origin to ufc
 	name = "ufc"
 	print(name)
@@ -274,17 +284,6 @@ def main():
 		dump(res_list, filename)
 	else:
 		res_list.append(old_res[name])
-
-	# compare origin to umc
-	name = "umc"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, umc)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-	else:
-		res_list.append(old_res[name])
-
 
 	dump(res_list, filename)
 	plot_comparison(res_list)
@@ -436,7 +435,6 @@ def spearman_diff(s1, s2):
 	indexes1 = np.asarray(indexes1)
 	indexes2 = np.asarray(indexes2)
 	return spearmanr(indexes1, indexes2)
-
 
 
 def word_diff(s1, s2):
@@ -777,76 +775,80 @@ def create_hist(l, top=30, bottom=0):
 	return hist if hist else [0]
 
 
-def rainbow_colors(labels):
+def many_colors(labels, colors=cm.rainbow):
 	"""creates colors, each corresponding to a unique label"""
 	cls = set(labels)
 	if len(cls) == 2:
 		return dict(zip(cls, ("blue", "orange")))
-	return dict(zip(cls, cm.rainbow(np.linspace(0, 1, len(cls)))))
-
-
-def plot_differences_hist(l, ax, pivot, diff_type, bottom):
-	width = 1/len(l)
-	name = -1
-	for i, tple in enumerate(l):
-		y = create_hist(tple[pivot], bottom=bottom)
-		x = np.array(range(len(y)))
-		print(diff_type + " hist results ",tple[name],":",y)
-		colors = rainbow_colors(range(len(l)))
-		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
-	plt.autoscale(enable=True, axis='x', tight=False)
-	plt.ylabel("amount")
-	plt.xlim(xmin=0)
-	plt.xlabel("number of " + diff_type + " changed")
-	plt.title("number of " + diff_type + " changed by method of correction")
-	plt.legend(loc=7, fontsize=10)
-	# plt.tight_layout()
+	return dict(zip(cls, colors(np.linspace(0, 1, len(cls)))))
 
 
 def plot_words_differences_hist(l, ax):
 	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
 	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
-	plot_differences_hist(l, ax, words_differences, "words",0)
+	plot_differences_hist(l, ax, words_differences, "words", 0)
 
 
 def plot_index_differences_hist(l, ax):
 	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
 	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
-	plot_differences_hist(l, ax, index_differences, "index",1)
+	plot_differences_hist(l, ax, index_differences, "index", 1)
 
 
 def plot_spearman_differences(l, ax):
 	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
 	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
-	boxplot_differences(l, ax, spearman_differences, "spearman", 1)
+	boxplot_differences(l, ax, spearman_differences, r"$\rho$", 1)
 
 
 def plot_spearman_ecdf(l, ax):
 	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
 	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
-	plot_ecdf(l, ax, spearman_differences, "spearman", 0.7, 1)
+	plot_ecdf(l, ax, spearman_differences, r"$\rho$", 0.7, 1)
+
+
+def plot_words_differences(l, ax):
+	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
+	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
+	plot_differences(l, ax, words_differences, "words", 2)
+
+
+def plot_words_heat(l, ax):
+	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
+	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
+	plot_differences_heatmap(l, ax, words_differences, "words", [0,1,2,3,4,5,10,20])
+
+
+def plot_index_differences(l, ax):
+	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
+	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
+	plot_differences(l, ax, index_differences, "index", 1)
 
 
 def plot_ecdf(l, ax, pivot, diff_type, bottom, top):
 	ys = []
 	name = -1
-	colors = rainbow_colors(range(len(l)))
+	colors = many_colors(range(len(l)))
 	for i, tple in enumerate(l):
 		x = np.sort(tple[pivot])
 		x = [point for point in x if point < top and point >= bottom]
 		yvals = np.arange(len(x))/float(len(x))
 		ys.append((x, tple[name], colors[i]))
-		ax.plot(x, yvals, color=colors[i], label=tple[name])
+		if tple[name] == "gold" or "fce" in tple[name]:
+			ax.plot(x, yvals, "--", color=colors[i], label=tple[name])
+		else:	
+			ax.plot(x, yvals, color=colors[i], label=tple[name])
 	plt.ylim(ymax=0.6)
 	# for y, name, color in ys:
 		# x = np.linspace(min(sample), max(sample))
 		# y = ecdf(x)
 		# ax.step(x, y, olor=color, label=name)
 		# ax.boxplot(x, labels=names, showmeans=True)
-	plt.ylabel("probabillity")
-	plt.xlabel("number of " + diff_type + " changed")
-	plt.title("empirical distribution of " + diff_type + " changes")
-	plt.legend(loc=6, fontsize=10)
+	plt.ylabel("probability")
+	plt.xlabel( diff_type)
+	# plt.title("empirical distribution of " + diff_type + " changes")
+	plt.legend(loc=6, fontsize=10, fancybox=True, shadow=True)
+
 
 def boxplot_differences(l, ax, pivot, diff_type, bottom):
 	# ys = []
@@ -854,7 +856,7 @@ def boxplot_differences(l, ax, pivot, diff_type, bottom):
 	names = []
 	name = -1
 	# max_len = 0
-	colors = rainbow_colors(range(len(l)))
+	colors = many_colors(range(len(l)))
 
 	for i, tple in enumerate(l):
 		y = tple[pivot]
@@ -863,8 +865,56 @@ def boxplot_differences(l, ax, pivot, diff_type, bottom):
 
 	plt.autoscale(enable=True, axis='x', tight=False)
 	ax.boxplot(x, labels=names, showmeans=True)
-	plt.title("box plot of " + diff_type + " changes")
-	plt.legend(loc=7, fontsize=10)
+	# plt.title("box plot of " + diff_type + " changes")
+	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
+
+
+def plot_differences_hist(l, ax, pivot, diff_type, bottom, bins=None):
+	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the plots"""
+	width = 1/len(l)
+	name = -1
+	if bins != None:
+		bins = np.array(bins) + 1 - bottom
+	for i, tple in enumerate(l):
+		full_hist = create_hist(tple[pivot], bottom=bottom)
+		print(full_hist)
+		if bins == None:
+			y = full_hist
+		else:
+			y = [sum(full_hist[:bins[0]])]
+			print(full_hist[:bins[0]])
+			for j in range(1, len(bins)):
+				print(full_hist[bins[j-1]:bins[j]])
+				y.append(sum(full_hist[bins[j-1]:bins[j]]))
+			y.append(sum(full_hist[bins[j]:]))
+		x = np.array(range(len(y)))
+		print(diff_type + " hist results ",tple[name],":",y)
+		colors = many_colors(range(len(l)))
+		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
+	plt.autoscale(enable=True, axis='x', tight=False)
+	plt.ylabel("amount")
+	plt.xlim(xmin=0)
+	plt.xlabel("number of " + diff_type + " changed")
+	# plt.title("number of " + diff_type + " changed by method of correction")
+	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
+	# plt.tight_layout()
+
+	# #old version
+	# 	width = 1/len(l)
+	# name = -1
+	# for i, tple in enumerate(l):
+	# 	y = create_hist(tple[pivot], bottom=bottom)
+	# 	x = np.array(range(len(y)))
+	# 	print(diff_type + " hist results ",tple[name],":",y)
+	# 	colors = many_colors(range(len(l)))
+	# 	ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
+	# plt.autoscale(enable=True, axis='x', tight=False)
+	# plt.ylabel("amount")
+	# plt.xlim(xmin=0)
+	# plt.xlabel("number of " + diff_type + " changed")
+	# # plt.title("number of " + diff_type + " changed by method of correction")
+	# plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
+	# # plt.tight_layout()
 
 
 def plot_aligned_by(l, ax):
@@ -876,52 +926,88 @@ def plot_aligned_by(l, ax):
 		y = [y[FIRST_LONGER] + y[COMMA_REPLACE_FIRST], y[ORDERED], y[SECOND_LONGER]+ y[COMMA_REPLACE_SECOND]]
 		print("first ordered and second longer",tple[name],":",y)
 		x = np.array(range(len(y)))
-		colors = rainbow_colors(range(len(l)))
+		colors = many_colors(range(len(l)))
 		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
 	ax.autoscale(tight=True)
 	plt.ylabel("amount")
 	plt.xlabel("number of sentence changes of that sort")
-	plt.title("number of sentence changes by method of correction")
+	# plt.title("number of sentence changes by method of correction")
 	plt.xticks(x + width, (FIRST_LONGER, ORDERED, SECOND_LONGER))
-	plt.legend(loc=7, fontsize=10)
+	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 	# plt.tight_layout()
+
 
 def plot_not_aligned(l, ax):
 	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the bars"""
 	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
 	width = 1/len(l)
+	start = 1+2/5
 	for i, tple in enumerate(l):
 		y = extract_aligned_by_dict(tple[aligned_by])
 		y = y = [y[FIRST_LONGER] + y[COMMA_REPLACE_FIRST], y[SECOND_LONGER] + y[COMMA_REPLACE_SECOND]]
 		x = np.array(range(len(y)))
-		colors = rainbow_colors(range(len(l)))
-		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
+		colors = many_colors(range(len(l)))
+		if tple[name] == "gold" or "fce" in tple[name]:
+			bar = ax.bar(x + (start + i)*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor="black", hatch = "\\")
+			ax.bar(x + i*width, y, width=width/2000000, edgecolor="w", color="w")
+		else:
+			bar = ax.bar(x + (start + i)*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
 	ax.autoscale(tight=True)
+	plt.ylim(ymax=40)
 	plt.ylabel("amount")
 	plt.xlabel("number of sentence changes of that sort")
-	plt.title("number of sentence changes by method of correction")
-	plt.xticks(x + width, (FIRST_LONGER, SECOND_LONGER))
-	plt.legend(loc=7, fontsize=10)
+	# plt.title("number of sentence 	changes by method of correction")
+	plt.xticks(x + width*(len(l)/2 - 1), (FIRST_LONGER, SECOND_LONGER))
+	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 	# plt.tight_layout()
 
-def plot_words_differences(l, ax):
-	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
-	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
-	plot_differences(l, ax, words_differences, "words", 2)
-
-
-def plot_index_differences(l, ax):
-	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
-	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
-	plot_differences(l, ax, index_differences, "index", 1)
-
+def plot_differences_heatmap(l, ax, pivot, diff_type, bins, colors=cm.inferno):
+	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the plots"""
+	width = 1/len(l)
+	name = -1
+	mesh = []
+	names = []
+	top_bins = np.array(bins) + 1
+	for i, tple in enumerate(l):
+		names.append(tple[-1])
+		full_hist = create_hist(tple[pivot], bottom=0)
+		y = [sum(full_hist[:top_bins[0]])]
+		for j in range(1, len(top_bins)):
+			y.append(sum(full_hist[top_bins[j-1]:top_bins[j]]))
+		y.append(sum(full_hist[top_bins[j]:]))
+		print(diff_type + " heatmap results ",tple[name],":",y)
+		mesh.append(y)
+		# ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
+	x = np.array(range(len(y)))
+	mesh = np.array(mesh)
+	ax.set_frame_on(False)
+	heatmap = ax.pcolormesh(mesh, cmap=colors)
+	plt.autoscale(enable=True, axis='x', tight=False)
+	# plt.ylabel("")
+	plt.xlim(xmin=0)
+	plt.xlabel("number of " + diff_type + " changed")
+	bin_names = ["0" if bins[0] == 0 else "0-"+str(bins[0])]
+	for i in range(len(bins)):
+		if bins[i] > bins[i-1] + 1:
+			bin_names.append(str(bins[i-1]+1)+"-"+str(bins[i]))
+		elif bins[i] == bins[i-1] + 1:
+			bin_names.append(str(bins[i]))
+	bin_names.append(str(bins[-1]) + "+")
+	print(names,len(names))
+	ax.set_yticks(np.arange(len(names))+0.5)
+	ax.set_yticklabels(names)
+	ax.set_xticks(x + 0.5)
+	ax.set_xticklabels(bin_names, minor=False)
+	# plt.title("number of " + diff_type + " changed by method of correction")
+	plt.colorbar(heatmap)
+	# plt.tight_layout()
 
 def plot_differences(l, ax, pivot, diff_type, bottom):
 	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the plots"""
 	broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(range(6)) # tuple structure
 	ys = []
 	max_len = 0
-	colors = rainbow_colors(range(len(l)))
+	colors = many_colors(range(len(l)))
 
 	for i, tple in enumerate(l):
 		y = create_hist(tple[pivot], bottom=bottom)
@@ -932,12 +1018,18 @@ def plot_differences(l, ax, pivot, diff_type, bottom):
 
 	for y, name, color in ys:
 		y = y + [0]*(max_len-len(y))
-		ax.plot(x, np.cumsum(y), color=color, label=name)
+		if name == "gold" or "fce" in name:
+			ax.plot(x, np.cumsum(y), "--", color=color, label=name)
+		else:
+			ax.plot(x, np.cumsum(y), color=color, label=name)
 	plt.autoscale(enable=True, axis='x', tight=False)
 	plt.ylabel("amount")
 	plt.xlabel("number of " + diff_type + " changed")
-	plt.title("accumulative number of sentences by " + diff_type + " changed")
-	plt.legend(loc=7, fontsize=10)
+	# plt.xlim(xmin=-x[-1]/5)
+	# plt.xticks([10*i for i in range(math.ceil(x[-1]/10) + 1)])
+	# plt.legend(loc=6, fontsize=10, fancybox=True, shadow=True)
+	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
+	# plt.title("accumulative number of sentences by " + diff_type + " changed")
 
 
 def plot_comparison(l):
@@ -951,7 +1043,6 @@ def plot_comparison(l):
 	plot_aligned_by(l, ax)
 	ax = plt.subplot(224)
 	plot_not_aligned(l, ax)
-	# plt.show()
 	plt.clf()
 
 	data = []
@@ -973,6 +1064,11 @@ def plot_comparison(l):
 	plt.savefig(dirname + r"words_differences_hist" + trial_name + ".png", bbox_inches='tight')
 	plt.clf()
 	ax = plt.subplot(111)
+	plot_words_heat(l, ax)
+	plt.savefig(dirname + r"words_differences_heat" + trial_name + ".png", bbox_inches='tight')
+	# plt.show()
+	plt.clf()
+	ax = plt.subplot(111)
 	plot_index_differences(l, ax)
 	plt.savefig(dirname + r"index_differences" + trial_name + ".png", bbox_inches='tight')
 	plt.clf()
@@ -987,6 +1083,7 @@ def plot_comparison(l):
 	ax = plt.subplot(111)
 	plot_not_aligned(l, ax)
 	plt.savefig(dirname + r"aligned" + trial_name + ".png", bbox_inches='tight')
+	plt.clf()
 
 
 ###########################################################
