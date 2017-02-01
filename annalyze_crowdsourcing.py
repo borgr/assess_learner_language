@@ -85,7 +85,7 @@ def main():
 	# 	for filename in files:
 	# 		if INPUT_HIST_IDENTIFIER in filename:
 	# 			assess_real_distributions(root+filename, str(0))
-	# plot_dists(show_dists, save_dists, EXACT_COMP)
+	plot_dists(show_dists, save_dists, EXACT_COMP)
 	# assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 	# coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 	plot_significance(show=show_significance,save=save_significance)
@@ -631,13 +631,46 @@ def plot_significance(show=True, save=True):
 	umc_file,
 	camb_file]
 	results = parse_sigfiles(files)
-	files = [filename if filename != ACL2016RozovskayaRothOutput_file else "RoRo" for filename in files]
+	names = [filename if filename != ACL2016RozovskayaRothOutput_file else "RoRo" for filename in files]
 	results = [[[1,0,0],[1,0,0]]] + list(results) + [[[1,1,1],[1,1,1]]]
-	files = [learner_file] + files + [gold_file]
-	plot_sig_bars(results, files, show, save)
+	names = [learner_file] + names + [gold_file]
+	# plot_sig_bars(results, names, show, save)
 	files = ["perfect_output_for_" + str(m+1) + "_sgss.m2" for m in np.arange(10)]
 	results = parse_sigfiles(files)
-	
+	names = [str(m+1) for m in np.arange(10)]
+	plot_sig(results, names, show, save)
+
+def plot_sig(significances, names, show, save):
+	names = np.array(names)
+	for measure_idx, measure in enumerate(["precision", "recall", "$F_{0.5}$"]):
+		xs = []
+		ys = []
+		cis = []
+		for x, significance in enumerate(significances):
+			sig = [significance[0][measure_idx], significance[1][measure_idx]]
+			y = np.mean(sig)
+			xs.append(x)
+			ys.append(y)
+			cis.append(y-sig[0])
+		xs = np.array(xs)
+		ys = np.array(ys)
+		cis = np.array(cis)
+		sort_idx = xs.argsort()
+		labels = names[sort_idx]
+		ys = ys[sort_idx]
+		cis = cis[sort_idx]
+		colors = many_colors(xs, cm.copper)
+		colors = [colors[i] for i in xs]
+		plt.errorbar(xs, ys, yerr=cis)
+		plt.plot(xs, ys)
+		plt.xticks(xs, labels)
+		plt.ylabel(measure)
+		plt.xlabel("$M$ - Number of references in gold standard")
+		if save:
+			plt.savefig(measure+"_significance"+".png", bbox_inches='tight')
+		if show:
+			plt.show()
+		plt.cla()
 
 def plot_sig_bars(significances, names, show, save):
 	names = np.array(names)
@@ -694,7 +727,7 @@ def plot_sig_bars(significances, names, show, save):
 		plt.xticks(xs, labels, rotation=70)
 		plt.ylabel(measure)
 		if save:
-			plt.savefig(measure+"_significance"+".png", bbox_inches='tight')
+			plt.savefig(PLOTS_DIR + measure + "_significance"+".png", bbox_inches='tight')
 		if show:
 			plt.show()
 		plt.cla()
@@ -713,46 +746,50 @@ def parse_sigfiles(files):
 
 
 def plot_dists(show=True, save=True, dists_type=EXACT_COMP):
-	dists = []
-	one_dist = [[],[]]
-	for root, dirs, files in os.walk(HISTS_DIR):
-		for filename in files:
-			if OUTPUT_HIST_IDENTIFIER in filename and dists_type in filename:
-				dist = read_dist_from_file(root+filename)
-				dist = dist[:,dist[1] > 0.1]
-				if isinstance(dist, np.ndarray):
-					dists.append(dist)
-					one_dist[0] += list(dists[-1][0])
-					one_dist[1] += list(dists[-1][1])
-	# max_lines = 15
-	max_lines = len(dists)
-	chosen_lines = set(np.random.randint(0, len(dists) - 1, max_lines))
-	colors = many_colors(range(max_lines))
-	pearsons = []
-	dist_key = 0
-	dist = np.array(one_dist)
-	for dist_key, dist in enumerate(dists):
-		dist = dist[:,dist[1,:].argsort()]
-		x = np.log(dist[1])
-		y = np.log(dist[0])
-		print(dist[0])
-		if len(x) > 1:
-			pearsons.append(pearsonr(x,y)[0])
-		if dist_key in chosen_lines:
-			x_new = x
-			# x_new = np.linspace(x.min(),x.max(),300)
-			# y = spline(x, np.log(y), x)
-			# plt.plot(x_new, y)
-			plt.scatter(x_new, y, color="b")
-			plt.ylabel("log frequency")
-			plt.xlabel("log number of variants")
-	print("all pearson correlations:", pearsons)
-	print("mean pearson correlation:", np.mean(pearsons))
-	if save:
-		plt.savefig(dists_type + "_dists_plot"+".png", bbox_inches='tight')
-	if show:
-		plt.show()
-	plt.cla()
+	if show or save:
+		dists = []
+		one_dist = [[],[]]
+		for root, dirs, files in os.walk(HISTS_DIR):
+			for filename in files:
+				if OUTPUT_HIST_IDENTIFIER in filename and dists_type in filename:
+					dist = read_dist_from_file(root+filename)
+					dist = dist[:,dist[1] > 0]
+					if isinstance(dist, np.ndarray):
+						dists.append(dist)
+						one_dist[0] += list(dists[-1][0])
+						one_dist[1] += list(dists[-1][1])
+		max_lines = 2
+		# max_lines = len(dists)
+		chosen_lines = set(np.random.randint(0, len(dists) - 1, max_lines))
+		print(chosen_lines)
+		colors = many_colors(range(max_lines))
+		pearsons = []
+		# dist_key = 0
+		# dist = np.array(one_dist)
+		for dist_key, dist in enumerate(dists):
+			dist = dist[:,dist[0,:].argsort()[::-1]]
+			x = np.log(dist[1].cumsum())
+			y = np.log(dist[0])
+			print(dist[1])
+			print(dist[0])
+			if len(x) > 1:
+				pearsons.append(pearsonr(x,y)[0])
+			if dist_key in chosen_lines:
+				x_new = x
+				# x_new = np.linspace(x.min(),x.max(),300)
+				# y = spline(x, np.log(y), x)
+				print("plot",dist_key)
+				plt.plot(x_new, y)
+				# plt.scatter(x_new, y, color="b")
+				plt.ylabel("log frequency")
+				plt.xlabel("log rank")
+		print("all pearson correlations:", pearsons)
+		print("mean pearson correlation:", np.mean(pearsons))
+		if save:
+			plt.savefig(PLOTS_DIR + dists_type + "_dists_plot"+".png", bbox_inches='tight')
+		if show:
+			plt.show()
+		plt.cla()
 
 def plot_coverage_for_each_sentence(dist, axes, title_addition="", show=True, save_name=None, xlabel=None):
 	""" plots expected accuracy result for each correction number
