@@ -5,7 +5,7 @@ from m2scorer import m2scorer
 import numpy as np
 from multiprocessing import Pool
 POOL_SIZE = 4
-ALTERNATIVE_GOLD_MS = np.arange(21)
+ALTERNATIVE_GOLD_MS = np.arange(10)
 
 
 def main():
