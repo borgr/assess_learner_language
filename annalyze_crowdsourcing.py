@@ -77,7 +77,7 @@ def main():
 	show_dists = False
 	save_dists = False
 	show_significance = True
-	save_significance = False
+	save_significance = True
 	# compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
 	# db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
 	# compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
@@ -634,7 +634,7 @@ def plot_significance(show=True, save=True):
 	names = [filename if filename != ACL2016RozovskayaRothOutput_file else "RoRo" for filename in files]
 	results = [[[1,0,0],[1,0,0]]] + list(results) + [[[1,1,1],[1,1,1]]]
 	names = [learner_file] + names + [gold_file]
-	# plot_sig_bars(results, names, show, save)
+	plot_sig_bars(results, names, show, save)
 	files = ["perfect_output_for_" + str(m+1) + "_sgss.m2" for m in np.arange(10)]
 	results = parse_sigfiles(files)
 	names = [str(m+1) for m in np.arange(10)]
@@ -667,10 +667,11 @@ def plot_sig(significances, names, show, save):
 		plt.ylabel(measure)
 		plt.xlabel("$M$ - Number of references in gold standard")
 		if save:
-			plt.savefig(measure+"_significance"+".png", bbox_inches='tight')
+			plt.savefig(PLOTS_DIR + measure + "_Ms_significance" + ".png", bbox_inches='tight')
 		if show:
 			plt.show()
 		plt.cla()
+
 
 def plot_sig_bars(significances, names, show, save):
 	names = np.array(names)
@@ -697,40 +698,11 @@ def plot_sig_bars(significances, names, show, save):
 		plt.xticks(xs, labels, rotation=70)
 		plt.ylabel(measure)
 		if save:
-			plt.savefig(measure+"_significance"+".png", bbox_inches='tight')
+			plt.savefig(PLOTS_DIR + measure + "_significance" + ".png", bbox_inches='tight')
 		if show:
 			plt.show()
 		plt.cla()
 
-def plot_sig_bars(significances, names, show, save):
-	names = np.array(names)
-	for measure_idx, measure in enumerate(["precision", "recall", "$F_{0.5}$"]):
-		xs = []
-		ys = []
-		cis = []
-		for x, significance in enumerate(significances):
-			sig = [significance[0][measure_idx], significance[1][measure_idx]]
-			y = np.mean(sig)
-			xs.append(x)
-			ys.append(y)
-			cis.append(y-sig[0])
-		xs = np.array(xs)
-		ys = np.array(ys)
-		cis = np.array(cis)
-		sort_idx = ys.argsort()
-		labels = names[sort_idx]
-		ys = ys[sort_idx]
-		cis = cis[sort_idx]
-		colors = many_colors(xs, cm.copper)
-		colors = [colors[i] for i in xs]
-		plt.bar(xs, ys, yerr=cis, align='center', label=labels, edgecolor=colors, color=colors)
-		plt.xticks(xs, labels, rotation=70)
-		plt.ylabel(measure)
-		if save:
-			plt.savefig(PLOTS_DIR + measure + "_significance"+".png", bbox_inches='tight')
-		if show:
-			plt.show()
-		plt.cla()
 
 def parse_sigfiles(files):
 	results = []
