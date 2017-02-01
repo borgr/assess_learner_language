@@ -1,3 +1,5 @@
+from scipy.interpolate import spline
+from scipy.stats.stats import pearsonr
 import scikits.bootstrap
 import poisson_binomial as pb
 from multiprocessing import Pool
@@ -56,33 +58,37 @@ MEAN_MEASURE = "Mean coverage"
 MEASURE_NAMES = [MEAN_MEASURE] # all:["Mean coverage", "Probabillity of more than " + str(COVERAGE_GOAL) + " coverage "]
 # x
 CORRECTION_NUMS = list(range(21))
-ALTERNATIVE_GOLD_MS = [2,5,8]
+ALTERNATIVE_GOLD_MS = [1,3,4,6,7,9,10]
 
 def main():
-	frames = []
-	for batch_file in BATCH_FILES:
-		frames.append(pd.read_csv(corrections_dir + batch_file))
-	db = pd.concat(frames)
+	# frames = []
+	# for batch_file in BATCH_FILES:
+	# 	frames.append(pd.read_csv(corrections_dir + batch_file))
+	# db = pd.concat(frames)
 
-	create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
+	# create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
 
-	db = clean_data(db)
-	learner_sentences = db[LEARNER_SENTENCES_COL].unique()
+	# db = clean_data(db)
+	# learner_sentences = db[LEARNER_SENTENCES_COL].unique()
 	show_correction = False
 	save_correction = False
 	show_coverage = False
-	save_coverage = True
-
-	compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
-	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
-	compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
-	for root, dirs, files in os.walk(HISTS_DIR):
-		for filename in files:
-			if INPUT_HIST_IDENTIFIER in filename:
-				assess_real_distributions(root+filename, str(0))
-
-	assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
-	coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
+	save_coverage = False
+	show_dists = False
+	save_dists = False
+	show_significance = True
+	save_significance = False
+	# compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
+	# db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
+	# compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
+	# for root, dirs, files in os.walk(HISTS_DIR):
+	# 	for filename in files:
+	# 		if INPUT_HIST_IDENTIFIER in filename:
+	# 			assess_real_distributions(root+filename, str(0))
+	# plot_dists(show_dists, save_dists, EXACT_COMP)
+	# assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
+	# coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
+	plot_significance(show=show_significance,save=save_significance)
 
 def create_golds(sentences, corrections, gold_file, ms):
 	""" writes a m2 file and a perfect output by sampling a sentence for sentences for each ungrammatical sentence in gold_file"""
@@ -466,8 +472,7 @@ def compute_probability_to_account(distribution, samples, repetitions, only_diff
 
 def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, show=True, save=True):
 	learner_sentences = db[LEARNER_SENTENCES_COL].unique()
-	colors = rainbow_colors(range(len(learner_sentences)))
-	plot_num = 200+(len(learner_sentences)+1)/2*10
+	colors = many_colors(range(len(learner_sentences)))
 	concat = []
 	amount_of_models = []
 	for color, sentence in zip(colors.values(),learner_sentences):
@@ -541,13 +546,13 @@ def plot_covered_corrections_distribution(corrections_to_plot, dist, ax, title_a
 			ys.append(get_probability_with_belief(ps, 1, pdf=True, all=True))
 
 	x = np.arange(len(ps) + 1)
-	colors = rainbow_colors(range(len(corrections_to_plot)))
+	colors = many_colors(range(len(corrections_to_plot)))
 	for y, color, correction_num in zip(ys,colors.values(), corrections_to_plot):
 		ax.plot(x, y, color=color, label=correction_num)
 
 	ax.set_ylabel("probabillity")
 	ax.set_xlabel("number of covered sentences")
-	ax.set_title("probabillity distribution for correct sentences covered in g.s.\n" + "out of " + str(len(x)-1) + " " + title_addition)
+	# ax.set_title("probabillity distribution for correct sentences covered in g.s.\n" + "out of " + str(len(x)-1) + " " + title_addition)
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True, title="corrections in g.s.")
 	if save_name:
 		plt.savefig(save_name, bbox_inches='tight')
@@ -586,16 +591,168 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 		bottom.append(ci[0])
 	ax.errorbar(x, y, yerr=cis)
 	ax.plot(CORRECTION_NUMS, y)
-	ax.set_ylabel("Expected accuracy")
+	ax.set_ylabel("expected accuracy")
 	if xlabel:
 		ax.set_xlabel(xlabel)
-	ax.set_title("Expected accuracy for perfect corrected text by corrections number\n" + title_addition)
+	# ax.set_title("Expected accuracy for perfect corrected text by corrections number\n" + title_addition)
 	if save_name:
 		plt.savefig(save_name, bbox_inches='tight')
 	if show:
 		plt.show()
 	plt.cla()
 
+def plot_significance(show=True, save=True):
+	learner_file = "source"
+	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
+	amu_file = "AMU"
+	cuui_file = "CUUI"
+	iitb_file = "IITB"
+	ipn_file = "IPN"
+	nthu_file = "NTHU"
+	pku_file = "PKU"
+	post_file = "POST"
+	rac_file = "RAC"
+	sjtu_file = "SJTU"
+	ufc_file = "UFC"
+	umc_file = "UMC"
+	camb_file = "CAMB"
+	gold_file = "gold"
+	files = [ACL2016RozovskayaRothOutput_file,
+	amu_file,
+	cuui_file,
+	iitb_file,
+	ipn_file,
+	nthu_file,
+	pku_file,
+	post_file,
+	rac_file,
+	sjtu_file,
+	ufc_file,
+	umc_file,
+	camb_file]
+	results = parse_sigfiles(files)
+	files = [filename if filename != ACL2016RozovskayaRothOutput_file else "RoRo" for filename in files]
+	results = [[[1,0,0],[1,0,0]]] + list(results) + [[[1,1,1],[1,1,1]]]
+	files = [learner_file] + files + [gold_file]
+	plot_sig_bars(results, files, show, save)
+	files = ["perfect_output_for_" + str(m+1) + "_sgss.m2" for m in np.arange(10)]
+	results = parse_sigfiles(files)
+	
+
+def plot_sig_bars(significances, names, show, save):
+	names = np.array(names)
+	for measure_idx, measure in enumerate(["precision", "recall", "$F_{0.5}$"]):
+		xs = []
+		ys = []
+		cis = []
+		for x, significance in enumerate(significances):
+			sig = [significance[0][measure_idx], significance[1][measure_idx]]
+			y = np.mean(sig)
+			xs.append(x)
+			ys.append(y)
+			cis.append(y-sig[0])
+		xs = np.array(xs)
+		ys = np.array(ys)
+		cis = np.array(cis)
+		sort_idx = ys.argsort()
+		labels = names[sort_idx]
+		ys = ys[sort_idx]
+		cis = cis[sort_idx]
+		colors = many_colors(xs, cm.copper)
+		colors = [colors[i] for i in xs]
+		plt.bar(xs, ys, yerr=cis, align='center', label=labels, edgecolor=colors, color=colors)
+		plt.xticks(xs, labels, rotation=70)
+		plt.ylabel(measure)
+		if save:
+			plt.savefig(measure+"_significance"+".png", bbox_inches='tight')
+		if show:
+			plt.show()
+		plt.cla()
+
+def plot_sig_bars(significances, names, show, save):
+	names = np.array(names)
+	for measure_idx, measure in enumerate(["precision", "recall", "$F_{0.5}$"]):
+		xs = []
+		ys = []
+		cis = []
+		for x, significance in enumerate(significances):
+			sig = [significance[0][measure_idx], significance[1][measure_idx]]
+			y = np.mean(sig)
+			xs.append(x)
+			ys.append(y)
+			cis.append(y-sig[0])
+		xs = np.array(xs)
+		ys = np.array(ys)
+		cis = np.array(cis)
+		sort_idx = ys.argsort()
+		labels = names[sort_idx]
+		ys = ys[sort_idx]
+		cis = cis[sort_idx]
+		colors = many_colors(xs, cm.copper)
+		colors = [colors[i] for i in xs]
+		plt.bar(xs, ys, yerr=cis, align='center', label=labels, edgecolor=colors, color=colors)
+		plt.xticks(xs, labels, rotation=70)
+		plt.ylabel(measure)
+		if save:
+			plt.savefig(measure+"_significance"+".png", bbox_inches='tight')
+		if show:
+			plt.show()
+		plt.cla()
+
+def parse_sigfiles(files):
+	results = []
+	for file in files:
+		filename = r"/home/borgr/ucca/assess_learner_language/results/significance/1000_" + file
+		with open(filename, "r") as fl:
+			str_content = fl.readlines()
+		content = []
+		for i in range(len(str_content)):
+			content.append([float(x) for x in re.split('[\[\] \t\n]+', str_content[i]) if x])
+		results.append(content)
+	return results
+
+
+def plot_dists(show=True, save=True, dists_type=EXACT_COMP):
+	dists = []
+	one_dist = [[],[]]
+	for root, dirs, files in os.walk(HISTS_DIR):
+		for filename in files:
+			if OUTPUT_HIST_IDENTIFIER in filename and dists_type in filename:
+				dist = read_dist_from_file(root+filename)
+				dist = dist[:,dist[1] > 0.1]
+				if isinstance(dist, np.ndarray):
+					dists.append(dist)
+					one_dist[0] += list(dists[-1][0])
+					one_dist[1] += list(dists[-1][1])
+	# max_lines = 15
+	max_lines = len(dists)
+	chosen_lines = set(np.random.randint(0, len(dists) - 1, max_lines))
+	colors = many_colors(range(max_lines))
+	pearsons = []
+	dist_key = 0
+	dist = np.array(one_dist)
+	for dist_key, dist in enumerate(dists):
+		dist = dist[:,dist[1,:].argsort()]
+		x = np.log(dist[1])
+		y = np.log(dist[0])
+		print(dist[0])
+		if len(x) > 1:
+			pearsons.append(pearsonr(x,y)[0])
+		if dist_key in chosen_lines:
+			x_new = x
+			# x_new = np.linspace(x.min(),x.max(),300)
+			# y = spline(x, np.log(y), x)
+			# plt.plot(x_new, y)
+			plt.scatter(x_new, y, color="b")
+			plt.ylabel("log frequency")
+			plt.xlabel("log number of variants")
+	print("all pearson correlations:", pearsons)
+	print("mean pearson correlation:", np.mean(pearsons))
+	if save:
+		plt.savefig(dists_type + "_dists_plot"+".png", bbox_inches='tight')
+	if show:
+		plt.show()
+	plt.cla()
 
 def plot_coverage_for_each_sentence(dist, axes, title_addition="", show=True, save_name=None, xlabel=None):
 	""" plots expected accuracy result for each correction number
@@ -603,14 +760,14 @@ def plot_coverage_for_each_sentence(dist, axes, title_addition="", show=True, sa
 		dist - list of lists of Ys : distribution->measure->correction num(Y)
 		"""
 	for sent_key, ys in enumerate(dist):
-		colors = rainbow_colors(range(len(dist)))
+		colors = many_colors(range(len(dist)))
 		for i, y in enumerate(ys):
 			ax = axes[i]
 			ax.plot(CORRECTION_NUMS, y, color=colors[sent_key])
 			ax.set_ylabel(MEASURE_NAMES[i])
 			if xlabel:
 				ax.set_xlabel(xlabel)
-			ax.set_title(MEASURE_NAMES[i] + " of different amount of corrections\n" + title_addition)
+			# ax.set_title(MEASURE_NAMES[i] + " of different amount of corrections\n" + title_addition)
 	if save_name:
 		plt.savefig(save_name, bbox_inches='tight')
 	if show:
@@ -624,13 +781,13 @@ def plot_hist(l, ax, data, comparison_by, bottom=1):
 		y = create_hist(data[i], bottom=bottom)
 		x = np.array(range(len(y)))
 		print(comparison_by, " hist results \n", name,"\n",y)
-		colors = rainbow_colors(range(len(l)))
+		colors = many_colors(range(len(l)))
 		ax.plot(x, y, color=colors[i], label=name)
 	plt.ylim(ymin=0)
 	plt.autoscale(enable=True, axis='x', tight=False)
 	plt.ylabel("amount of corrections")
 	plt.xlabel("number of times seen")
-	plt.title("hist of the number repetitions a correction was seen, using " + comparison_by + " comparison")
+	# plt.title("hist of the number repetitions a correction was seen, using " + comparison_by + " comparison")
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 	# plt.tight_layout()
 
@@ -643,7 +800,7 @@ def plot_acounts_for_percentage(l, ax, data, comparison_by, bottom=1, reverseXY=
 		Ysum = sum(data[i])
 		maxY = max(maxY, np.max(y))
 		x = x/Ysum*100
-		colors = rainbow_colors(range(len(l)))
+		colors = many_colors(range(len(l)))
 		x = list(x)
 		y = list(y)
 		x = np.array([x_val for x_val, y_val in zip(x,y) if y_val])
@@ -664,9 +821,10 @@ def plot_acounts_for_percentage(l, ax, data, comparison_by, bottom=1, reverseXY=
 		xlabel, ylabel = ylabel, xlabel
 	plt.ylabel(ylabel)
 	plt.xlabel(xlabel)
-	plt.title("hist of the number repetitions a correction was seen, using " + comparison_by + " comparison")
+	# plt.title("hist of the number repetitions a correction was seen, using " + comparison_by + " comparison")
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 	# plt.tight_layout()
+
 
 def plot_differences_hist(l, ax, data, comparison_by, bottom=1, percentage=False):
 	width = 1.0/len(l)
@@ -678,7 +836,7 @@ def plot_differences_hist(l, ax, data, comparison_by, bottom=1, percentage=False
 			x = [val/Ysum for val in x]
 			print("total number of corrections",Ysum)
 		print(comparison_by," hist results \n", name,"\n",y)
-		colors = rainbow_colors(range(len(l)))
+		colors = many_colors(range(len(l)))
 		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=name, edgecolor=colors[i])
 	plt.autoscale(enable=True, axis='x', tight=False)
 	if percentage:
@@ -687,18 +845,10 @@ def plot_differences_hist(l, ax, data, comparison_by, bottom=1, percentage=False
 		plt.ylabel("amount of corrections")
 	plt.ylim(ymin=0)
 	plt.xlabel("number of times seen")
-	plt.title("hist of the number repetitions a correction was seen, using " + comparison_by + " comparison")
+	# plt.title("hist of the number repetitions a correction was seen, using " + comparison_by + " comparison")
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 	# plt.tight_layout()
 
-def get_all_sentences_corrected():
-	""" returns an iterable containing all the sentences that were corrected"""
-	corrected = set()
-	for root, dirs, files in os.walk(corrections_dir):
-		for file in files:
-			if isBatchFile(file):
-				db = pd.read_csv(root+file)
-				corrected.update(set(iter(db[LEARNER_SENTENCES_COL])))
 
 def create_hist(l, top=float("inf"), bottom=0):
 	""" converts a int counter to a sorted list for a histogram"""
@@ -709,16 +859,26 @@ def create_hist(l, top=float("inf"), bottom=0):
 			hist[key - bottom] = val
 	return hist if hist else [0]
 
-def rainbow_colors(labels):
+
+def many_colors(labels, colors=cm.rainbow):
 	"""creates colors, each corresponding to a unique label"""
 	cls = set(labels)
 	if len(cls) == 2:
 		return dict(zip(cls, ("blue", "orange")))
-	return dict(zip(cls, cm.rainbow(np.linspace(0, 1, len(cls)))))
+	return dict(zip(cls, colors(np.linspace(0, 1, len(cls)))))
 
 ###################################################################################
 ####							general\NLP	
 ###################################################################################
+def get_all_sentences_corrected():
+	""" returns an iterable containing all the sentences that were corrected"""
+	corrected = set()
+	for root, dirs, files in os.walk(corrections_dir):
+		for file in files:
+			if isBatchFile(file):
+				db = pd.read_csv(root+file)
+				corrected.update(set(iter(db[LEARNER_SENTENCES_COL])))
+
 def clean_data(db):
 	# clean rejections
 	db = db[db.AssignmentStatus != "Rejected"]
