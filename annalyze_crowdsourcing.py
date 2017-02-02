@@ -74,10 +74,10 @@ def main():
 	save_correction = False
 	show_coverage = False
 	save_coverage = False
-	show_dists = False
-	save_dists = False
-	show_significance = True
-	save_significance = True
+	show_dists = True
+	save_dists = True
+	show_significance = False
+	save_significance = False
 	# compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
 	# db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
 	# compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
@@ -634,6 +634,9 @@ def plot_significance(show=True, save=True):
 	names = [filename if filename != ACL2016RozovskayaRothOutput_file else "RoRo" for filename in files]
 	results = [[[1,0,0],[1,0,0]]] + list(results) + [[[1,1,1],[1,1,1]]]
 	names = [learner_file] + names + [gold_file]
+	#no gold standard
+	results = results[:-1]
+	names = names[:-1]
 	plot_sig_bars(results, names, show, save)
 	files = ["perfect_output_for_" + str(m+1) + "_sgss.m2" for m in np.arange(10)]
 	results = parse_sigfiles(files)
@@ -755,6 +758,7 @@ def plot_dists(show=True, save=True, dists_type=EXACT_COMP):
 				# plt.scatter(x_new, y, color="b")
 				plt.ylabel("log frequency")
 				plt.xlabel("log rank")
+		plt.xlim(xmin=0)
 		print("all pearson correlations:", pearsons)
 		print("mean pearson correlation:", np.mean(pearsons))
 		if save:
