@@ -9,15 +9,16 @@ import textutil
 sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
 import align
 from ucca import layer0, layer1
-PATH = r"/home/borgr/ucca/data/annotaions/"
+PATH = r"/home/borgr/ucca/data/annotations/"
 
-borgr = list(("tree1197", "tree1297", "tree1198", "tree1298", "tree1200", "tree1300", "tree1202", "tree1302")) # "tree1299",  "tree1301"
-amittaic = ["amittaic1197", "amittaic1297", "amittaic1200", "amittaic1300", "amittaic1198", "amittaic1298", "amittaic1205", "amittaic1305", "amittaic1203", "amittaic1303"] #, "amittaic1301"]
-# filenames = borgr + amittaic
+# borgr = list(("tree1197", "tree1297", "tree1198", "tree1298", "tree1200", "tree1300", "tree1202", "tree1302")) # "tree1299",  "tree1301"
+# amittaic = ["amittaic1197", "amittaic1297", "amittaic1200", "amittaic1300", "amittaic1198", "amittaic1298", "amittaic1205", "amittaic1305", "amittaic1203", "amittaic1303"] #, "amittaic1301"]
+# filenames = borgr + amittaic #same annotators
 # filenames = ["tree1197", "amittaic1297","amittaic1197", "tree1297", "tree1198", "amittaic1298", "amittaic1198", "tree1298",  "tree1200", "amittaic1300", "amittaic1200", "tree1300"] # different annotators
 filenames = ["amittaic1197", "tree1197", "amittaic1297", "tree1297", "tree1200", "amittaic1200",
 			 "amittaic1300", "tree1300", "amittaic1198", "tree1198", "amittaic1298", "tree1298",
 			 "amittaic1301",  "tree1301"]#inter annotator
+# filenames = ["tree1297", "amittaic1297", "tree1298", "amittaic1298", "amittaic1300", "tree1300", "amittaic1301",  "tree1301"]
 implemented = [align.fully_aligned_distance]
 print("should flatten centers?")
 
