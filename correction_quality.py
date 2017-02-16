@@ -104,23 +104,25 @@ def main():
 		res.append(name)
 		dump(res_list, filename)
 
-	# compare fce origin to fce gold without matching
-	name = "fce"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner_full, fce_gold_full, sent_token_by_char, sent_token_by_char)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
+	# # compare fce origin to fce gold without matching
+	# name = "fce"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner_full, fce_gold_full, sent_token_by_char, sent_token_by_char)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+	# else:
+	# 	res_list.append(old_res[name])
 
-	# compare fce origin to fce gold
-	name = "fce auto"
-	print(name)
-	if name not in old_res:
-		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
-		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-		dump(res_list, filename)
-	else:
-		res_list.append(old_res[name])
+	# # compare fce origin to fce gold
+	# name = "fce auto"
+	# print(name)
+	# if name not in old_res:
+	# 	broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(fce_learner, fce_gold)
+	# 	res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+	# 	dump(res_list, filename)
+	# else:
+	# 	res_list.append(old_res[name])
 
 	# compare gold to origin
 	name = "gold"
@@ -961,7 +963,7 @@ def plot_not_aligned(l, ax):
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 	# plt.tight_layout()
 
-def plot_differences_heatmap(l, ax, pivot, diff_type, bins, colors=cm.inferno):
+def plot_differences_heatmap(l, ax, pivot, diff_type, bins, colors=cm.bone_r):# cm.coolwarm_r
 	""" gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the plots"""
 	width = 1/len(l)
 	name = -1
@@ -1066,7 +1068,7 @@ def plot_comparison(l):
 	ax = plt.subplot(111)
 	plot_words_heat(l, ax)
 	plt.savefig(dirname + r"words_differences_heat" + trial_name + ".png", bbox_inches='tight')
-	# plt.show()
+	plt.show()
 	plt.clf()
 	ax = plt.subplot(111)
 	plot_index_differences(l, ax)
