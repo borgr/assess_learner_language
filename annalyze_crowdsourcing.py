@@ -73,11 +73,11 @@ def main():
 	show_correction = False
 	save_correction = False
 	show_coverage = False
-	save_coverage = False
-	show_dists = True
+	save_coverage = True
+	show_dists = False
 	save_dists = True
 	show_significance = False
-	save_significance = False
+	save_significance = True
 	# compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
 	# db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
 	# compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
@@ -86,8 +86,8 @@ def main():
 	# 		if INPUT_HIST_IDENTIFIER in filename:
 	# 			assess_real_distributions(root+filename, str(0))
 	plot_dists(show_dists, save_dists, EXACT_COMP)
-	# assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
-	# coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
+	assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
+	coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 	plot_significance(show=show_significance,save=save_significance)
 
 def create_golds(sentences, corrections, gold_file, ms):
@@ -114,26 +114,19 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m):
 	while i < len(lines):
 		if lines[i].startswith("S"):
 			if i+1 == len(lines) or not lines[i+1].startswith("A"):
-				# print("norm")
 				correction4gold.append(lines[i])
 				perfectOutput.append(lines[i][2:])
 			else:
-				# print("change")
 				chosen_index = -1
 				# while chosen_index not in sentences
 				chosen_index = np.random.randint(0, sentences.size - 1)
-				# print("chosen_index", chosen_index, "num of sentences", sentences.size)
 				chosen_sentence = sentences.iloc[chosen_index]
 				num_chosen = 0
-				# print(sentences, "\nchosen sentences:", chosen_sentence)
 				corresponding_corrections = corrections[sentences == chosen_sentence]
 				correction4gold.append("S " + chosen_sentence + "\n")
 				while num_chosen < m:
 					chosen_ind = np.random.randint(0, corresponding_corrections.size)
 					chosen_correction = corresponding_corrections.iloc[chosen_ind]
-					# if chosen_correction.count("\n") != 1:
-					# 	chosen_correction = chosen_correction.split("\n")[-1]
-					# 	print(chosen_correction)
 					addition = convert_correction_to_m2(chosen_sentence, chosen_correction, num_chosen)
 					if not addition:
 						addition = ["A -1 -1|||noop|||-NONE-|||REQUIRED|||-NONE-|||" + str(num_chosen) + "\n"]
@@ -272,7 +265,7 @@ def convert_correction_to_m2(source, correct, annotator_num=0):
 	return lines
 
 
-def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT_COMP, res_measure=MEAN_MEASURE):
+def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT_COMP, res_measure=MEAN_MEASURE, accuracyax=None):
 	""" runs all computations relevant to coverage assessments (calculations and plotting)""" 
 	trial_num = get_trial_num()
 	repeat = "" if only_different_samples else "_repeat"
@@ -329,11 +322,16 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 				save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
 
 			plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel)
+			plt.cla()
 
 			if save:
 				fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
 				save = PLOTS_DIR + fig_prefix + r"_covered_corrections_dist" + ".png"
 			plot_covered_corrections_distribution([correction for correction in CORRECTION_NUMS if correction > 0], dist, plt.subplot("111"), title_addition, show, save, xlabel)
+		if save:
+			fig_prefix = repeat[1:]
+			save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
+		plot_expected_best_coverages(all_ys, plt.subplot("111"), title_addition, show, save, xlabel)
 	# extract value for return
 	res = []
 	for comparison_method_key, dist in enumerate(all_ys):
@@ -560,6 +558,49 @@ def plot_covered_corrections_distribution(corrections_to_plot, dist, ax, title_a
 		plt.show()
 	plt.cla()
 
+def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_name=None, xlabel=None):
+	""" plots a line for each sentence
+		axes - a subscriptable object of axis to plot for each comparison meathod
+		dist - list of lists of Ys : distribution->measure->correction num(Y)
+		"""
+	width = 0.1
+	for comparison_method_key, dist in enumerate(dists[::-1]):
+		#corrections_num -> coverage
+		coverage_by_corrections_num = []
+		for sent_key, ys in enumerate(dist):
+			for i, y in enumerate(ys):
+				if MEASURE_NAMES[i] == MEAN_MEASURE:
+					coverage_by_corrections_num.append(y)
+
+		top = []
+		bottom = []
+		cis = [bottom, top]
+		x = []
+		y = []
+		for correction_index, correction_num in enumerate(CORRECTION_NUMS):
+			ps = np.fromiter((coverage[correction_index] for coverage in coverage_by_corrections_num), np.float)
+			x.append(correction_num)
+			y.append(expected_accuracy(ps))
+			if np.all(ps == ps*0) or np.all(ps - 1 == ps*0):
+				ci = [0,0]
+			else:
+				ci = scikits.bootstrap.ci(ps, expected_accuracy)
+				ci = [[y[-1] - float(ci[0])],[float(ci[1])] - y[-1]]
+			top.append(ci[1])
+			bottom.append(ci[0])
+		x = np.array(x)
+		ax.errorbar(x + width*comparison_method_key, y, yerr=cis, label=COMPARISON_METHODS[::-1][comparison_method_key])
+		# ax.plot(np.array(CORRECTION_NUMS) + width*comparison_method_key, y, label=COMPARISON_METHODS[comparison_method_key])
+	ax.set_ylabel("expected accuracy")
+	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
+	if xlabel:
+		ax.set_xlabel(xlabel)
+	# ax.set_title("Expected accuracy for perfect corrected text by corrections number\n" + title_addition)
+	if save_name:
+		plt.savefig(save_name, bbox_inches='tight')
+	if show:
+		plt.show()
+	plt.cla()
 
 def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_name=None, xlabel=None):
 	""" plots a line for each sentence
@@ -599,7 +640,6 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 		plt.savefig(save_name, bbox_inches='tight')
 	if show:
 		plt.show()
-	plt.cla()
 
 def plot_significance(show=True, save=True):
 	learner_file = "source"
@@ -644,15 +684,15 @@ def plot_significance(show=True, save=True):
 	plot_sig(results, names, show, save)
 
 def plot_sig(significances, names, show, save):
-	names = np.array(names)
+	names = np.array([0]+names)
 	for measure_idx, measure in enumerate(["precision", "recall", "$F_{0.5}$"]):
-		xs = []
-		ys = []
-		cis = []
+		xs = [0]
+		ys = [0]
+		cis = [0]
 		for x, significance in enumerate(significances):
 			sig = [significance[0][measure_idx], significance[1][measure_idx]]
 			y = np.mean(sig)
-			xs.append(x)
+			xs.append(x + 1)
 			ys.append(y)
 			cis.append(y-sig[0])
 		xs = np.array(xs)
@@ -736,7 +776,7 @@ def plot_dists(show=True, save=True, dists_type=EXACT_COMP):
 		max_lines = 2
 		# max_lines = len(dists)
 		chosen_lines = set(np.random.randint(0, len(dists) - 1, max_lines))
-		print(chosen_lines)
+		# print(chosen_lines)
 		colors = many_colors(range(max_lines))
 		pearsons = []
 		# dist_key = 0
@@ -745,15 +785,15 @@ def plot_dists(show=True, save=True, dists_type=EXACT_COMP):
 			dist = dist[:,dist[0,:].argsort()[::-1]]
 			x = np.log(dist[1].cumsum())
 			y = np.log(dist[0])
-			print(dist[1])
-			print(dist[0])
+			# print(dist[1])
+			# print(dist[0])
 			if len(x) > 1:
 				pearsons.append(pearsonr(x,y)[0])
 			if dist_key in chosen_lines:
 				x_new = x
 				# x_new = np.linspace(x.min(),x.max(),300)
 				# y = spline(x, np.log(y), x)
-				print("plot",dist_key)
+				# print("plot", dist_key)
 				plt.plot(x_new, y)
 				# plt.scatter(x_new, y, color="b")
 				plt.ylabel("log frequency")
@@ -769,7 +809,7 @@ def plot_dists(show=True, save=True, dists_type=EXACT_COMP):
 
 def plot_coverage_for_each_sentence(dist, axes, title_addition="", show=True, save_name=None, xlabel=None):
 	""" plots expected accuracy result for each correction number
-		axes - a subscriptable object of axis to plot for each comparison meathod
+		axes - a subscriptable object of axis to plot for each comparison method
 		dist - list of lists of Ys : distribution->measure->correction num(Y)
 		"""
 	for sent_key, ys in enumerate(dist):
