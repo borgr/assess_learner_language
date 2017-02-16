@@ -37,7 +37,19 @@ def main():
 	ufc_file,
 	umc_file,
 	camb_file]
-
+	last = False
+	correction = 0
+	count = 0
+	with open(r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2", "r") as fl:
+		for line in fl:
+			if last and line.startswith("A"):
+				correction += 1
+			last = False 
+			if line.startswith("S"):
+				count +=1
+				last = True
+	print(count, correction, 1.0*correction/count)
+	return
 	pool = Pool(POOL_SIZE)
 	results = pool.imap_unordered(m2score_sig, files)
 	pool.close()
