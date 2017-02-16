@@ -61,15 +61,15 @@ CORRECTION_NUMS = list(range(21))
 ALTERNATIVE_GOLD_MS = [1,3,4,6,7,9,10]
 
 def main():
-	# frames = []
-	# for batch_file in BATCH_FILES:
-	# 	frames.append(pd.read_csv(corrections_dir + batch_file))
-	# db = pd.concat(frames)
+	frames = []
+	for batch_file in BATCH_FILES:
+		frames.append(pd.read_csv(corrections_dir + batch_file))
+	db = pd.concat(frames)
 
-	# create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
+	create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
 
-	# db = clean_data(db)
-	# learner_sentences = db[LEARNER_SENTENCES_COL].unique()
+	db = clean_data(db)
+	learner_sentences = db[LEARNER_SENTENCES_COL].unique()
 	show_correction = False
 	save_correction = False
 	show_coverage = False
@@ -78,13 +78,13 @@ def main():
 	save_dists = True
 	show_significance = False
 	save_significance = True
-	# compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
-	# db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
-	# compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
-	# for root, dirs, files in os.walk(HISTS_DIR):
-	# 	for filename in files:
-	# 		if INPUT_HIST_IDENTIFIER in filename:
-	# 			assess_real_distributions(root+filename, str(0))
+	compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
+	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
+	compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
+	for root, dirs, files in os.walk(HISTS_DIR):
+		for filename in files:
+			if INPUT_HIST_IDENTIFIER in filename:
+				assess_real_distributions(root+filename, str(0))
 	plot_dists(show_dists, save_dists, EXACT_COMP)
 	assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 	coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
