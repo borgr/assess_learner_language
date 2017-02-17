@@ -73,11 +73,11 @@ def main():
 	show_correction = False
 	save_correction = False
 	show_coverage = False
-	save_coverage = True
-	show_dists = False
+	save_coverage = False
+	show_dists = True
 	save_dists = True
 	show_significance = False
-	save_significance = True
+	save_significance = False
 	compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
 	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
 	compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
@@ -671,6 +671,9 @@ def plot_significance(show=True, save=True):
 	umc_file,
 	camb_file]
 	results = parse_sigfiles(files)
+	print("sig results")
+	for i, file in enumerate(files):
+		print (file, results[i])
 	names = [filename if filename != ACL2016RozovskayaRothOutput_file else "RoRo" for filename in files]
 	results = [[[1,0,0],[1,0,0]]] + list(results) + [[[1,1,1],[1,1,1]]]
 	names = [learner_file] + names + [gold_file]
@@ -680,6 +683,9 @@ def plot_significance(show=True, save=True):
 	plot_sig_bars(results, names, show, save)
 	files = ["perfect_output_for_" + str(m+1) + "_sgss.m2" for m in np.arange(10)]
 	results = parse_sigfiles(files)
+	print("sig results")
+	for i, file in enumerate(files):
+		print (file, results[i])
 	names = [str(m+1) for m in np.arange(10)]
 	plot_sig(results, names, show, save)
 
@@ -773,7 +779,7 @@ def plot_dists(show=True, save=True, dists_type=EXACT_COMP):
 						dists.append(dist)
 						one_dist[0] += list(dists[-1][0])
 						one_dist[1] += list(dists[-1][1])
-		max_lines = 2
+		max_lines = 300
 		# max_lines = len(dists)
 		chosen_lines = set(np.random.randint(0, len(dists) - 1, max_lines))
 		# print(chosen_lines)
