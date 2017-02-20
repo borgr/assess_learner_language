@@ -1,3 +1,4 @@
+from scipy.stats import bernoulli
 from scipy.interpolate import spline
 from scipy.stats.stats import pearsonr
 import scikits.bootstrap
@@ -73,9 +74,9 @@ def main():
 	show_correction = False
 	save_correction = False
 	show_coverage = False
-	save_coverage = False
-	show_dists = True
-	save_dists = True
+	save_coverage = True
+	show_dists = False
+	save_dists = False
 	show_significance = False
 	save_significance = False
 	compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
@@ -322,6 +323,7 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 				save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
 
 			plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel)
+			plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel, False)
 			plt.cla()
 
 			if save:
@@ -332,6 +334,7 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 			fig_prefix = repeat[1:]
 			save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
 		plot_expected_best_coverages(all_ys, plt.subplot("111"), title_addition, show, save, xlabel)
+		plot_expected_best_coverages(all_ys, plt.subplot("111"), title_addition, show, save, xlabel, False)
 	# extract value for return
 	res = []
 	for comparison_method_key, dist in enumerate(all_ys):
@@ -557,8 +560,22 @@ def plot_covered_corrections_distribution(corrections_to_plot, dist, ax, title_a
 	if show:
 		plt.show()
 	plt.cla()
+def bern(p):
+	if p>=1:
+		return 1
+	elif p<=0:
+		return 0
+	else:
+		return bernoulli.rvs(p)
+def accuracy(ps):
+	try:
+		res = np.mean([bern(p) for p in ps])
+		return res
+	except Exception as e:
+		print([p for p in ps])
+		return np.mean([bern(p) for p in ps])
 
-def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_name=None, xlabel=None):
+def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_name=None, xlabel=None, sig_of_mean=True):
 	""" plots a line for each sentence
 		axes - a subscriptable object of axis to plot for each comparison meathod
 		dist - list of lists of Ys : distribution->measure->correction num(Y)
@@ -584,12 +601,20 @@ def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_n
 			if np.all(ps == ps*0) or np.all(ps - 1 == ps*0):
 				ci = [0,0]
 			else:
-				ci = scikits.bootstrap.ci(ps, expected_accuracy)
+				if sig_of_mean:
+					func = expected_accuracy
+				else:
+					func = accuracy
+				ci = scikits.bootstrap.ci(ps, func)
 				ci = [[y[-1] - float(ci[0])],[float(ci[1])] - y[-1]]
 			top.append(ci[1])
 			bottom.append(ci[0])
 		x = np.array(x)
-		ax.errorbar(x + width*comparison_method_key, y, yerr=cis, label=COMPARISON_METHODS[::-1][comparison_method_key])
+		label = COMPARISON_METHODS[::-1][comparison_method_key]
+		if label == INDEX_COMP:
+			ax.errorbar(x + width*comparison_method_key, y, yerr=cis, label=label)
+		else:
+			ax.errorbar(x + width*comparison_method_key, y, yerr=cis, label=label, fmt="rs--")
 		# ax.plot(np.array(CORRECTION_NUMS) + width*comparison_method_key, y, label=COMPARISON_METHODS[comparison_method_key])
 	ax.set_ylabel("expected accuracy")
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
@@ -597,12 +622,13 @@ def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_n
 		ax.set_xlabel(xlabel)
 	# ax.set_title("Expected accuracy for perfect corrected text by corrections number\n" + title_addition)
 	if save_name:
-		plt.savefig(save_name, bbox_inches='tight')
+		fig_prefix = "" if sig_of_mean else "actual_acc_"
+		plt.savefig(fig_prefix + save_name, bbox_inches='tight')
 	if show:
 		plt.show()
 	plt.cla()
 
-def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_name=None, xlabel=None):
+def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_name=None, xlabel=None, sig_of_mean=True):
 	""" plots a line for each sentence
 		axes - a subscriptable object of axis to plot for each comparison meathod
 		dist - list of lists of Ys : distribution->measure->correction num(Y)
@@ -626,17 +652,25 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 		if np.all(ps == ps*0) or np.all(ps - 1 == ps*0):
 			ci = [0,0]
 		else:
-			ci = scikits.bootstrap.ci(ps, expected_accuracy)
+			if sig_of_mean:
+				func = expected_accuracy
+			else:
+				func = accuracy
+			ci = scikits.bootstrap.ci(ps, func)
 			ci = [[y[-1] - float(ci[0])],[float(ci[1])] - y[-1]]
 		top.append(ci[1])
 		bottom.append(ci[0])
 	ax.errorbar(x, y, yerr=cis)
 	ax.plot(CORRECTION_NUMS, y)
-	ax.set_ylabel("expected accuracy")
+	if sig_of_mean:
+		ax.set_ylabel("expected accuracy")
+	else:
+		ax.set_ylabel("accuracy")
 	if xlabel:
 		ax.set_xlabel(xlabel)
 	# ax.set_title("Expected accuracy for perfect corrected text by corrections number\n" + title_addition)
 	if save_name:
+		fig_prefix = "" if sig_of_mean else "actual_acc_"
 		plt.savefig(save_name, bbox_inches='tight')
 	if show:
 		plt.show()
@@ -787,8 +821,27 @@ def plot_dists(show=True, save=True, dists_type=EXACT_COMP):
 		pearsons = []
 		# dist_key = 0
 		# dist = np.array(one_dist)
+		thresholds = [0, 0.001, 0.01, 0.1]
+		for threshold in thresholds:
+			variants_num = []
+			masses = []
+			for dist_key, dist in enumerate(dists):
+				dist = dist[:,dist[0,:].argsort()[::-1]]
+				frequents = dist[:,dist[0] > threshold]
+				mass = frequents[0].dot(frequents[1])
+				variants_num.append(sum(frequents[1]))
+				masses.append(mass)
+				# print("dist",dist)
+				# print("frequents",frequents)
+				# print(mass)
+				# print(np.mean(frequents[0]))
+				# print(variants_num)
+				# raise
+			print("mean number of variants with more than",threshold,"frequency:",np.mean(variants_num))
+			print("mean mass of those variants",np.mean(masses))
 		for dist_key, dist in enumerate(dists):
 			dist = dist[:,dist[0,:].argsort()[::-1]]
+
 			x = np.log(dist[1].cumsum())
 			y = np.log(dist[0])
 			# print(dist[1])
@@ -812,6 +865,7 @@ def plot_dists(show=True, save=True, dists_type=EXACT_COMP):
 		if show:
 			plt.show()
 		plt.cla()
+
 
 def plot_coverage_for_each_sentence(dist, axes, title_addition="", show=True, save_name=None, xlabel=None):
 	""" plots expected accuracy result for each correction number
