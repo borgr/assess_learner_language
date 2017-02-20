@@ -323,6 +323,11 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 				save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
 
 			plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel)
+			plt.cla()
+
+			if save:
+				fig_prefix = "accCI_" + COMPARISON_METHODS[comparison_method_key] +"_" + repeat
+				save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
 			plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel, False)
 			plt.cla()
 
@@ -334,6 +339,9 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 			fig_prefix = repeat[1:]
 			save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
 		plot_expected_best_coverages(all_ys, plt.subplot("111"), title_addition, show, save, xlabel)
+		if save:
+			fig_prefix = repeat[1:]
+			save = PLOTS_DIR + "accCI_" +fig_prefix + r"_accuracy" + ".png"
 		plot_expected_best_coverages(all_ys, plt.subplot("111"), title_addition, show, save, xlabel, False)
 	# extract value for return
 	res = []
