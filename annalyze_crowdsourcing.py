@@ -622,7 +622,7 @@ def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_n
 		if label == INDEX_COMP:
 			ax.errorbar(x + width*comparison_method_key, y, yerr=cis, label=label)
 		else:
-			ax.errorbar(x + width*comparison_method_key, y, yerr=cis, label=label, fmt="rs--")
+			ax.errorbar(x + width*comparison_method_key, y, yerr=cis, label=label, fmt="--")
 		# ax.plot(np.array(CORRECTION_NUMS) + width*comparison_method_key, y, label=COMPARISON_METHODS[comparison_method_key])
 	ax.set_ylabel("expected accuracy")
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
@@ -630,8 +630,7 @@ def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_n
 		ax.set_xlabel(xlabel)
 	# ax.set_title("Expected accuracy for perfect corrected text by corrections number\n" + title_addition)
 	if save_name:
-		fig_prefix = "" if sig_of_mean else "actual_acc_"
-		plt.savefig(fig_prefix + save_name, bbox_inches='tight')
+		plt.savefig(save_name, bbox_inches='tight')
 	if show:
 		plt.show()
 	plt.cla()
@@ -678,7 +677,6 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 		ax.set_xlabel(xlabel)
 	# ax.set_title("Expected accuracy for perfect corrected text by corrections number\n" + title_addition)
 	if save_name:
-		fig_prefix = "" if sig_of_mean else "actual_acc_"
 		plt.savefig(save_name, bbox_inches='tight')
 	if show:
 		plt.show()
