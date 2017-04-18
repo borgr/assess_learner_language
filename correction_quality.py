@@ -63,6 +63,7 @@ def main():
 	change_date = "160111"
 	filename = "results/results"+ change_date + ".json"
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
+	char_based_file = "filtered_test.txt"
 	learner_file = "conll.tok.orig"
 	amu_file = "AMU"
 	cuui_file = "CUUI"
@@ -80,6 +81,7 @@ def main():
 	from fce import CORRECTED_FILE as fce_gold_file
 	from fce import LEARNER_FILE as fce_learner_file
 	autocorrect = read_paragraph(ACL2016RozovskayaRothOutput_file)
+	char_based = read_paragraph(char_based_file)
 	amu = read_paragraph(amu_file)
 	camb = read_paragraph(camb_file)
 	cuui = read_paragraph(cuui_file)
@@ -192,6 +194,16 @@ def main():
 	print(name)
 	if name not in old_res:
 		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, autocorrect)
+		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+		dump(res_list, filename)
+	else:
+		res_list.append(old_res[name])
+
+	# compare origin to Char_based_file
+	name = "Char"
+	print(name)
+	if name not in old_res:
+		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, char_based)
 		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
 		dump(res_list, filename)
 	else:
@@ -733,7 +745,7 @@ def compare_paragraphs(origin, corrected, break_sent1=sent_tokenize_default, bre
 	index_differences = [index_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
 	spearman_differences = [spearman_diff(orig, cor)[0] for orig, cor in zip(origin_sentences, corrected_sentences)]
 	word_differences = [word_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
-	print("comparing done printing interesting results")
+	print("comparing done, printing interesting results")
 	for i, dif in enumerate(word_differences):
 		if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
 			print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
@@ -890,7 +902,7 @@ def plot_differences_hist(l, ax, pivot, diff_type, bottom, bins=None):
 				y.append(sum(full_hist[bins[j-1]:bins[j]]))
 			y.append(sum(full_hist[bins[j]:]))
 		x = np.array(range(len(y)))
-		print(diff_type + " hist results ",tple[name],":",y)
+		print(diff_type + " hist results ",tple[name],":",y[:7])
 		colors = many_colors(range(len(l)))
 		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
 	plt.autoscale(enable=True, axis='x', tight=False)
@@ -934,7 +946,7 @@ def plot_aligned_by(l, ax):
 	plt.ylabel("amount")
 	plt.xlabel("number of sentence changes of that sort")
 	# plt.title("number of sentence changes by method of correction")
-	plt.xticks(x + width, (FIRST_LONGER, ORDERED, SECOND_LONGER))
+	plt.xticks(x + width, ("sentences split", ORDERED, "sentences concatanated"))
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 	# plt.tight_layout()
 
@@ -959,7 +971,7 @@ def plot_not_aligned(l, ax):
 	plt.ylabel("amount")
 	plt.xlabel("number of sentence changes of that sort")
 	# plt.title("number of sentence 	changes by method of correction")
-	plt.xticks(x + width*(len(l)/2 - 1), (FIRST_LONGER, SECOND_LONGER))
+	plt.xticks(x + width*(len(l)/2 - 1), ("sentences split", "sentences concatanated"))
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 	# plt.tight_layout()
 

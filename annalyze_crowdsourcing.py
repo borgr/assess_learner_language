@@ -58,7 +58,7 @@ COVERAGE_METHODS = [lambda results: np.mean(results, axis = 1).flatten()] # all:
 MEAN_MEASURE = "Mean coverage"
 MEASURE_NAMES = [MEAN_MEASURE] # all:["Mean coverage", "Probabillity of more than " + str(COVERAGE_GOAL) + " coverage "]
 # x
-CORRECTION_NUMS = list(range(21))
+CORRECTION_NUMS = list(range(51))
 ALTERNATIVE_GOLD_MS = [1,3,4,6,7,9,10]
 
 def main():
@@ -89,7 +89,7 @@ def main():
 	plot_dists(show_dists, save_dists, EXACT_COMP)
 	assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 	coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
-	plot_significance(show=show_significance,save=save_significance)
+	# plot_significance(show=show_significance,save=save_significance)
 
 def create_golds(sentences, corrections, gold_file, ms):
 	""" writes a m2 file and a perfect output by sampling a sentence for sentences for each ungrammatical sentence in gold_file"""
@@ -325,11 +325,11 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 			plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel)
 			plt.cla()
 
-			if save:
-				fig_prefix = "accCI_" + COMPARISON_METHODS[comparison_method_key] +"_" + repeat
-				save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
-			plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel, False)
-			plt.cla()
+			# if save:
+			# 	fig_prefix = "accCI_" + COMPARISON_METHODS[comparison_method_key] +"_" + repeat
+			# 	save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
+			# plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel, False)
+			# plt.cla()
 
 			if save:
 				fig_prefix = COMPARISON_METHODS[comparison_method_key] +"_" + repeat
@@ -337,12 +337,12 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
 			plot_covered_corrections_distribution([correction for correction in CORRECTION_NUMS if correction > 0], dist, plt.subplot("111"), title_addition, show, save, xlabel)
 		if save:
 			fig_prefix = repeat[1:]
-			save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
-		plot_expected_best_coverages(all_ys, plt.subplot("111"), title_addition, show, save, xlabel)
-		if save:
-			fig_prefix = repeat[1:]
-			save = PLOTS_DIR + "accCI_" +fig_prefix + r"_accuracy" + ".png"
-		plot_expected_best_coverages(all_ys, plt.subplot("111"), title_addition, show, save, xlabel, False)
+			save = PLOTS_DIR + "noSig_" + fig_prefix + r"_accuracy" + ".png"
+		plot_expected_best_coverages(all_ys, plt.subplot("111"), title_addition, show, save, xlabel, True, False)
+		# if save:
+		# 	fig_prefix = repeat[1:]
+		# 	save = PLOTS_DIR + "accCI_" +fig_prefix + r"_accuracy" + ".png"
+		# plot_expected_best_coverages(all_ys, plt.subplot("111"), title_addition, show, save, xlabel, False)
 	# extract value for return
 	res = []
 	for comparison_method_key, dist in enumerate(all_ys):
@@ -459,7 +459,7 @@ def __compute_coverage(tpl):
 	return compute_coverage(cdf, p, distribution, samples, only_different_samples)
 
 def compute_probability_to_account_async(distribution, samples, repetitions, only_different_samples):
-	pool = Pool(10)
+	pool = Pool(4)
 	cdf = np.cumsum(distribution[PROB_COL])
 	probs = distribution[PROB_COL]/sum(distribution[PROB_COL])
 	# it = pool.imap(lambda x: compute_coverage(cdf, probs, distribution, samples, only_different_samples), list(range(repetitions)))
@@ -583,7 +583,7 @@ def accuracy(ps):
 		print([p for p in ps])
 		return np.mean([bern(p) for p in ps])
 
-def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_name=None, xlabel=None, sig_of_mean=True):
+def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_name=None, xlabel=None, sig_of_mean=True, plot_sig=True):
 	""" plots a line for each sentence
 		axes - a subscriptable object of axis to plot for each comparison meathod
 		dist - list of lists of Ys : distribution->measure->correction num(Y)
@@ -597,9 +597,10 @@ def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_n
 				if MEASURE_NAMES[i] == MEAN_MEASURE:
 					coverage_by_corrections_num.append(y)
 
-		top = []
-		bottom = []
-		cis = [bottom, top]
+		if plot_sig:
+			top = []
+			bottom = []
+			cis = [bottom, top]
 		x = []
 		y = []
 		for correction_index, correction_num in enumerate(CORRECTION_NUMS):
@@ -613,16 +614,27 @@ def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_n
 					func = expected_accuracy
 				else:
 					func = accuracy
-				ci = scikits.bootstrap.ci(ps, func)
-				ci = [[y[-1] - float(ci[0])],[float(ci[1])] - y[-1]]
-			top.append(ci[1])
-			bottom.append(ci[0])
+				if plot_sig:
+					ci = scikits.bootstrap.ci(ps, func)
+					ci = [[y[-1] - float(ci[0])],[float(ci[1])] - y[-1]]
+			if plot_sig:
+				top.append(ci[1])
+				bottom.append(ci[0])
 		x = np.array(x)
 		label = COMPARISON_METHODS[::-1][comparison_method_key]
-		if label == INDEX_COMP:
-			ax.errorbar(x + width*comparison_method_key, y, yerr=cis, label=label)
+		x = x + width*comparison_method_key
+		if not plot_sig:
+			if label == INDEX_COMP:
+				print(save_name, "index_accuracy", y[:12])
+				ax.plot(x, y, label=label)
+			else:
+				print(save_name, "accuracy", y[:22])
+				ax.plot(x, y, "--",label=label)
 		else:
-			ax.errorbar(x + width*comparison_method_key, y, yerr=cis, label=label, fmt="--")
+			if label == INDEX_COMP:
+				ax.errorbar(x, y, yerr=cis, label=label)
+			else:
+				ax.errorbar(x, y, yerr=cis, label=label, fmt="--")
 		# ax.plot(np.array(CORRECTION_NUMS) + width*comparison_method_key, y, label=COMPARISON_METHODS[comparison_method_key])
 	ax.set_ylabel("expected accuracy")
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
