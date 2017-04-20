@@ -7,3 +7,4 @@ ucca
 munkres
 distance
 zss
+numpy
