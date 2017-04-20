@@ -5,11 +5,12 @@ from m2scorer import m2scorer
 import numpy as np
 from multiprocessing import Pool
 POOL_SIZE = 4
-ALTERNATIVE_GOLD_MS = np.arange(10)
+ALTERNATIVE_GOLD_MS = np.arange(10) + 1
 
 
 def main():
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
+	char_based_file = "filtered_test.txt"
 	learner_file = "conll.tok.orig"
 	amu_file = "AMU"
 	cuui_file = "CUUI"
@@ -25,6 +26,7 @@ def main():
 	camb_file = "CAMB"
 	gold_file = "corrected_official-2014.0.txt.comparable"
 	files = [ACL2016RozovskayaRothOutput_file,
+	char_based_file,
 	amu_file,
 	cuui_file,
 	iitb_file,
@@ -40,32 +42,44 @@ def main():
 	last = False
 	correction = 0
 	count = 0
-	with open(r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2", "r") as fl:
-		for line in fl:
-			if last and line.startswith("A"):
-				correction += 1
-			last = False 
-			if line.startswith("S"):
-				count +=1
-				last = True
-	print(count, correction, 1.0*correction/count)
-	return
+	# # calculate the number of sentences with corrections and ratio 
+	# with open(r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2", "r") as fl:
+	# 	for line in fl:
+	# 		if last and line.startswith("A"):
+	# 			correction += 1
+	# 		last = False 
+	# 		if line.startswith("S"):
+	# 			count +=1
+	# 			last = True
+	# print(count, correction, 1.0*correction/count)
+	# return
+
+	# systems' significance
 	pool = Pool(POOL_SIZE)
 	results = pool.imap_unordered(m2score_sig, files)
 	pool.close()
 	pool.join()
 	results = [[1,0,0],[1,0,0]] + list(results) + [[1,1,1],[1,1,1]]
 	print(results)
+
+	# perfect annotator significance
+	perfect_dir = "/home/borgr/ucca/assess_learner_language/calculations_data/"
 	pool = Pool(POOL_SIZE)
 	files = ["perfect_output_for_" + str(m) + "_sgss.m2" for m in ALTERNATIVE_GOLD_MS]
-	gold_files = ["./calculations_data/" + str(m) + "_sgss.m2" for m in ALTERNATIVE_GOLD_MS]
-	results = pool.imap_unordered(m2score_sig_in_one,list(zip(files, gold_files)))
+	gold_files = [perfect_dir + str(m) + "_sgss.m2" for m in ALTERNATIVE_GOLD_MS]
+	input_dirs = [perfect_dir] * len(files)
+	results = pool.imap_unordered(m2score_sig_in_one,list(zip(files, gold_files, input_dirs)))
 	pool.close()
 	pool.join()
+	results = list(results)
 	print(results)
 
 def m2score_sig_in_one(tpl):
-    return m2score_sig(tpl[0], tpl[1])
+	if len(tpl) == 2:
+		return m2score_sig(tpl[0], tpl[1])
+	if len(tpl) == 3:
+		return m2score_sig(tpl[0], tpl[1], tpl[2])	
+	return m2score_sig(tpl[0], tpl[1], tpl[2], tpl[3])
 
 
 def m2score(m):
@@ -85,7 +99,6 @@ def m2score(m):
 	return m2scorer.get_score(system_sentences, source_sentences, gold_edits, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
 
 def m2score_sig(filename, gold_file=r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2", input_dir = r"/home/borgr/ucca/data/paragraphs/", output_dir = r"/home/borgr/ucca/assess_learner_language/results/significance/"):
-
 	system_file = input_dir + filename
 	n_samples = 1000
 	print("testing significance of " + filename)

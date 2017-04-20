@@ -74,11 +74,11 @@ def main():
 	show_correction = False
 	save_correction = False
 	show_coverage = False
-	save_coverage = True
+	save_coverage = False
 	show_dists = False
 	save_dists = False
-	show_significance = False
-	save_significance = False
+	show_significance = True
+	save_significance = True
 	compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
 	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
 	compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
@@ -89,7 +89,7 @@ def main():
 	plot_dists(show_dists, save_dists, EXACT_COMP)
 	assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 	coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
-	# plot_significance(show=show_significance,save=save_significance)
+	plot_significance(show=show_significance,save=save_significance)
 
 def create_golds(sentences, corrections, gold_file, ms):
 	""" writes a m2 file and a perfect output by sampling a sentence for sentences for each ungrammatical sentence in gold_file"""
@@ -696,6 +696,7 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 def plot_significance(show=True, save=True):
 	learner_file = "source"
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
+	char_based_file = "filtered_test.txt"
 	amu_file = "AMU"
 	cuui_file = "CUUI"
 	iitb_file = "IITB"
@@ -710,6 +711,7 @@ def plot_significance(show=True, save=True):
 	camb_file = "CAMB"
 	gold_file = "gold"
 	files = [ACL2016RozovskayaRothOutput_file,
+	char_based_file,
 	amu_file,
 	cuui_file,
 	iitb_file,
@@ -727,6 +729,7 @@ def plot_significance(show=True, save=True):
 	for i, file in enumerate(files):
 		print (file, results[i])
 	names = [filename if filename != ACL2016RozovskayaRothOutput_file else "RoRo" for filename in files]
+	names = [name if name != char_based_file else "char" for name in names]
 	results = [[[1,0,0],[1,0,0]]] + list(results) + [[[1,1,1],[1,1,1]]]
 	names = [learner_file] + names + [gold_file]
 	#no gold standard
