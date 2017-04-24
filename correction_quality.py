@@ -43,7 +43,7 @@ MAX_SENTENCES = 1400 # accounts for the maximum number of lines to get from the 
 MAX_DIST = 2
 SHORT_WORD_LEN = 4
 CHANGING_RATIO = 5
-PATH = r"/home/borgr/ucca/data/paragraphs/"
+PATH = r"/home/borgr/ucca/assess_learner_language/data/paragraphs/"
 
 ORDERED = "original order"
 FIRST_LONGER = "sentence splitted"
