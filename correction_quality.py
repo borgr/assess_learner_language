@@ -19,7 +19,7 @@ from scipy.stats import spearmanr
 
 from nltk.tokenize import sent_tokenize as nltk_sent_tokenize
 from nltk.stem import WordNetLemmatizer
-trial_name = ""
+
 
 # ucca
 sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
@@ -58,8 +58,6 @@ COMMA_REPLACE_SECOND = ", in first sentence became the end of a new sentence (se
 NO_ALIGNED = ""
 
 def main():
-	global trial_name
-	trial_name = ""
 	change_date = "160111"
 	filename = "results/results"+ change_date + ".json"
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
@@ -303,7 +301,34 @@ def main():
 	plot_comparison(res_list)
 	convert_file_to_csv(filename)
 
+	change_date = "170424"
+	filename = "results/reranking_results"+ change_date + ".json"
+	all_file = "first_rank_resultsALL"
+	BN_file = "first_rank_resultsBN"
+	NUCLEA_file = "first_rank_resultsNUCLEA"
+	NUCLE_file = "first_rank_resultsNUCLE"
+	filenames = [all_file, BN_file, NUCLE_file, NUCLEA_file]
+	names = [name[17:] for name in filenames]
+	compare(filenames, names, filename)
 
+def compare(filenames, names, backup):
+	for name in names:
+		contents.append(read_paragraph(name))
+	old_res = read(backup) if backup else {}
+	for (name, res) in old_res.items():
+		res.append(name)
+		dump(res_list, backup)
+	for name, content in zip(names, contents):
+		if name not in old_res:
+			broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, content)
+			res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+			dump(res_list, backup)
+		else:
+			res_list.append(old_res[name])
+
+	dump(res_list, backup)
+	plot_comparison(res_list)
+	convert_file_to_csv(backup)
 ###########################################################
 ####                    GENEERAL NLP                    ###
 ###########################################################
