@@ -29,12 +29,13 @@ from correction_quality import align_sentence_words
 from correction_quality import preprocess_word
 
 #file locations
-GOLD_FILE = r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2"
-corrections_dir = r"/home/borgr/ucca/assess_learner_language/batches/"
-TRIALS_FILE = "trials"
-DATA_DIR = r"/home/borgr/ucca/assess_learner_language/calculations_data/"
-PLOTS_DIR = r"/home/borgr/ucca/assess_learner_language/plots/corrections/"
-HISTS_DIR = r"/home/borgr/ucca/assess_learner_language/unseenEst/"
+ASSESS_LEARNER_DIR = r"/home/borgr/ucca/assess_learner_language/"
+GOLD_FILE = ASSESS_LEARNER_DIR + r"data/conll14st-test-data/noalt/official-2014.combined.m2"
+corrections_dir = ASSESS_LEARNER_DIR + r"batches/"
+DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
+PLOTS_DIR = ASSESS_LEARNER_DIR + r"plots/corrections/"
+HISTS_DIR = ASSESS_LEARNER_DIR + r"unseenEst/"
+TRIALS_FILE = DATA_DIR + r"trials"
 BATCH_FILES = [r"Batch_2612793_batch_results.csv", r"Batch_2626033_batch_results.csv", r"Batch_2634540_batch_results.csv"]
 
 #batch column names
@@ -1031,7 +1032,7 @@ def get_trial_num(create_if_needed=True):
 	""" gets a uniqe trial number that changes with every change of COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS""" 
 	trial_indicators = (COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS)
 	trials = []
-	filename = DATA_DIR + TRIALS_FILE
+	filename = TRIALS_FILE
 	if os.path.isfile(filename):
 		with open(filename, "rb") as fl:
 			trials = pickle.load(fl)
