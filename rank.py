@@ -19,6 +19,10 @@ def main():
 	ALL =  reference_dir + "ALL.m2"
 	gold_files = [first_nucle, combined_nucle, BN, ALL]
 
+	(path, dirs, files) = next(os.walk(reference_dir))
+	for fl in files:
+		if "subset" in fl:
+			gold_files.append(path + fl)
 
 	calculations_dir = "calculations_data/"
 	output_file = "first_rank_results"
