@@ -309,16 +309,14 @@ def main():
 	NUCLEA_file = "first_rank_resultsNUCLEA"
 	NUCLE_file = "first_rank_resultsNUCLE"
 	filenames = [all_file, BN_file, NUCLE_file, NUCLEA_file]
+	(path, dirs, files) = next(os.walk(PATH))
 	for fl in files:
 		if "subset" in fl:
-			gold_files.append(fl)
+			filenames.append(fl)
 	names = [name[18:] for name in filenames]
 	learner_file = "conll.tok.orig"
 	origin = read_paragraph(learner_file, preprocess_paragraph)
 	compare(filenames, names, filename, origin)
-	(path, dirs, files) = next(os.walk(reference_dir))
-	names = [name[17:] for name in filenames]
-	compare(filenames, names, filename)
 
 def compare(filenames, names, backup, origin):
 	contents = []
