@@ -11,7 +11,7 @@ from collections import Counter
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import distance
+import distances
 import json
 from scipy.stats import spearmanr
 # import scikits.statsmodels as sm
@@ -19,7 +19,6 @@ from scipy.stats import spearmanr
 
 from nltk.tokenize import sent_tokenize as nltk_sent_tokenize
 from nltk.stem import WordNetLemmatizer
-
 
 # ucca
 sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
