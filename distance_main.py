@@ -9,7 +9,7 @@ import textutil
 sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
 import align
 from ucca import layer0, layer1
-PATH = r"/home/borgr/ucca/data/annotations/"
+PATH = r"/home/borgr/ucca/assess_learner_language/data/"
 
 # borgr = list(("tree1197", "tree1297", "tree1198", "tree1298", "tree1200", "tree1300", "tree1202", "tree1302")) # "tree1299",  "tree1301"
 # amittaic = ["amittaic1197", "amittaic1297", "amittaic1200", "amittaic1300", "amittaic1198", "amittaic1298", "amittaic1205", "amittaic1305", "amittaic1203", "amittaic1303"] #, "amittaic1301"]
