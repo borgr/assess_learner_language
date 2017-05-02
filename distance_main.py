@@ -66,7 +66,7 @@ def main():
 	p = list(map(convert.from_site,p))
 
 	for filename in passage_filenames:
-		p.append(file2passage(filename))
+		p.append(file2passage(PATH + filename))
 		print(p[-1])
 	word2word = align.align_yields(p[0], p[1])
 	assert align.reverse_mapping(word2word) == align.align_yields(p[1], p[0]), "align_yields asymmetrical"
