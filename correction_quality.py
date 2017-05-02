@@ -42,7 +42,7 @@ MAX_SENTENCES = 1400 # accounts for the maximum number of lines to get from the 
 MAX_DIST = 2
 SHORT_WORD_LEN = 4
 CHANGING_RATIO = 5
-PATH = r"/home/borgr/ucca/data/paragraphs/"
+PATH = r"/home/borgr/ucca/assess_learner_language/data/paragraphs/"
 
 ORDERED = "original order"
 FIRST_LONGER = "sentence splitted"
@@ -55,6 +55,7 @@ PARAGRAPH_END = "paragraph end"
 COMMA_REPLACE_FIRST = ", in second sentence became the end of a new sentence (first longer)"
 COMMA_REPLACE_SECOND = ", in first sentence became the end of a new sentence (second longer)"
 NO_ALIGNED = ""
+trial_name = ""
 
 def main():
 	change_date = "160111"
@@ -307,16 +308,20 @@ def main():
 	NUCLEA_file = "first_rank_resultsNUCLEA"
 	NUCLE_file = "first_rank_resultsNUCLE"
 	filenames = [all_file, BN_file, NUCLE_file, NUCLEA_file]
-	(path, dirs, files) = next(os.walk(reference_dir))
+	(path, dirs, files) = next(os.walk(PATH))
 	for fl in files:
 		if "subset" in fl:
-			gold_files.append(fl)
-	names = [name[17:] for name in filenames]
-	compare(filenames, names, filename)
+			filenames.append(fl)
+	names = [name[18:] for name in filenames]
+	learner_file = "conll.tok.orig"
+	origin = read_paragraph(learner_file, preprocess_paragraph)
+	compare(filenames, names, filename, origin)
 
-def compare(filenames, names, backup):
-	for name in names:
-		contents.append(read_paragraph(name))
+def compare(filenames, names, backup, origin):
+	contents = []
+	res_list = []
+	for filename in filenames:
+		contents.append(read_paragraph(filename))
 	old_res = read(backup) if backup else {}
 	for (name, res) in old_res.items():
 		res.append(name)
