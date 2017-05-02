@@ -6,8 +6,9 @@ sys.path.append('/home/borgr/ucca/ucca/ucca')
 sys.path.append('/home/borgr/ucca/ucca')
 from ucca import convert
 from ucca import textutil
+from ucca.ioutil import file2passage
 sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
-from ucca import align
+import align
 from ucca import layer0, layer1
 
 PATH = r"/home/borgr/ucca/assess_learner_language/data/"
