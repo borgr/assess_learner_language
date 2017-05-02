@@ -4,17 +4,27 @@ sys.path.append('/home/borgr/ucca/ucca/scripts')
 import pickle
 sys.path.append('/home/borgr/ucca/ucca/ucca')
 sys.path.append('/home/borgr/ucca/ucca')
-import convert
-import textutil
+from ucca import convert
+from ucca import textutil
 sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
-import align
+from ucca import align
 from ucca import layer0, layer1
+
 PATH = r"/home/borgr/ucca/assess_learner_language/data/"
 
+filenames = []
+parsed_paragraphs = [2, 3, 5, 6, 7, 8, 10]
+passage_filenames = []
+for x in parsed_paragraphs:
+	passage_filenames.append(str(x))
+	passage_filenames.append(str(x) + "_corrected")
+
+
+passage_filenames = [x + ".xml" for x in passage_filenames]
 # borgr = list(("tree1197", "tree1297", "tree1198", "tree1298", "tree1200", "tree1300", "tree1202", "tree1302")) # "tree1299",  "tree1301"
 # amittaic = ["amittaic1197", "amittaic1297", "amittaic1200", "amittaic1300", "amittaic1198", "amittaic1298", "amittaic1205", "amittaic1305", "amittaic1203", "amittaic1303"] #, "amittaic1301"]
 # filenames = borgr + amittaic #same annotators
-filenames = ["tree1197", "amittaic1297","amittaic1197", "tree1297", "tree1198", "amittaic1298", "amittaic1198", "tree1298",  "tree1200", "amittaic1300", "amittaic1200", "tree1300"] # different annotators
+# filenames = ["tree1197", "amittaic1297","amittaic1197", "tree1297", "tree1198", "amittaic1298", "amittaic1198", "tree1298",  "tree1200", "amittaic1300", "amittaic1200", "tree1300"] # different annotators
 # filenames = ["amittaic1197", "tree1197", "amittaic1297", "tree1297", "amittaic1200", "tree1200", 
 # 			 "amittaic1300", "tree1300", "amittaic1198", "tree1198", "amittaic1298", "tree1298",
 # 			 "amittaic1301",  "tree1301"]#inter annotator
@@ -50,9 +60,13 @@ def main():
 	for filename in filenames:
 		with open(PATH + filename, "rb") as fl:
 			p += pickle.load(fl)[0]
-		print("read ",filename," it starts with ", tuple(term.text for term in textutil.extract_terminals(convert.from_site(p[-1]))[:6]))
+		# print("read ",filename," it starts with ", tuple(term.text for term in textutil.extract_terminals(convert.from_site(p[-1]))[:6]))
 	#convert xml to passages
 	p = list(map(convert.from_site,p))
+
+	for filename in passage_filenames:
+		p.append(file2passage(filename))
+		print(p[-1])
 	word2word = align.align_yields(p[0], p[1])
 	assert align.reverse_mapping(word2word) == align.align_yields(p[1], p[0]), "align_yields asymmetrical"
 
