@@ -298,9 +298,9 @@ def main():
 	else:
 		res_list.append(old_res[name])
 
-	dump(res_list, filename)
-	plot_comparison(res_list)
-	convert_file_to_csv(filename)
+	# dump(res_list, filename)
+	# plot_comparison(res_list)
+	# convert_file_to_csv(filename)
 
 	change_date = "170424"
 	filename = "results/reranking_results"+ change_date + ".json"
@@ -308,12 +308,30 @@ def main():
 	BN_file = "first_rank_resultsBN"
 	NUCLEA_file = "first_rank_resultsNUCLEA"
 	NUCLE_file = "first_rank_resultsNUCLE"
-	filenames = [all_file, BN_file, NUCLE_file, NUCLEA_file]
 	(path, dirs, files) = next(os.walk(PATH))
+	filenames = []
+	nums = []
 	for fl in files:
 		if "subset" in fl:
 			filenames.append(fl)
 	names = [name[18:] for name in filenames]
+	print(names)
+	for name in names:
+		if name[1].isdigit():
+			print(name)
+			nums.append(int(name[:2]))
+		else:
+			nums.append(int(name[0]))
+	nums = nums + [15, 10, 2, 1]
+	filenames = filenames + [all_file, BN_file, NUCLE_file, NUCLEA_file]
+	names = names + ["all", "BN", "NUCLE", "NUCLEA"]
+	argsort = np.argsort(nums)
+	names = np.array(names)
+	filenames = np.array(filenames)
+	names = names[argsort]
+	filenames = filenames[argsort]
+	print(names, filenames)
+
 	learner_file = "conll.tok.orig"
 	origin = read_paragraph(learner_file, preprocess_paragraph)
 	compare(filenames, names, filename, origin)
