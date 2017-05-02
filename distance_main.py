@@ -11,7 +11,7 @@ sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
 import align
 from ucca import layer0, layer1
 
-PATH = r"/home/borgr/ucca/assess_learner_language/data/"
+PATH = r"/home/borgr/ucca/assess_learner_language/data/xmls/"
 
 filenames = []
 parsed_paragraphs = [2, 3, 5, 6, 7, 8, 10]
