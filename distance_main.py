@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 import csv
 import sys
 sys.path.append('/home/borgr/ucca/ucca/scripts')
@@ -10,8 +11,9 @@ from ucca.ioutil import file2passage
 sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
 import align
 from ucca import layer0, layer1
-
+POOL_SIZE = 4
 PATH = r"/home/borgr/ucca/assess_learner_language/data/xmls/"
+trial_name = "parser"
 
 filenames = []
 parsed_paragraphs = [2, 3, 5, 6, 7, 8, 10]
@@ -19,7 +21,7 @@ passage_filenames = []
 for x in parsed_paragraphs:
 	passage_filenames.append(str(x))
 	passage_filenames.append(str(x) + "_corrected")
-
+sys.setrecursionlimit(10000000)
 
 passage_filenames = [x + ".xml" for x in passage_filenames]
 # borgr = list(("tree1197", "tree1297", "tree1198", "tree1298", "tree1200", "tree1300", "tree1202", "tree1302")) # "tree1299",  "tree1301"
@@ -32,6 +34,14 @@ passage_filenames = [x + ".xml" for x in passage_filenames]
 # filenames = ["tree1297", "amittaic1297", "tree1298", "amittaic1298", "amittaic1300", "tree1300", "amittaic1301",  "tree1301"]
 implemented = [align.fully_aligned_distance]
 print("should flatten centers?")
+
+#used functions
+funcs = [align.aligned_edit_distance, align.fully_aligned_distance, align.aligned_top_down_distance,
+		 align.token_distance, 
+		 lambda x,y :align.token_distance(x,y,align.top_down_align),
+		 lambda x,y :align.token_distance(x,y,align.fully_align)]
+complex_func = align.token_level_similarity
+
 
 def test(func, p, maximum=1, sym=True):
 	print("testing "+ str(func.__name__))
@@ -56,53 +66,69 @@ def test(func, p, maximum=1, sym=True):
 def main():
 	print (align.align("what has is by the meaning of the word is", "what is the men for the wk is are be"))
 
-	# read files
+	# read xml files
 	p = []
 	for filename in filenames:
 		with open(PATH + filename, "rb") as fl:
 			p += pickle.load(fl)[0]
-		# print("read ",filename," it starts with ", tuple(term.text for term in textutil.extract_terminals(convert.from_site(p[-1]))[:6]))
+		print("read ",filename," it starts with ", tuple(term.text for term in textutil.extract_terminals(convert.from_site(p[-1]))[:6]))
 	#convert xml to passages
 	p = list(map(convert.from_site,p))
 
+	# read passage files
 	for filename in passage_filenames:
 		p.append(file2passage(PATH + filename))
-		print(p[-1])
+
+	all_filenames = filenames + passage_filenames
+	print("read ", all_filenames)
 	word2word = align.align_yields(p[0], p[1])
 	assert align.reverse_mapping(word2word) == align.align_yields(p[1], p[0]), "align_yields asymmetrical"
 
 	# create symmilarity matrix
-	funcs = [align.aligned_edit_distance, align.fully_aligned_distance, align.aligned_top_down_distance,
-			 align.token_distance, 
-			 lambda x,y :align.token_distance(x,y,align.top_down_align),
-			 lambda x,y :align.token_distance(x,y,align.fully_align)]
-	complex_func = align.token_level_similarity
-	sym_mat = []
+	sources = []
+	goals = []
+	names = []
 	i = 0
 	while i < len(p):
-		filename = filenames[i]
-		first = p[i]
+		names.append(all_filenames[i])
+		sources.append(p[i])
 		i += 1
-		second = p[i]
+		goals.append(p[i])
 		i += 1
-		sym_mat.append([func(first, second) for func in funcs])
-		dic = complex_func(first, second)
-		keys = sorted(dic.keys())
-		for key in keys:
-			sym_mat[-1].append(dic[key])
-		sym_mat[-1].insert(0, filename)
+	print("multithreading")
+	pool = Pool(POOL_SIZE)
+	sym_mat, keys = pool.starmap(distances, zip(sources, goals, names))
+	pool.close()
+	pool.join()
 
-		print(sym_mat[-1])
 	print("functions and matrix")
 	print(funcs+keys)
 	for item in sym_mat:
 		print(item)
 	print("overall token analysis")
 	print(align.token_level_analysis(p))
-	with open("output.csv", "w") as f:
+	with open(trial_name + "output.csv", "w") as f:
 		writer = csv.writer(f)
 		writer.writerows(sym_mat)
 	return
+
+def distances(p1, p2, name):
+	try:
+		print(p1, p2, name)
+		res = [func(p1, p2) for func in funcs]
+		dic = complex_func(p1, p2)
+		keys = sorted(dic.keys())
+		res.insert(0, filename)
+		for key in keys:
+			res.append(dic[key])
+
+		print(res)
+		return res, keys
+	except Exception as e:
+		print("in",name)
+		traceback.print_exc()
+		raise e
+
 	# # tests
 	# print("ordered trees:\n")
 	# print(align.aligned_edit_distance(p[0], p[1]))
