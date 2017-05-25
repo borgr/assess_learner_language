@@ -31,10 +31,10 @@
 #
 
 import sys
-import scripts.levenshtein as levenshtein 
+import levenshtein 
 from getopt import getopt
-from scripts.util import paragraphs
-from scripts.util import smart_open
+from util import paragraphs
+from util import smart_open
 
 def load_annotation(gold_file):
     source_sentences = []
