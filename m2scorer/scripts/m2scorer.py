@@ -33,8 +33,8 @@
 import sys
 import levenshtein 
 from getopt import getopt
-from util import paragraphs
-from util import smart_open
+from m2util import paragraphs
+from m2util import smart_open
 
 def load_annotation(gold_file):
     source_sentences = []
@@ -42,7 +42,8 @@ def load_annotation(gold_file):
     fgold = smart_open(gold_file, 'r')
     puffer = fgold.read()
     fgold.close()
-    puffer = puffer.decode('utf8')
+    if sys.version_info < (3, 0):
+        puffer = puffer.decode('utf8')
     for item in paragraphs(puffer.splitlines(True)):
         item = item.splitlines(False)
         sentence = [line[2:].strip() for line in item if line.startswith('S ')]
@@ -72,7 +73,8 @@ def load_annotation(gold_file):
             tok_offset += len(this_sentence.split())
             source_sentences.append(this_sentence)
             this_edits = {}
-            for annotator, annotation in annotations.iteritems():
+            items = [(x, annotations[x]) for x in annotations]
+            for annotator, annotation in items:
                 this_edits[annotator] = [edit for edit in annotation if edit[0] <= tok_offset and edit[1] <= tok_offset and edit[0] >= 0 and edit[1] >= 0]
             if len(this_edits) == 0:
                 this_edits[0] = []

@@ -19,7 +19,6 @@ import sys
 from optparse import OptionParser
 if sys.version_info < (3, 0):
     from itertools import izip
-from util import uniq
 import re
 import sys
 from copy import deepcopy
