@@ -1,10 +1,15 @@
 import sys
-sys.path.append('/home/borgr/ucca/ucca')
-sys.path.append('/home/borgr/ucca/assess_learner_language/m2scorer/scripts')
-sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
-sys.path.append('/home/borgr/ucca/ucca/ucca')
+# UCCA_DIR = '/home/borgr/ucca/ucca'
+# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
+UCCA_DIR = '/cs/labs/oabend/borgr/tupa/ucca'
+ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
+sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
+sys.path.append(UCCA_DIR)
+sys.path.append(UCCA_DIR + '/scripts/distances')
+sys.path.append(UCCA_DIR + '/ucca')
 from ucca.ioutil import file2passage
 from subprocess import call
+import subprocess
 import codecs
 import numpy as np
 import time
@@ -13,6 +18,8 @@ import re
 import os
 from multiprocessing import Pool
 import align
+import pickle
+import json
 POOL_SIZE = 7
 
 def main():
@@ -22,10 +29,11 @@ def main():
 
 def rerank_by_uccasim():
 	data_dir = "data/"
+	first_nucle =  data_dir + "references/" + "NUCLEA.m2" # only used to extract source sentences
 	k_best_dir = data_dir + "K-best/"
 	system_file = k_best_dir + "conll14st.output.1.best100"
 	calculations_dir = "calculations_data/uccasim_rerank/"
-	ucca_parse_dir = calculations + "/ucca_parse/"
+	ucca_parse_dir = calculations_dir + "/ucca_parse/"
 	output_file = "uccasim_rank_results"
 	out_text_file = calculations_dir + output_file
 	out_res_file = calculations_dir + "score_" + output_file
@@ -37,12 +45,13 @@ def rerank_by_uccasim():
 
 		# load system hypotheses
 		fin = m2scorer.smart_open(system_file, 'r')
-		system_sentences = [line.decode("utf8").strip() for line in fin.readlines()]
+		system_sentences = [line.strip() for line in fin.readlines()]
 		fin.close()
 
 		packed_system_sentences = get_roro_packed(source_sentences)
-
-		ucca_parse(system_sentences + reduce(operator.plus, packed_system_sentences, [])[0], ucca_parse_dir)
+		print("system sentences", system_sentences, "source_sentences", source_sentences)
+		assert(False)
+		ucca_parse(system_sentences + source_sentences, ucca_parse_dir)
 
 		# find top ranking
 		pool = Pool(POOL_SIZE)
@@ -146,7 +155,13 @@ def RBM_oracle(tple):
 
 
 def ucca_parse(sentences, output_dir):
-	call(["python", "daniel's parser should return a file for each sentence"])
+	parse_command = "python../tupa/parse.py -c bilstm -m ../models/bilstm"
+	filenames = []
+	for sentence in sentences:
+		filenames.append(get_sentence_id(sentence, output_dir) + ".txt")
+		with open(filenames[-1], "w+") as fl:
+			fl.write(sentence)
+	call(parse_command.split() + filenames)
 
 
 def get_roro_packed(source_sentences):
@@ -164,15 +179,46 @@ def get_roro_packed(source_sentences):
 		packed_system_sentences.append(curr_sentences)
 	return packed_system_sentences
 
+
 def semantics_score(source, sentence, parse_dir):
 	print("what filename did the parser create?", file=sys.stderr)
-	source_xml = file2passage(parse_dir + filename)
-	sentence_xml = file2passage(parse_dir + filename)
+	source_xml = file2passage(parse_dir + get_sentence_id(source, parse_dir, False) + ".xml")
+	sentence_xml = file2passage(parse_dir + get_sentence_id(sentence, parse_dir, False) + ".xml")
 	return align.fully_aligned_distance(source_xml, sentence_xml)
 
 
+def grammaticality_score(source, sentence, parse_dir):
+	command = "java -jar ../softwares/LanguageTool-3.7/languagetool-commandline.jar --json -l en-US" 
+	filename = get_sentence_id(sentence, parse_dir) + ".txt"
+	res = subprocess.run(command.split() + filename, stdout=subprocess.PIPE)
+	res = json.loads(res.stdout)
+	print(res)
+
+
+
+def get_sentence_id(sentence, parse_dir, graceful=True):
+	""" returns the sentence id in the parse_dir, 
+		if graceful is true adds a new sentence id 
+		if the sentence does not exist in the ids list,
+		otherwise throws exception"""
+	filename = "sentenceIds.pkl"
+	max_id = "max"
+	if not os.path.isfile(parse_dir + os.sep + filename):
+		print("creating a new id list")
+		id_dic = {max_id: -1}
+	else:
+		with open(parse_dir + os.sep + filename, "r") as fl:
+			id_dic = pickle.load(fl)
+	if graceful and not sentence in id_dic:
+		id_dic[max_id] += 1
+		id_dic[sentence] = id_dic[max_id]
+		with open(parse_dir + os.sep + filename, "w") as fl:
+			id_dic = pickle.dump(fl, id_dic)
+	return id_dic[sentence]
+
+
 def reference_less_score(source, sentence, parse_dir, gamma=0.27):
-	return gamma * grammaticality_score(source, sentence) + (1 - gamma) * semantics_score(source, sentence, parse_dir)
+	return gamma * grammaticality_score(source, sentence, parse_dir) + (1 - gamma) * semantics_score(source, sentence, parse_dir)
 
 
 def score(source, gold_edits, system):
