@@ -62,12 +62,6 @@ MEASURE_NAMES = [MEAN_MEASURE] # all:["Mean coverage", "Probabillity of more tha
 CORRECTION_NUMS = list(range(51))
 ALTERNATIVE_GOLD_MS = [1,3,4,6,7,9,10]
 
-def read_batches():
-	frames = []
-	for batch_file in BATCH_FILES:
-		frames.append(pd.read_csv(corrections_dir + batch_file))
-	return pd.concat(frames)
-
 def main():
 	db = read_batches()
 	create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
@@ -1016,6 +1010,13 @@ def many_colors(labels, colors=cm.rainbow):
 ###################################################################################
 ####							general\NLP	
 ###################################################################################
+def read_batches():
+	frames = []
+	for batch_file in BATCH_FILES:
+		frames.append(pd.read_csv(corrections_dir + batch_file))
+	return pd.concat(frames)
+
+
 def get_all_sentences_corrected():
 	""" returns an iterable containing all the sentences that were corrected"""
 	corrected = set()
@@ -1027,12 +1028,11 @@ def get_all_sentences_corrected():
 	return corrected
 
 
-def clean_data(db):
+def clean_data(db, 	max_no_correction_needed=8):
 	# clean rejections
 	db = db[db.AssignmentStatus != "Rejected"]
 	db.loc[:,CORRECTED_SENTENCES_COL] = db[CORRECTED_SENTENCES_COL].apply(normalize_sentence)
 	db.loc[:,LEARNER_SENTENCES_COL] = db[LEARNER_SENTENCES_COL].apply(normalize_sentence)
-	max_no_correction_needed = 8
 	# ignore sentences that many annotators say no corrections are needed for them
 	for sentence in db[LEARNER_SENTENCES_COL].unique():
 		if (len(db[(db[LEARNER_SENTENCES_COL] == db[CORRECTED_SENTENCES_COL]) &
