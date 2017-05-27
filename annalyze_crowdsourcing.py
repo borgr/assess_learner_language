@@ -62,12 +62,14 @@ MEASURE_NAMES = [MEAN_MEASURE] # all:["Mean coverage", "Probabillity of more tha
 CORRECTION_NUMS = list(range(51))
 ALTERNATIVE_GOLD_MS = [1,3,4,6,7,9,10]
 
-def main():
+def read_batches():
 	frames = []
 	for batch_file in BATCH_FILES:
 		frames.append(pd.read_csv(corrections_dir + batch_file))
-	db = pd.concat(frames)
+	return pd.concat(frames)
 
+def main():
+	db = read_batches()
 	create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
 
 	db = clean_data(db)
@@ -569,6 +571,8 @@ def plot_covered_corrections_distribution(corrections_to_plot, dist, ax, title_a
 	if show:
 		plt.show()
 	plt.cla()
+
+
 def bern(p):
 	if p>=1:
 		return 1
@@ -576,6 +580,8 @@ def bern(p):
 		return 0
 	else:
 		return bernoulli.rvs(p)
+
+
 def accuracy(ps):
 	try:
 		res = np.mean([bern(p) for p in ps])
@@ -583,6 +589,7 @@ def accuracy(ps):
 	except Exception as e:
 		print([p for p in ps])
 		return np.mean([bern(p) for p in ps])
+
 
 def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_name=None, xlabel=None, sig_of_mean=True, plot_sig=True):
 	""" plots a line for each sentence
@@ -648,6 +655,7 @@ def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_n
 		plt.show()
 	plt.cla()
 
+
 def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_name=None, xlabel=None, sig_of_mean=True):
 	""" plots a line for each sentence
 		axes - a subscriptable object of axis to plot for each comparison meathod
@@ -693,6 +701,7 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 		plt.savefig(save_name, bbox_inches='tight')
 	if show:
 		plt.show()
+
 
 def plot_significance(show=True, save=True):
 	learner_file = "source"
@@ -744,6 +753,7 @@ def plot_significance(show=True, save=True):
 		print (file, results[i])
 	names = [str(m+1) for m in np.arange(10)]
 	plot_sig(results, names, show, save)
+
 
 def plot_sig(significances, names, show, save):
 	names = np.array([0]+names)
@@ -926,6 +936,7 @@ def plot_hist(l, ax, data, comparison_by, bottom=1):
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 	# plt.tight_layout()
 
+
 def plot_acounts_for_percentage(l, ax, data, comparison_by, bottom=1, reverseXY=False):
 	width = 1.0/len(l)*0
 	maxY=0
@@ -1013,6 +1024,8 @@ def get_all_sentences_corrected():
 			if isBatchFile(file):
 				db = pd.read_csv(root+file)
 				corrected.update(set(iter(db[LEARNER_SENTENCES_COL])))
+	return corrected
+
 
 def clean_data(db):
 	# clean rejections
@@ -1027,7 +1040,8 @@ def clean_data(db):
 			     >= max_no_correction_needed):
 			db = db[db[LEARNER_SENTENCES_COL] != sentence]
 	return db
-	
+
+
 def get_trial_num(create_if_needed=True):
 	""" gets a uniqe trial number that changes with every change of COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS""" 
 	trial_indicators = (COMPARISON_METHODS, MEASURE_NAMES, REPETITIONS, CORRECTION_NUMS)
@@ -1079,6 +1093,7 @@ def convert_sentence_to_diff_indexes(original, sentence):
 			else:
 				indexes.append(i)
 	return tuple(sorted(indexes))
+
 
 if __name__ == '__main__':
 	main()
