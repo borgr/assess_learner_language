@@ -1,12 +1,14 @@
 import sys
 # UCCA_DIR = '/home/borgr/ucca/ucca'
 # ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
-UCCA_DIR = '/cs/labs/oabend/borgr/tupa/ucca'
+TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
+UCCA_DIR = TUPA_DIR +'ucca'
 ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
 sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
 sys.path.append(UCCA_DIR)
 sys.path.append(UCCA_DIR + '/scripts/distances')
 sys.path.append(UCCA_DIR + '/ucca')
+sys.path.append(TUPA_DIR)
 from ucca.ioutil import file2passage
 from subprocess import call
 import subprocess
@@ -20,21 +22,24 @@ from multiprocessing import Pool
 import align
 import pickle
 import json
+from functools import reduce
+import operator
 POOL_SIZE = 7
 
 def main():
+	for gamma in np.linspace(0,1,11):
 	# rerank_by_m2()
-	rerank_by_uccasim()
+		rerank_by_uccasim(gamma)
 
 
-def rerank_by_uccasim():
+def rerank_by_uccasim(gamma=0.27):
 	data_dir = "data/"
 	first_nucle =  data_dir + "references/" + "NUCLEA.m2" # only used to extract source sentences
 	k_best_dir = data_dir + "K-best/"
 	system_file = k_best_dir + "conll14st.output.1.best100"
 	calculations_dir = "calculations_data/uccasim_rerank/"
 	ucca_parse_dir = calculations_dir + "/ucca_parse/"
-	output_file = "uccasim_rank_results"
+	output_file = str(gamma) + "_" + "uccasim_rank_results"
 	out_text_file = calculations_dir + output_file
 	out_res_file = calculations_dir + "score_" + output_file
 
@@ -43,25 +48,28 @@ def rerank_by_uccasim():
 		print("acquiring source")
 		source_sentences, _ = m2scorer.load_annotation(gold_file)
 
+		source_sentences = source_sentences
 		# load system hypotheses
 		fin = m2scorer.smart_open(system_file, 'r')
 		system_sentences = [line.strip() for line in fin.readlines()]
 		fin.close()
 
-		packed_system_sentences = get_roro_packed(source_sentences)
-		print("system sentences", system_sentences, "source_sentences", source_sentences)
-		assert(False)
-		ucca_parse(system_sentences + source_sentences, ucca_parse_dir)
+		packed_system_sentences = get_roro_packed(system_sentences)
 
+		print("parsing")
+		# print(reduce(operator.add, packed_system_sentences))
+		ucca_parse(reduce(operator.add, packed_system_sentences) + source_sentences, ucca_parse_dir)
+
+		print("reranking")
 		# find top ranking
 		pool = Pool(POOL_SIZE)
 		assert(len(packed_system_sentences) == len(source_sentences))
-		results = pool.starmap(referece_less_oracle, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences)))
+		results = pool.starmap(referece_less_oracle, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences)), [gamma] * len(packed_system_sentences)))
 		pool.close()
 		pool.join()
 		results = list(results)
-		sentences = "\n".join(zip(*results)[0])
-		results = zip(*results)[1]
+		sentences = "\n".join(list(zip(*results))[0])
+		results = list(zip(*results))[1]
 		results = "\n".join([str(x) for x in results])
 		
 		print("writing to " + out_text_file)
@@ -133,13 +141,14 @@ def rerank_by_m2():
 				fl.write(results)
 
 
-def referece_less_oracle(source, system_sentences, parse_dir):
+def referece_less_oracle(source, system_sentences, parse_dir, gamma):
 	maximum = 0
-	for sentence in system_sentences:
-		combined_score = reference_less_score(source, sentence, parse_dir)
+	for sentence in set(system_sentences):
+		combined_score = reference_less_score(source, sentence, parse_dir, gamma)
 		if maximum <= combined_score:
 			maximum = combined_score
 			chosen = sentence, combined_score
+	# print(chosen)
 	return chosen
 
 
@@ -155,20 +164,41 @@ def RBM_oracle(tple):
 
 
 def ucca_parse(sentences, output_dir):
-	parse_command = "python../tupa/parse.py -c bilstm -m ../models/bilstm"
+	parse_command = "python ../tupa/tupa/parse.py -c bilstm -m ../tupa/models/bilstm -o "+ output_dir +" "
+	# print("parsing with:", parse_command)
 	filenames = []
-	for sentence in sentences:
-		filenames.append(get_sentence_id(sentence, output_dir) + ".txt")
-		with open(filenames[-1], "w+") as fl:
-			fl.write(sentence)
-	call(parse_command.split() + filenames)
+	count = 0
+	for sentence in list(set(sentences)):
+		# print("parsing" + sentence[:20])
+		filename = str(get_sentence_id(sentence, output_dir))
+		txt_file = filename + ".txt"
+		xml_file = filename + ".xml"
+		if not os.path.isfile(output_dir + txt_file):
+			with open(output_dir + txt_file, "w+") as fl:
+				fl.write(sentence)
+		if not os.path.isfile(output_dir + xml_file):
+			filenames.append(output_dir + txt_file)
+
+	# check = []
+	# for sentence in list(set(filenames)):
+	# 	if sentence not in check:
+	# 		check.append(sentence)
+	# 	else:
+	# 		print("repeats")
+	# 		return
+	# print(sorted(filenames))
+	if filenames:
+		print("parsing sentences")
+		res = subprocess.run(parse_command.split() + filenames, stdout=subprocess.PIPE)
+	# print(res)
+	# call(parse_command.split() + filenames)
 
 
-def get_roro_packed(source_sentences):
+def get_roro_packed(system_sentences):
 	""" pack and parse RoRo's k-best"""
 	candidate_num = 0
 	packed_system_sentences = []
-	for sentence_num, source in enumerate(source_sentences):
+	for sentence_num, source in enumerate(system_sentences):
 		curr_sentences = []
 		# keep packing until reached another sentence, assumes k-best are consequetive
 		while (candidate_num < len(system_sentences) and
@@ -176,26 +206,29 @@ def get_roro_packed(source_sentences):
 			sentence = re.sub("\|\d+-\d+\| ","",system_sentences[candidate_num].split("|||")[1][1:])
 			candidate_num += 1
 			curr_sentences.append(sentence)
-		packed_system_sentences.append(curr_sentences)
+		if curr_sentences:
+			packed_system_sentences.append(curr_sentences)
 	return packed_system_sentences
 
 
 def semantics_score(source, sentence, parse_dir):
-	print("what filename did the parser create?", file=sys.stderr)
-	source_xml = file2passage(parse_dir + get_sentence_id(source, parse_dir, False) + ".xml")
-	sentence_xml = file2passage(parse_dir + get_sentence_id(sentence, parse_dir, False) + ".xml")
+	source_xml = file2passage(parse_dir + str(get_sentence_id(source, parse_dir, False)) + ".xml")
+	sentence_xml = file2passage(parse_dir + str(get_sentence_id(sentence, parse_dir, False)) + ".xml")
 	return align.fully_aligned_distance(source_xml, sentence_xml)
 
 
 def grammaticality_score(source, sentence, parse_dir):
 	command = "java -jar ../softwares/LanguageTool-3.7/languagetool-commandline.jar --json -l en-US" 
-	filename = get_sentence_id(sentence, parse_dir) + ".txt"
-	res = subprocess.run(command.split() + filename, stdout=subprocess.PIPE)
-	res = json.loads(res.stdout)
-	print(res)
+	filename = str(get_sentence_id(sentence, parse_dir, False)) + ".txt"
+	with open(os.devnull, 'wb') as devnull:
+		res = subprocess.run(command.split() + [parse_dir + filename], stdout=subprocess.PIPE, stderr=devnull)
+	out = res.stdout.decode("utf-8")
+	out = re.sub(r"\\'", "'", out)
+	res = json.loads(out)
+	return 1/(1 + len(res["matches"]))
 
 
-
+_id_dics = {}
 def get_sentence_id(sentence, parse_dir, graceful=True):
 	""" returns the sentence id in the parse_dir, 
 		if graceful is true adds a new sentence id 
@@ -203,21 +236,27 @@ def get_sentence_id(sentence, parse_dir, graceful=True):
 		otherwise throws exception"""
 	filename = "sentenceIds.pkl"
 	max_id = "max"
-	if not os.path.isfile(parse_dir + os.sep + filename):
+	if parse_dir in _id_dics:
+		id_dic = _id_dics[parse_dir]
+	elif not os.path.isfile(parse_dir + os.sep + filename):
 		print("creating a new id list")
 		id_dic = {max_id: -1}
+		_id_dics[parse_dir] = id_dic
 	else:
-		with open(parse_dir + os.sep + filename, "r") as fl:
+		with open(parse_dir + os.sep + filename, "rb") as fl:
 			id_dic = pickle.load(fl)
+			_id_dics[parse_dir] = id_dic
 	if graceful and not sentence in id_dic:
+		# print("dumping" + sentence + "\n")
 		id_dic[max_id] += 1
 		id_dic[sentence] = id_dic[max_id]
-		with open(parse_dir + os.sep + filename, "w") as fl:
-			id_dic = pickle.dump(fl, id_dic)
+		with open(parse_dir + os.sep + filename, "wb+") as fl:
+			pickle.dump(id_dic, fl)
+	# print(sentence)
 	return id_dic[sentence]
 
 
-def reference_less_score(source, sentence, parse_dir, gamma=0.27):
+def reference_less_score(source, sentence, parse_dir, gamma):
 	return gamma * grammaticality_score(source, sentence, parse_dir) + (1 - gamma) * semantics_score(source, sentence, parse_dir)
 
 
