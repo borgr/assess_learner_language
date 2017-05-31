@@ -31,7 +31,7 @@ from correction_quality import preprocess_word
 #file locations
 ASSESS_LEARNER_DIR = r"/home/borgr/ucca/assess_learner_language/"
 GOLD_FILE = ASSESS_LEARNER_DIR + r"data/conll14st-test-data/noalt/official-2014.combined.m2"
-corrections_dir = ASSESS_LEARNER_DIR + r"batches/"
+CORRECTIONS_DIR = ASSESS_LEARNER_DIR + r"batches/"
 DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
 PLOTS_DIR = ASSESS_LEARNER_DIR + r"plots/corrections/"
 HISTS_DIR = ASSESS_LEARNER_DIR + r"unseenEst/"
@@ -1013,14 +1013,14 @@ def many_colors(labels, colors=cm.rainbow):
 def read_batches():
 	frames = []
 	for batch_file in BATCH_FILES:
-		frames.append(pd.read_csv(corrections_dir + batch_file))
+		frames.append(pd.read_csv(CORRECTIONS_DIR + batch_file))
 	return pd.concat(frames)
 
 
 def get_all_sentences_corrected():
 	""" returns an iterable containing all the sentences that were corrected"""
 	corrected = set()
-	for root, dirs, files in os.walk(corrections_dir):
+	for root, dirs, files in os.walk(CORRECTIONS_DIR):
 		for file in files:
 			if isBatchFile(file):
 				db = pd.read_csv(root+file)
@@ -1070,7 +1070,8 @@ def isBatchFile(filename):
 
 def normalize_sentence(s):
 	s = re.sub(r"\W+", r" ", s)
-	s = re.sub(r"\s([a-zA-Z]\s)", r"\1", s)
+	s = re.sub(r"(\s[a-zA-Z])\s([a-zA-Z]\s)", r"\1\2", s)
+	s = s.strip()
 	return s
 
 

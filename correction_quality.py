@@ -301,7 +301,7 @@ def main():
 	# plot_comparison(res_list)
 	# convert_file_to_csv(filename)
 
-	change_date = "170424"
+	change_date = "170531"
 	filename = "results/reranking_results"+ change_date + ".json"
 	all_file = "first_rank_resultsALL"
 	BN_file = "first_rank_resultsBN"
@@ -333,7 +333,14 @@ def main():
 
 	learner_file = "conll.tok.orig"
 	origin = read_paragraph(learner_file, preprocess_paragraph)
+	# compare(filenames, names, filename, origin)
+
+	base_rerank = "uccasim_rank_results"
+	filenames = [all_file, ACL2016RozovskayaRothOutput_file, filenames[0] , base_rerank]
+	names = ["all", names[0], "RoRo", "UccaSim"]
+	filename = "results/ucca_reranking_results"+ change_date + ".json"
 	compare(filenames, names, filename, origin)
+
 
 def compare(filenames, names, backup, origin):
 	contents = []
