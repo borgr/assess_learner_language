@@ -1057,6 +1057,7 @@ def isBatchFile(filename):
 def normalize_sentence(s):
 	s = re.sub(r"\W+", r" ", s)
 	s = re.sub(r"\s([a-zA-Z]\s)", r"\1", s)
+	s = re.sub(r"\W+", r" ", s)
 	return s
 
 
