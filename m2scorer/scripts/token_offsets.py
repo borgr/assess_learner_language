@@ -24,7 +24,7 @@
 import sys
 import re
 import os
-from util import *
+from m2util import *
 from Tokenizer import PTBTokenizer
 
 
