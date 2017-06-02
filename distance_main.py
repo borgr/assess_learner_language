@@ -182,18 +182,20 @@ def distances(p1, p2, name):
 
 def anounce_finish():
 	if sys.platform == "linux":
-		if "Ubuntu" in platform.linux_distribution():
-			import subprocess
+		if set(("debian", "Ubuntu")) & set(platform.linux_distribution()):
 			subprocess.call(['speech-dispatcher'])        #start speech dispatcher
 			subprocess.call(['spd-say', '"your process has finished"'])
 		else:
 			#perhaps works only in ubuntu?
-			os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % ( 300, 2000))
-	if sys.platform == "darwin":
-		os.system('say "your program has finished"')
+			a = subprocess.Popen(('play --no-show-progress --null --channels 1 synth %s sine %f' % ( 300, 2)).split())
+	elif sys.platform == "darwin":
+		subprocess.call('say "your program has finished"'.split())
 	else:
 		import winsound
-		winsound.Beep(300,2000)
+		winsound.Beep(300,2)
+
+
+
 if __name__ == '__main__':
 	main()
 

@@ -1,4 +1,6 @@
+import time
 import sys
+import platform
 # UCCA_DIR = '/home/borgr/ucca/ucca'
 # ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
@@ -26,10 +28,12 @@ from functools import reduce
 import operator
 POOL_SIZE = 7
 
+
 def main():
-	for gamma in np.linspace(0,1,11):
 	# rerank_by_m2()
+	for gamma in np.linspace(0,1,11):
 		rerank_by_uccasim(gamma)
+	anounce_finish()
 
 
 def rerank_by_uccasim(gamma=0.27):
@@ -64,7 +68,7 @@ def rerank_by_uccasim(gamma=0.27):
 		# find top ranking
 		pool = Pool(POOL_SIZE)
 		assert(len(packed_system_sentences) == len(source_sentences))
-		results = pool.starmap(referece_less_oracle, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences)), [gamma] * len(packed_system_sentences)))
+		results = pool.starmap(referece_less_oracle, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences), [gamma] * len(packed_system_sentences)))
 		pool.close()
 		pool.join()
 		results = list(results)
@@ -275,6 +279,19 @@ def basename(name):
 def name_extension(name):
 	return basename(name).split(".")
 
+def anounce_finish():
+	if sys.platform == "linux":
+		if set(("debian", "Ubuntu")) & set(platform.linux_distribution()):
+			subprocess.call(['speech-dispatcher'])        #start speech dispatcher
+			subprocess.call(['spd-say', '"your process has finished"'])
+		else:
+			#perhaps works only in ubuntu?
+			a = subprocess.Popen(('play --no-show-progress --null --channels 1 synth %s sine %f' % ( 300, 2)).split())
+	elif sys.platform == "darwin":
+		subprocess.call('say "your program has finished"'.split())
+	else:
+		import winsound
+		winsound.Beep(300,2)
 
 if __name__ == '__main__':
-	main()
+	main()	
