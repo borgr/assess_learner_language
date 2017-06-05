@@ -1,9 +1,10 @@
+import time
 import sys
 UCCA_DIR = '/home/borgr/ucca/ucca'
 ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
 # UCCA_DIR = TUPA_DIR +'ucca'
-ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
+# ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
 sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
 sys.path.append(UCCA_DIR)
 sys.path.append(UCCA_DIR + '/scripts/distances')
@@ -27,11 +28,15 @@ import operator
 from significane_testing import m2score
 POOL_SIZE = 7
 
+
 def main():
 	# rerank_by_m2()
 	for gamma in np.linspace(0,1,11):
 		print(m2score("calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results"))
 		# rerank_by_uccasim(gamma)
+		rerank_by_uccasim(gamma)
+	anounce_finish()
+
 
 
 def rerank_by_uccasim(gamma=0.27):
@@ -277,6 +282,19 @@ def basename(name):
 def name_extension(name):
 	return basename(name).split(".")
 
+def anounce_finish():
+	if sys.platform == "linux":
+		if set(("debian", "Ubuntu")) & set(platform.linux_distribution()):
+			subprocess.call(['speech-dispatcher'])        #start speech dispatcher
+			subprocess.call(['spd-say', '"your process has finished"'])
+		else:
+			#perhaps works only in ubuntu?
+			a = subprocess.Popen(('play --no-show-progress --null --channels 1 synth %s sine %f' % ( 300, 2)).split())
+	elif sys.platform == "darwin":
+		subprocess.call('say "your program has finished"'.split())
+	else:
+		import winsound
+		winsound.Beep(300,2)
 
 if __name__ == '__main__':
-	main()
+	main()	
