@@ -82,9 +82,9 @@ def m2score_sig_in_one(tpl):
 	return m2score_sig(tpl[0], tpl[1], tpl[2], tpl[3])
 
 
-def m2score(m):
+def m2score(m, system_file=None):
 	directory = r"./calculations_data/"
-	system_file = directory+"perfect_output_for_" + str(m) + "_sgss.m2"
+	system_file = system_file if system_file else directory+"perfect_output_for_" + str(m) + "_sgss.m2" 
 	gold_file = directory + str(m) + "_sgss.m2"
 	print("testing score of " + system_file)
 	# load source sentences and gold edits

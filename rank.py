@@ -1,8 +1,8 @@
 import sys
-# UCCA_DIR = '/home/borgr/ucca/ucca'
-# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
+UCCA_DIR = '/home/borgr/ucca/ucca'
+ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
-UCCA_DIR = TUPA_DIR +'ucca'
+# UCCA_DIR = TUPA_DIR +'ucca'
 ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
 sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
 sys.path.append(UCCA_DIR)
@@ -24,12 +24,14 @@ import pickle
 import json
 from functools import reduce
 import operator
+from significane_testing import m2score
 POOL_SIZE = 7
 
 def main():
-	for gamma in np.linspace(0,1,11):
 	# rerank_by_m2()
-		rerank_by_uccasim(gamma)
+	for gamma in np.linspace(0,1,11):
+		print(m2score("calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results"))
+		# rerank_by_uccasim(gamma)
 
 
 def rerank_by_uccasim(gamma=0.27):
@@ -64,7 +66,7 @@ def rerank_by_uccasim(gamma=0.27):
 		# find top ranking
 		pool = Pool(POOL_SIZE)
 		assert(len(packed_system_sentences) == len(source_sentences))
-		results = pool.starmap(referece_less_oracle, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences)), [gamma] * len(packed_system_sentences)))
+		results = pool.starmap(referece_less_oracle, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences), [gamma] * len(packed_system_sentences)))
 		pool.close()
 		pool.join()
 		results = list(results)
