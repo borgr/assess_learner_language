@@ -25,16 +25,20 @@ import pickle
 import json
 from functools import reduce
 import operator
-from significane_testing import m2score
+from significance_testing import m2score
+import platform
 POOL_SIZE = 7
 
 
 def main():
 	# rerank_by_m2()
 	for gamma in np.linspace(0,1,11):
-		print(m2score("calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results"))
+		print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
+					  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
 		# rerank_by_uccasim(gamma)
 		rerank_by_uccasim(gamma)
+	print(m2score(system_file=r"/home/borgr/ucca/assess_learner_language/data/paragraphs/conll14st.output.1cleaned",
+				  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
 	anounce_finish()
 
 

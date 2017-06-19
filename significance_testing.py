@@ -1,3 +1,4 @@
+import sys
 import os
 import subprocess
 import scikits.bootstrap
@@ -81,34 +82,37 @@ def m2score_sig_in_one(tpl):
 		return m2score_sig(tpl[0], tpl[1], tpl[2])	
 	return m2score_sig(tpl[0], tpl[1], tpl[2], tpl[3])
 
+def read_system(file):
+	# load system hypotheses
+	fin = m2scorer.smart_open(file, 'r')
+	if sys.version_info < (3, 0):
+		system_sentences = [line.decode("utf8").strip() for line in fin.readlines()]
+	else:
+		system_sentences = [line.strip() for line in fin.readlines()]
+	fin.close()
 
-def m2score(m, system_file=None):
+	return system_sentences
+def m2score(m=None, system_file=None, gold_file=r"/home/borgr/ucca/assess_learner_language/data/conll14st-test-data/noalt/official-2014.combined.m2"):
 	directory = r"./calculations_data/"
 	system_file = system_file if system_file else directory+"perfect_output_for_" + str(m) + "_sgss.m2" 
-	gold_file = directory + str(m) + "_sgss.m2"
+	gold_file = gold_file if gold_file else directory + str(m) + "_sgss.m2"
 	print("testing score of " + system_file)
 	# load source sentences and gold edits
 	source_sentences, gold_edits = m2scorer.load_annotation(gold_file)
 
-	# load system hypotheses
-	fin = m2scorer.smart_open(system_file, 'r')
-	system_sentences = [line.decode("utf8").strip() for line in fin.readlines()]
-	fin.close()
+	system_sentences = read_system(system_file)
 
-	print(len(system_sentences), len(source_sentences), len(gold_edits))
+	assert(len(system_sentences) == len(source_sentences) and len(system_sentences) == len(gold_edits))
 	return m2scorer.get_score(system_sentences, source_sentences, gold_edits, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
 
-def m2score_sig(filename, gold_file=r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2", input_dir = r"/home/borgr/ucca/data/paragraphs/", output_dir = r"/home/borgr/ucca/assess_learner_language/results/significance/"):
+def m2score_sig(filename, gold_file=r"/home/borgr/ucca/assess_learner_language/data/conll14st-test-data/noalt/official-2014.combined.m2", input_dir = r"/home/borgr/ucca/data/paragraphs/", output_dir = r"/home/borgr/ucca/assess_learner_language/results/significance/"):
 	system_file = input_dir + filename
 	n_samples = 1000
 	print("testing significance of " + filename)
 	# load source sentences and gold edits
 	source_sentences, gold_edits = m2scorer.load_annotation(gold_file)
 
-	# load system hypotheses
-	fin = m2scorer.smart_open(system_file, 'r')
-	system_sentences = [line.decode("utf8").strip() for line in fin.readlines()]
-	fin.close()
+	system_sentences = read_system(system_file)
 
 	statfunction = lambda source, gold, system: m2scorer.get_score(system, source, gold, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
 	data = (source_sentences, gold_edits, system_sentences)

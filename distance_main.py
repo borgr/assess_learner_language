@@ -56,8 +56,8 @@ print(passage_filenames)
 #used functions
 funcs = [align.aligned_edit_distance, align.fully_aligned_distance, align.aligned_top_down_distance,
 		 align.token_distance, 
-		 lambda x,y :align.token_distance(x,y,align.top_down_align),
-		 lambda x,y :align.token_distance(x,y,align.fully_align)]
+		 lambda x, y: align.token_distance(x, y, align.top_down_align),
+		 lambda x, y: align.token_distance(x, y, align.fully_align)]
 complex_func = align.token_level_similarity
 
 
