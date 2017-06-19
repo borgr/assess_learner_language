@@ -138,7 +138,8 @@ def batch_multi_pre_rec_f1(candidates, sources, gold_edits, max_unchanged_words=
         max_stat_correct = -1.0
         min_stat_proposed = float("inf")
         min_stat_gold = float("inf")
-        for annotator, gold in golds_set.iteritems():
+        gold_items = [(x, golds_set[x]) for x in golds_set]
+        for annotator, gold in gold_items:
             localdist = set_weights(E, dist, edits, gold, verbose, very_verbose)
             editSeq = best_edit_seq_bf(V, E, localdist, edits, very_verbose)
             if verbose:
@@ -151,7 +152,7 @@ def batch_multi_pre_rec_f1(candidates, sources, gold_edits, max_unchanged_words=
                 print( "dist() =", localdist)
                 print( "viterbi path =", editSeq)
             if ignore_whitespace_casing:
-                editSeq = filter(lambda x : not equals_ignore_whitespace_casing(x[2], x[3]), editSeq)
+                editSeq = list(filter(lambda x : not equals_ignore_whitespace_casing(x[2], x[3]), editSeq))
             correct = matchSeq(editSeq, gold, ignore_whitespace_casing, verbose)
             
             # local cumulative counts, P, R and F1
@@ -828,7 +829,11 @@ def levenshtein_matrix(first, second, cost_ins=1, cost_del=1, cost_sub=2):
         backpointers[(0, j)] = [((0,j-1), edit)]
 
     # fill the matrix
-    for i in xrange(1, first_length):
+    if sys.version_info < (3, 0):
+        gen = xrange(1, first_length)
+    else:
+        gen = range(1, first_length)
+    for i in gen:
         for j in range(1, second_length):
             deletion = distance_matrix[i-1][j] + cost_del
             insertion = distance_matrix[i][j-1] + cost_ins
