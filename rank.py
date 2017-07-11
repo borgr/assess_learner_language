@@ -1,11 +1,10 @@
 import time
 import sys
-import platform
-# UCCA_DIR = '/home/borgr/ucca/ucca'
-# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
+UCCA_DIR = '/home/borgr/ucca/ucca'
+ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
-UCCA_DIR = TUPA_DIR +'ucca'
-ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
+# UCCA_DIR = TUPA_DIR +'ucca'
+# ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
 sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
 sys.path.append(UCCA_DIR)
 sys.path.append(UCCA_DIR + '/scripts/distances')
@@ -26,15 +25,23 @@ import pickle
 import json
 from functools import reduce
 import operator
+from significance_testing import m2score
+import platform
 POOL_SIZE = 7
 full_rerank = True
 
 def main():
 	# rerank_by_m2()
 	for gamma in np.linspace(0,1,11):
+		print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
+					  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
+		# rerank_by_uccasim(gamma)
 		rerank_by_uccasim(gamma)
+	print(m2score(system_file=r"/home/borgr/ucca/assess_learner_language/data/paragraphs/conll14st.output.1cleaned",
+				  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
 	anounce_finish()
 	reduce_k_best(100, 10, filename)
+
 
 
 def rerank_by_uccasim(gamma=0.27):

@@ -1,3 +1,4 @@
+
 # built in packages
 from itertools import islice
 import math
@@ -11,7 +12,7 @@ from collections import Counter
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import distances
+import distance
 import json
 from scipy.stats import spearmanr
 # import scikits.statsmodels as sm
@@ -314,10 +315,8 @@ def main():
 		if "subset" in fl:
 			filenames.append(fl)
 	names = [name[18:] for name in filenames]
-	print(names)
 	for name in names:
 		if name[1].isdigit():
-			print(name)
 			nums.append(int(name[:2]))
 		else:
 			nums.append(int(name[0]))
@@ -336,8 +335,9 @@ def main():
 	# compare(filenames, names, filename, origin)
 
 	base_rerank = "uccasim_rank_results"
-	filenames = [all_file, ACL2016RozovskayaRothOutput_file, filenames[0] , base_rerank]
-	names = ["all", names[0], "RoRo", "UccaSim"]
+	filenames = [all_file, ACL2016RozovskayaRothOutput_file, filenames[0]] + \
+				[str(base)+ "_" + base_rerank for base in np.linspace(0,1,11)]
+	names = ["all", names[0], "RoRo"] + [str(base) +"combined" for base in np.linspace(0,1,11) ]
 	filename = "results/ucca_reranking_results"+ change_date + ".json"
 	compare(filenames, names, filename, origin)
 
@@ -1198,7 +1198,7 @@ def read(filename):
 		with open(filename, "r+") as fl:
 			return json.load(fl)
 	except FileNotFoundError as e:
-		print("file not found:", e)
+		print(e, "The file was not found, creating it instead")
 		return dict()
 	except json.decoder.JSONDecodeError as e:
 		print("json decoder error:", e)
