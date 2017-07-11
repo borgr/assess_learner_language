@@ -189,7 +189,7 @@ def anounce_finish():
 			#perhaps works only in ubuntu?
 			a = subprocess.Popen(('play --no-show-progress --null --channels 1 synth %s sine %f' % ( 300, 2)).split())
 	elif sys.platform == "darwin":
-		subprocess.call('say "your program has finished"'.split())
+		subprocess.call('say "your process has finished"'.split())
 	else:
 		import winsound
 		winsound.Beep(300,2)

@@ -27,13 +27,14 @@ import json
 from functools import reduce
 import operator
 POOL_SIZE = 7
-
+full_rerank = True
 
 def main():
 	# rerank_by_m2()
 	for gamma in np.linspace(0,1,11):
 		rerank_by_uccasim(gamma)
 	anounce_finish()
+	reduce_k_best(100, 10, filename)
 
 
 def rerank_by_uccasim(gamma=0.27):
@@ -43,7 +44,8 @@ def rerank_by_uccasim(gamma=0.27):
 	system_file = k_best_dir + "conll14st.output.1.best100"
 	calculations_dir = "calculations_data/uccasim_rerank/"
 	ucca_parse_dir = calculations_dir + "/ucca_parse/"
-	output_file = str(gamma) + "_" + "uccasim_rank_results"
+	full = "full" if full_rerank else ""
+	output_file = full + str(gamma) + "_" + "uccasim_rank_results"
 	out_text_file = calculations_dir + output_file
 	out_res_file = calculations_dir + "score_" + output_file
 
@@ -68,10 +70,15 @@ def rerank_by_uccasim(gamma=0.27):
 		# find top ranking
 		pool = Pool(POOL_SIZE)
 		assert(len(packed_system_sentences) == len(source_sentences))
-		results = pool.starmap(referece_less_oracle, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences), [gamma] * len(packed_system_sentences)))
+		if full_rerank:
+			results = pool.starmap(referece_less_full_rerank, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences), [gamma] * len(packed_system_sentences)))
+		else:
+			results = pool.starmap(referece_less_oracle, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences), [gamma] * len(packed_system_sentences)))
 		pool.close()
 		pool.join()
 		results = list(results)
+		if full_rerank:
+			results = [x for y in results for x in y]
 		sentences = "\n".join(list(zip(*results))[0])
 		results = list(zip(*results))[1]
 		results = "\n".join([str(x) for x in results])
@@ -144,11 +151,34 @@ def rerank_by_m2():
 			with open(out_res_file, "w+") as fl:
 				fl.write(results)
 
+def reduce_k_best(big_k, small_k, filename, outfile=None):
+	if outfile is None:
+		outfile = os.path.normpath(filename)
+		outfile = os.path.split(outfile)
+		outfile[1] = str(small_k) + "_" + outfile[1]
+		outfile = "".join(outfile)
+	output = []
+	with open(outfile) as fl:
+		for i, line in enumerate(fl):
+			if i % big_k < small_k:
+				output.append(line)
+	# finish that 
+	raise
+
+
+
+def referece_less_full_rerank(source, system_sentences, parse_dir, gamma):
+	combined_scores = []
+	for sentence in set(system_sentences):
+		combined_scores.append((sentence, reference_less_score(source, sentence, parse_dir, gamma)))
+
+	return sorted(combined_scores, key=lambda x:x[1])
+
 
 def referece_less_oracle(source, system_sentences, parse_dir, gamma):
 	maximum = 0
 	for sentence in set(system_sentences):
-		combined_score = reference_less_score(source, sentence, parse_dir, gamma)
+		combined_scores = reference_less_score(source, sentence, parse_dir, gamma)
 		if maximum <= combined_score:
 			maximum = combined_score
 			chosen = sentence, combined_score
@@ -288,7 +318,7 @@ def anounce_finish():
 			#perhaps works only in ubuntu?
 			a = subprocess.Popen(('play --no-show-progress --null --channels 1 synth %s sine %f' % ( 300, 2)).split())
 	elif sys.platform == "darwin":
-		subprocess.call('say "your program has finished"'.split())
+		subprocess.call('say "your process has finished"'.split())
 	else:
 		import winsound
 		winsound.Beep(300,2)
