@@ -27,18 +27,21 @@ from functools import reduce
 import operator
 from significance_testing import m2score
 import platform
+from correction_quality import word_diff
+
 POOL_SIZE = 7
 
 
 def main():
-	# rerank_by_m2()
-	for gamma in np.linspace(0,1,11):
-		print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
-					  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
-		# rerank_by_uccasim(gamma)
-		rerank_by_uccasim(gamma)
-	print(m2score(system_file=r"/home/borgr/ucca/assess_learner_language/data/paragraphs/conll14st.output.1cleaned",
-				  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
+	# # rerank_by_m2()
+	# for gamma in np.linspace(0,1,11):
+	# 	print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
+	# 				  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
+	# 	# rerank_by_uccasim(gamma)
+	# 	rerank_by_uccasim(gamma)
+	# print(m2score(system_file=r"/home/borgr/ucca/assess_learner_language/data/paragraphs/conll14st.output.1cleaned",
+	# 			  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
+	rerank_by_wordist()
 	anounce_finish()
 
 
@@ -89,6 +92,63 @@ def rerank_by_uccasim(gamma=0.27):
 		with open(out_res_file, "w+") as fl:
 			fl.write(results)
 
+def rerank_by_wordist():
+	data_dir = "data/"
+	first_nucle =  data_dir + "references/" + "NUCLEA.m2" # only used to extract source sentences
+	k_best_dir = data_dir + "K-best/"
+	system_file = k_best_dir + "conll14st.output.1.best100"
+	calculations_dir = "calculations_data/uccasim_rerank/"
+	# ucca_parse_dir = calculations_dir + "/ucca_parse/"
+	min_change = 2
+	output_file = str(min_change) + "wordist_rank_results"
+	out_text_file = calculations_dir + output_file
+	out_res_file = calculations_dir + "score_" + output_file
+	out_source_file = calculations_dir + "source" + output_file
+	if not os.path.isfile(out_text_file):
+		gold_file = first_nucle # only used to extract source sentences
+		print("acquiring source")
+		source_sentences, _ = m2scorer.load_annotation(gold_file)
+
+		source_sentences = source_sentences
+		# load system hypotheses
+		fin = m2scorer.smart_open(system_file, 'r')
+		system_sentences = [line.strip() for line in fin.readlines()]
+		fin.close()
+
+		packed_system_sentences = get_roro_packed(system_sentences)
+
+		# print("parsing")
+		# print(reduce(operator.add, packed_system_sentences))
+		# ucca_parse(reduce(operator.add, packed_system_sentences) + source_sentences, ucca_parse_dir)
+
+		print("reranking")
+		# find top ranking
+		pool = Pool(POOL_SIZE)
+		assert(len(packed_system_sentences) == len(source_sentences))
+		results = pool.starmap(wordist_oracle, zip(source_sentences, packed_system_sentences))
+		pool.close()
+		pool.join()
+		results = list(results)
+		tmp = []
+		out_sentences = []
+		for (k,n), sent in zip(results, source_sentences):
+			if n > min_change:
+				tmp.append((k,n))
+				out_sentences.append(sent)
+		results = tmp
+
+		sentences = "\n".join(list(zip(*results))[0])
+		results = list(zip(*results))[1]
+		results = "\n".join([str(x) for x in results])
+		out_sentences = "\n".join([str(x) for x in out_sentences])
+		
+		print("writing to " + out_text_file)
+		with codecs.open(out_text_file, "w+", "utf-8") as fl:
+			fl.write(sentences)
+		with codecs.open(out_source_file, "w+", "utf-8") as fl:
+			fl.write(out_sentences)
+		with open(out_res_file, "w+") as fl:
+			fl.write(results)
 
 def rerank_by_m2():
 	data_dir = "data/"
@@ -150,6 +210,17 @@ def rerank_by_m2():
 				fl.write(sentences)
 			with open(out_res_file, "w+") as fl:
 				fl.write(results)
+
+
+def wordist_oracle(source, system_sentences):
+	maximum = 0
+	for sentence in set(system_sentences):
+		combined_score = word_diff(source, sentence)
+		if maximum <= combined_score:
+			maximum = combined_score
+			chosen = sentence, combined_score
+	# print(chosen)
+	return chosen
 
 
 def referece_less_oracle(source, system_sentences, parse_dir, gamma):

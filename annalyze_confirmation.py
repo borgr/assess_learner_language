@@ -71,7 +71,7 @@ def main():
 		m, b = np.polyfit(x_4means, y_mean, 1)
 		print(m,b)
 		plt.plot(x_4means, m*x_4means + b, '-', label="Regression Line")
-		plt.ylabel("Percentage of rejected corrections" if mean_by_corrections_rejected else "Mean agreement")
+		plt.ylabel("Percentage of rejected corrections" if mean_by_corrections_rejected else "Mean validity")
 		plt.xlabel("Correction Frequency")
 		plt.ylim(ymax=1, ymin=0)
 		plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)

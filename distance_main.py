@@ -15,40 +15,52 @@ sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
 import align
 from ucca import layer0, layer1
 POOL_SIZE = 4
-PATH = r"/home/borgr/ucca/assess_learner_language/data/xmls/"
-trial_name = "parser_r2s"
 UNCOMBINED_DIR = "uncombined/"
 corrected_stamp = "_corrected"
-
-filenames = []
-parsed_paragraphs = [2, 3, 5, 6, 7, 8, 10]
 passage_filenames = []
-for x in parsed_paragraphs:
-	passage_filenames.append(str(x))
-	passage_filenames.append(str(x) + corrected_stamp)
-sys.setrecursionlimit(10000000)
+r2s = True
+# trial_name = "parser_r2s"
+# PATH = r"/home/borgr/ucca/assess_learner_language/data/xmls/"
+# filenames = []
+# parsed_paragraphs = [2, 3, 5, 6, 7, 8, 10]
+# passage_filenames = []
+# for x in parsed_paragraphs:
+# 	passage_filenames.append(str(x))
+# 	passage_filenames.append(str(x) + corrected_stamp)
+# sys.setrecursionlimit(10000000)
 
-# # combined passage names
-# passage_filenames = [x + ".xml" for x in passage_filenames]
+# # # combined passage names
+# # passage_filenames = [x + ".xml" for x in passage_filenames]
 
-# sentence splitted xmls
-passage_filenames  = []
-for root, dirs, files in os.walk(PATH + UNCOMBINED_DIR):
-	for filename in files:
-		if filename.endswith(".xml"):
-			print(filename)
-			if corrected_stamp not in filename:
-				passage_filenames.append(UNCOMBINED_DIR + filename[:-7] + corrected_stamp + filename[-7:])
-				passage_filenames.append(UNCOMBINED_DIR + filename)
-print(passage_filenames)
+# # sentence splitted xmls
+# passage_filenames  = []
+# for root, dirs, files in os.walk(PATH + UNCOMBINED_DIR):
+# 	for filename in files:
+# 		if filename.endswith(".xml"):
+# 			print(filename)
+# 			if corrected_stamp not in filename:
+# 				passage_filenames.append(UNCOMBINED_DIR + filename[:-7] + corrected_stamp + filename[-7:])
+# 				passage_filenames.append(UNCOMBINED_DIR + filename)
+# print(passage_filenames)
 
+PATH = r"/home/borgr/ucca/assess_learner_language/data/annotations/"
+
+# trial_name = "same"
 # borgr = list(("tree1197", "tree1297", "tree1198", "tree1298", "tree1200", "tree1300", "tree1202", "tree1302")) # "tree1299",  "tree1301"
 # amittaic = ["amittaic1197", "amittaic1297", "amittaic1200", "amittaic1300", "amittaic1198", "amittaic1298", "amittaic1205", "amittaic1305", "amittaic1203", "amittaic1303"] #, "amittaic1301"]
 # filenames = borgr + amittaic #same annotators
-# filenames = ["tree1197", "amittaic1297","amittaic1197", "tree1297", "tree1198", "amittaic1298", "amittaic1198", "tree1298",  "tree1200", "amittaic1300", "amittaic1200", "tree1300"] # different annotators
-# filenames = ["amittaic1197", "tree1197", "amittaic1297", "tree1297", "amittaic1200", "tree1200", 
-# 			 "amittaic1300", "tree1300", "amittaic1198", "tree1198", "amittaic1298", "tree1298",
-# 			 "amittaic1301",  "tree1301"]#inter annotator
+
+# trial_name = "different" 
+# filenames = ["tree1197",
+# "amittaic1297","amittaic1197", "tree1297", "tree1198", "amittaic1298",
+# "amittaic1198", "tree1298",  "tree1200", "amittaic1300", "amittaic1200",
+# "tree1300"] # different annotators
+
+trial_name = "IAA"
+filenames = ["amittaic1197", "tree1197", "amittaic1297", "tree1297", "amittaic1200", "tree1200", 
+			 "amittaic1300", "tree1300", "amittaic1198", "tree1198", "amittaic1298", "tree1298",
+			 "amittaic1301",  "tree1301"]#inter annotator
+
 # filenames = ["tree1297", "amittaic1297", "tree1298", "amittaic1298", "amittaic1300", "tree1300", "amittaic1301",  "tree1301"]
 # implemented = [align.fully_aligned_distance]
 # print("should flatten centers?")
@@ -60,6 +72,8 @@ funcs = [align.aligned_edit_distance, align.fully_aligned_distance, align.aligne
 		 lambda x, y: align.token_distance(x, y, align.fully_align)]
 complex_func = align.token_level_similarity
 
+if r2s:
+	trial_name += "r2s_"
 
 def test(func, p, maximum=1, sym=True):
 	print("testing "+ str(func.__name__))
@@ -125,7 +139,10 @@ def main():
 		i += 1
 	print("multithreading")
 	pool = Pool(POOL_SIZE)
-	results = pool.starmap(distances, zip(sources, goals, names))
+	if r2s:
+		results = pool.starmap(distances, zip(goals, sources, names))
+	else:
+		results = pool.starmap(distances, zip(sources, goals, names))
 	print(results)
 	pool.close()
 	pool.join()
