@@ -3,44 +3,65 @@ import platform
 import traceback
 from multiprocessing import Pool
 import csv
+from subprocess import call
 import sys
-sys.path.append('/home/borgr/ucca/ucca/scripts')
+# UCCA_DIR = '/home/borgr/ucca/ucca'
+# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
+TUPA_DIR = '/cs/labs/oabend/borgr/tupa'
+UCCA_DIR = TUPA_DIR +'/ucca'
+ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
+sys.path.append(UCCA_DIR + '/scripts')
 import pickle
-sys.path.append('/home/borgr/ucca/ucca/ucca')
-sys.path.append('/home/borgr/ucca/ucca')
+sys.path.append(UCCA_DIR + '/ucca')
+sys.path.append(UCCA_DIR)
 from ucca import convert
 from ucca import textutil
 from ucca.ioutil import file2passage
-sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
+sys.path.append(UCCA_DIR + '/scripts/distances')
 import align
+import re
 from ucca import layer0, layer1
-POOL_SIZE = 4
-PATH = r"/home/borgr/ucca/assess_learner_language/data/xmls/"
-trial_name = "parser_r2s"
+POOL_SIZE = 8
+PATH = ASSESS_DIR + r"/data/xmls/"
+trial_name = "mle"
 UNCOMBINED_DIR = "uncombined/"
 corrected_stamp = "_corrected"
-
+JFLEG_DIR = ASSESS_DIR + r"/data/jfleg/dev/xmls"
 filenames = []
+passage_filenames  = []
+
 parsed_paragraphs = [2, 3, 5, 6, 7, 8, 10]
 passage_filenames = []
-for x in parsed_paragraphs:
-	passage_filenames.append(str(x))
-	passage_filenames.append(str(x) + corrected_stamp)
-sys.setrecursionlimit(10000000)
+# for x in parsed_paragraphs:
+# 	passage_filenames.append(str(x))
+# 	passage_filenames.append(str(x) + corrected_stamp)
+# sys.setrecursionlimit(10000000)
 
+# JFLEG parsed
+path, dirs, files = next(os.walk(JFLEG_DIR))
+for filename in files:
+	if filename.endswith(".xml"):
+		passage_filenames.append(JFLEG_DIR + os.sep + filename)
+		number = re.findall("\d+", filename)[0]
+		source = JFLEG_DIR + os.sep + "dev.src" + number + ".xml"
+		if not os.path.isfile(source):
+			print("not file " + source)
+			source = JFLEG_DIR + os.sep + "dev.src" + number[1:] + ".xml"
+			assert(os.path.isfile(source))
+		passage_filenames.append(source)
+print(passage_filenames)
 # # combined passage names
 # passage_filenames = [x + ".xml" for x in passage_filenames]
 
-# sentence splitted xmls
-passage_filenames  = []
-for root, dirs, files in os.walk(PATH + UNCOMBINED_DIR):
-	for filename in files:
-		if filename.endswith(".xml"):
-			print(filename)
-			if corrected_stamp not in filename:
-				passage_filenames.append(UNCOMBINED_DIR + filename[:-7] + corrected_stamp + filename[-7:])
-				passage_filenames.append(UNCOMBINED_DIR + filename)
-print(passage_filenames)
+# # sentence splitted xmls
+# for root, dirs, files in os.walk(PATH + UNCOMBINED_DIR):
+# 	for filename in files:
+# 		if filename.endswith(".xml"):
+# 			print(filename)
+# 			if corrected_stamp not in filename:
+# 				passage_filenames.append(UNCOMBINED_DIR + filename[:-7] + corrected_stamp + filename[-7:])
+# 				passage_filenames.append(UNCOMBINED_DIR + filename)
+# print(passage_filenames)
 
 # borgr = list(("tree1197", "tree1297", "tree1198", "tree1298", "tree1200", "tree1300", "tree1202", "tree1302")) # "tree1299",  "tree1301"
 # amittaic = ["amittaic1197", "amittaic1297", "amittaic1200", "amittaic1300", "amittaic1198", "amittaic1298", "amittaic1205", "amittaic1305", "amittaic1203", "amittaic1303"] #, "amittaic1301"]
@@ -58,8 +79,14 @@ funcs = [align.aligned_edit_distance, align.fully_aligned_distance, align.aligne
 		 align.token_distance, 
 		 lambda x, y: align.token_distance(x, y, align.top_down_align),
 		 lambda x, y: align.token_distance(x, y, align.fully_align)]
+funcs = [align.fully_aligned_distance, align.aligned_top_down_distance,
+		 align.token_distance, 
+		 lambda x, y: align.token_distance(x, y, align.top_down_align),
+		 lambda x, y: align.token_distance(x, y, align.fully_align)]
 complex_func = align.token_level_similarity
 
+# funcs = [align.fully_aligned_distance]
+# complex_func = lambda x,y: {}
 
 def test(func, p, maximum=1, sym=True):
 	print("testing "+ str(func.__name__))
@@ -81,6 +108,14 @@ def test(func, p, maximum=1, sym=True):
 	print("passed" if passed else "failed")
 	return passed
 
+
+def add_path(filename, path=PATH):
+	if os.path.isabs(filename):
+		return filename
+	else:
+		return PATH + filename
+
+
 def main():
 	print (align.align("what has is by the meaning of the word is", "what is the men for the wk is are be"))
 
@@ -88,24 +123,25 @@ def main():
 	print("reading db xmls")
 	p = []
 	for filename in filenames:
-		with open(PATH + filename, "rb") as fl:
+		with open(add_path(filename), "rb") as fl:
 			p += pickle.load(fl)[0]
-		print("read ",filename," it starts with ", tuple(term.text for term in textutil.extract_terminals(convert.from_site(p[-1]))[:6]))
+		print("read ", filename," it starts with ", 
+			  tuple(term.text for term in textutil.extract_terminals(convert.from_site(p[-1]))[:6]))
 	#convert xml to passages
-	p = list(map(convert.from_site,p))
+	p = list(map(convert.from_site, p))
 
 	print("reading passage xmls")
 	# read passage files
 	for filename in passage_filenames:
 		print("reading" + filename)
-		if os.path.isfile(PATH + os.path.splitext(filename)[0] + ".pkl"):
-			with open(PATH + os.path.splitext(filename)[0] + ".pkl", "rb") as fl:
+		if os.path.isfile(add_path(os.path.splitext(filename)[0] + ".pkl")):
+			with open(add_path(os.path.splitext(filename)[0] + ".pkl"), "rb") as fl:
 				p.append(pickle.load(fl))
 		else:
-			p.append(file2passage(PATH + filename))
-			with open(PATH + os.path.splitext(filename)[0] + ".pkl", "wb") as fl:
+			p.append(file2passage(add_path(filename)))
+			with open(add_path(os.path.splitext(filename)[0] + ".pkl"), "wb") as fl:
 				pickle.dump(p[-1], fl)
-				print("dumping", PATH + os.path.splitext(filename)[0] + ".pkl")
+				print("dumping", add_path(os.path.splitext(filename)[0] + ".pkl"))
 
 	all_filenames = filenames + passage_filenames
 	print("read ", all_filenames)
@@ -123,10 +159,12 @@ def main():
 		i += 1
 		goals.append(p[i])
 		i += 1
-	print("multithreading")
+	chunksize = 1
+	if (len(goals) > 100):
+		chunksize = int(len(goals)/POOL_SIZE/10)
+	print("multithreading with chunksize", chunksize)
 	pool = Pool(POOL_SIZE)
-	results = pool.starmap(distances, zip(sources, goals, names))
-	print(results)
+	results = pool.starmap(distances, zip(sources, goals, names), chunksize)
 	pool.close()
 	pool.join()
 	sym_mat = []
@@ -140,14 +178,22 @@ def main():
 		print(item)
 	print("overall token analysis")
 	print(align.token_level_analysis(p))
-	with open(trial_name + "output.csv", "w") as f:
+	output_path = trial_name + "output.csv"
+	with open(output_path, "w") as f:
+		print("writing output to " + output_path)
 		writer = csv.writer(f)
 		writer.writerows(sym_mat)
+	send_mail("leshem.choshen@mail.huji.ac.il", "finished", os.path.abspath(output_path))
 	return
+
+
+def send_mail(adress, subject, attachment, content="..."):
+	command = "echo " + content + " | mail -s " + subject + adress + "-a " + attachment
+	res = subprocess.run(command.split(), stdout=subprocess.PIPE)
+
 
 def distances(p1, p2, name):
 	try:
-		print(p1, p2, name)
 		res = [func(p1, p2) for func in funcs]
 		dic = complex_func(p1, p2)
 		keys = sorted(dic.keys())
@@ -157,7 +203,6 @@ def distances(p1, p2, name):
 		for key in keys:
 			res.append(dic[key])
 
-		print(res)
 		return res, keys
 	except Exception as e:
 		print("in", name)
