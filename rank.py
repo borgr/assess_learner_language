@@ -26,13 +26,10 @@ from functools import reduce
 import operator
 # from significance_testing import m2score
 import platform
-<<<<<<< HEAD
 from ucca.ioutil import passage2file
 from ucca.convert import from_text
-=======
 from correction_quality import word_diff
 
->>>>>>> e78dfd4c3f1d3b1bf619bb61e57beb6262ff03b8
 POOL_SIZE = 7
 full_rerank = True
 
@@ -40,23 +37,9 @@ from tupa.parse import Parser
 model_path = "/cs/labs/oabend/borgr/tupa/models/bilstm"
 parser = Parser(model_path, "bilstm")
 
-<<<<<<< HEAD
-=======
-def main():
-	# # rerank_by_m2()
-	# for gamma in np.linspace(0,1,11):
-	# 	print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
-	# 				  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
-	# 	# rerank_by_uccasim(gamma)
-	# 	rerank_by_uccasim(gamma)
-	# print(m2score(system_file=r"/home/borgr/ucca/assess_learner_language/data/paragraphs/conll14st.output.1cleaned",
-	# 			  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
-	rerank_by_wordist()
-	anounce_finish()
->>>>>>> e78dfd4c3f1d3b1bf619bb61e57beb6262ff03b8
 
 def main():
-	parse_JFLEG()
+	# parse_JFLEG()
 	# # rerank_by_m2()
 	# for gamma in np.linspace(0,1,11):
 	# 	print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
@@ -65,8 +48,9 @@ def main():
 	# 	rerank_by_uccasim(gamma)
 	# print(m2score(system_file=r"/home/borgr/ucca/assess_learner_language/data/paragraphs/conll14st.output.1cleaned",
 	# 			  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
-	# anounce_finish()
 	# reduce_k_best(100, 10, filename)
+	# rerank_by_wordist()
+	anounce_finish()
 
 
 def parse_JFLEG():
@@ -249,7 +233,6 @@ def rerank_by_m2():
 				fl.write(results)
 
 
-<<<<<<< HEAD
 def reduce_k_best(big_k, small_k, filename, outfile=None):
 	if outfile is None:
 		outfile = os.path.normpath(filename)
@@ -271,7 +254,8 @@ def referece_less_full_rerank(source, system_sentences, parse_dir, gamma):
 		combined_scores.append((sentence, reference_less_score(source, sentence, parse_dir, gamma)))
 
 	return sorted(combined_scores, key=lambda x:x[1])
-=======
+
+
 def wordist_oracle(source, system_sentences):
 	maximum = 0
 	for sentence in set(system_sentences):
@@ -281,7 +265,6 @@ def wordist_oracle(source, system_sentences):
 			chosen = sentence, combined_score
 	# print(chosen)
 	return chosen
->>>>>>> e78dfd4c3f1d3b1bf619bb61e57beb6262ff03b8
 
 
 def referece_less_oracle(source, system_sentences, parse_dir, gamma):
