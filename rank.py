@@ -1,49 +1,61 @@
 import time
 import sys
-UCCA_DIR = '/home/borgr/ucca/ucca'
-ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
+# UCCA_DIR = '/home/borgr/ucca/ucca'
+# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
-# UCCA_DIR = TUPA_DIR +'ucca'
-# ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
+UCCA_DIR = TUPA_DIR +'ucca'
+ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
 sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
-sys.path.append(UCCA_DIR)
-sys.path.append(UCCA_DIR + '/scripts/distances')
-sys.path.append(UCCA_DIR + '/ucca')
-sys.path.append(TUPA_DIR)
+# sys.path.append(UCCA_DIR)
+# sys.path.append(UCCA_DIR + '/scripts/distances')
+# sys.path.append(UCCA_DIR + '/ucca')
+# sys.path.append(TUPA_DIR)
 from ucca.ioutil import file2passage
 from subprocess import call
 import subprocess
 import codecs
 import numpy as np
-import time
-from m2scorer import m2scorer
+# from m2scorer import m2scorer
 import re
 import os
 from multiprocessing import Pool
-import align
+# import align
 import pickle
 import json
 from functools import reduce
 import operator
-from significance_testing import m2score
+# from significance_testing import m2score
 import platform
+from ucca.ioutil import passage2file
+from ucca.convert import from_text
 POOL_SIZE = 7
 full_rerank = True
 
+from tupa.parse import Parser
+model_path = "/cs/labs/oabend/borgr/tupa/models/bilstm"
+parser = Parser(model_path, "bilstm")
+
+
 def main():
-	# rerank_by_m2()
-	for gamma in np.linspace(0,1,11):
-		print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
-					  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
-		# rerank_by_uccasim(gamma)
-		rerank_by_uccasim(gamma)
-	print(m2score(system_file=r"/home/borgr/ucca/assess_learner_language/data/paragraphs/conll14st.output.1cleaned",
-				  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
-	anounce_finish()
-	reduce_k_best(100, 10, filename)
+	parse_JFLEG()
+	# # rerank_by_m2()
+	# for gamma in np.linspace(0,1,11):
+	# 	print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
+	# 				  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
+	# 	# rerank_by_uccasim(gamma)
+	# 	rerank_by_uccasim(gamma)
+	# print(m2score(system_file=r"/home/borgr/ucca/assess_learner_language/data/paragraphs/conll14st.output.1cleaned",
+	# 			  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
+	# anounce_finish()
+	# reduce_k_best(100, 10, filename)
 
 
-
+def parse_JFLEG():
+	JFLEG_dir = ASSESS_DIR + "/data/jfleg/dev"
+	(path, dirs, files) = next(os.walk(JFLEG_dir))
+	filenames = [path + os.sep + fl for fl in files]
+	ucca_parse_files(filenames, JFLEG_dir + os.sep + "xmls")
+	
 
 
 def rerank_by_uccasim(gamma=0.27):
@@ -160,6 +172,7 @@ def rerank_by_m2():
 			with open(out_res_file, "w+") as fl:
 				fl.write(results)
 
+
 def reduce_k_best(big_k, small_k, filename, outfile=None):
 	if outfile is None:
 		outfile = os.path.normpath(filename)
@@ -173,7 +186,6 @@ def reduce_k_best(big_k, small_k, filename, outfile=None):
 				output.append(line)
 	# finish that 
 	raise
-
 
 
 def referece_less_full_rerank(source, system_sentences, parse_dir, gamma):
@@ -204,6 +216,23 @@ def RBM_oracle(tple):
 			maximum = f
 			chosen = sentence, (p,r,f)
 	return chosen
+
+
+def ucca_parse_files(filenames, output_dir):
+	# parse_command = "python ../tupa/tupa/parse.py -c bilstm -m ../tupa/models/bilstm -o "+ output_dir +" "
+	# print("parsing with:", parse_command)
+
+	if filenames:
+		for filename in filenames:
+			print("parsing " + filename)
+			with open(filename, "r") as fl:
+				text = fl.readlines()
+			text = from_text(text, split=True)
+			print(text)
+			for i, passage in enumerate(parser.parse(text)):
+				passage2file(passage, output_dir + os.sep + os.path.basename(filename) + str(i) + ".xml")
+			print("printed all xmls from " + output_dir + os.sep + os.path.basename(filename))
+		# res = subprocess.run(parse_command.split() + list(files), stdout=subprocess.PIPE)
 
 
 def ucca_parse(sentences, output_dir):
