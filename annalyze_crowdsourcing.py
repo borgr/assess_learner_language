@@ -699,6 +699,7 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 
 def plot_significance(show=True, save=True):
 	learner_file = "source"
+	JMGR_file = "JMGR"
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	char_based_file = "filtered_test.txt"
 	amu_file = "AMU"
@@ -715,6 +716,7 @@ def plot_significance(show=True, save=True):
 	camb_file = "CAMB"
 	gold_file = "gold"
 	files = [ACL2016RozovskayaRothOutput_file,
+	JMGR,
 	char_based_file,
 	amu_file,
 	cuui_file,

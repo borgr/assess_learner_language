@@ -1,11 +1,13 @@
 import sys
 import os
+sys.path.append(os.path.abspath("./m2scorer/scripts/"))
+
 import subprocess
 import scikits.bootstrap
-from m2scorer import m2scorer
+from m2scorer.scripts import m2scorer
 import numpy as np
 from multiprocessing import Pool
-POOL_SIZE = 4
+POOL_SIZE = 7
 ALTERNATIVE_GOLD_MS = np.arange(10) + 1
 
 
@@ -13,6 +15,7 @@ def main():
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	char_based_file = "filtered_test.txt"
 	learner_file = "conll.tok.orig"
+	JMGR_file = "JMGR"
 	amu_file = "AMU"
 	cuui_file = "CUUI"
 	iitb_file = "IITB"
@@ -28,6 +31,7 @@ def main():
 	gold_file = "corrected_official-2014.0.txt.comparable"
 	files = [ACL2016RozovskayaRothOutput_file,
 	char_based_file,
+	JMGR_file,
 	amu_file,
 	cuui_file,
 	iitb_file,
@@ -63,17 +67,17 @@ def main():
 	results = [[1,0,0],[1,0,0]] + list(results) + [[1,1,1],[1,1,1]]
 	print(results)
 
-	# perfect annotator significance
-	perfect_dir = "/home/borgr/ucca/assess_learner_language/calculations_data/"
-	pool = Pool(POOL_SIZE)
-	files = ["perfect_output_for_" + str(m) + "_sgss.m2" for m in ALTERNATIVE_GOLD_MS]
-	gold_files = [perfect_dir + str(m) + "_sgss.m2" for m in ALTERNATIVE_GOLD_MS]
-	input_dirs = [perfect_dir] * len(files)
-	results = pool.imap_unordered(m2score_sig_in_one,list(zip(files, gold_files, input_dirs)))
-	pool.close()
-	pool.join()
-	results = list(results)
-	print(results)
+	# # perfect annotator significance
+	# perfect_dir = "/home/borgr/ucca/assess_learner_language/calculations_data/"
+	# pool = Pool(POOL_SIZE)
+	# files = ["perfect_output_for_" + str(m) + "_sgss.m2" for m in ALTERNATIVE_GOLD_MS]
+	# gold_files = [perfect_dir + str(m) + "_sgss.m2" for m in ALTERNATIVE_GOLD_MS]
+	# input_dirs = [perfect_dir] * len(files)
+	# results = pool.imap_unordered(m2score_sig_in_one,list(zip(files, gold_files, input_dirs)))
+	# pool.close()
+	# pool.join()
+	# results = list(results)
+	# print(results)
 
 def m2score_sig_in_one(tpl):
 	if len(tpl) == 2:
@@ -81,6 +85,7 @@ def m2score_sig_in_one(tpl):
 	if len(tpl) == 3:
 		return m2score_sig(tpl[0], tpl[1], tpl[2])	
 	return m2score_sig(tpl[0], tpl[1], tpl[2], tpl[3])
+
 
 def read_system(file):
 	# load system hypotheses
@@ -92,7 +97,9 @@ def read_system(file):
 	fin.close()
 
 	return system_sentences
-def m2score(m=None, system_file=None, gold_file=r"/home/borgr/ucca/assess_learner_language/data/conll14st-test-data/noalt/official-2014.combined.m2"):
+
+
+def m2score(m=None, system_file=None, gold_file=r"./data/conll14st-test-data/noalt/official-2014.combined.m2"):
 	directory = r"./calculations_data/"
 	system_file = system_file if system_file else directory+"perfect_output_for_" + str(m) + "_sgss.m2" 
 	gold_file = gold_file if gold_file else directory + str(m) + "_sgss.m2"
@@ -105,7 +112,8 @@ def m2score(m=None, system_file=None, gold_file=r"/home/borgr/ucca/assess_learne
 	assert(len(system_sentences) == len(source_sentences) and len(system_sentences) == len(gold_edits))
 	return m2scorer.get_score(system_sentences, source_sentences, gold_edits, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
 
-def m2score_sig(filename, gold_file=r"/home/borgr/ucca/assess_learner_language/data/conll14st-test-data/noalt/official-2014.combined.m2", input_dir = r"/home/borgr/ucca/data/paragraphs/", output_dir = r"/home/borgr/ucca/assess_learner_language/results/significance/"):
+
+def m2score_sig(filename, gold_file=r"./data/conll14st-test-data/noalt/official-2014.combined.m2", input_dir = r"./data/paragraphs/", output_dir = r"./results/significance/"):
 	system_file = input_dir + filename
 	n_samples = 1000
 	print("testing significance of " + filename)
@@ -117,6 +125,7 @@ def m2score_sig(filename, gold_file=r"/home/borgr/ucca/assess_learner_language/d
 	statfunction = lambda source, gold, system: m2scorer.get_score(system, source, gold, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
 	data = (source_sentences, gold_edits, system_sentences)
 	test_significance(statfunction, data, output_dir + str(n_samples) + "_" + filename, n_samples=n_samples)
+
 
 def test_significance(statfunction, data, filename=None, alpha=0.05, n_samples=100, method='bca', output='lowhigh', epsilon=0.001, multi=True):
 	""" checks the confidence rate of alpha over n_samples based on the empirical distribution data writes to file the results.
@@ -134,6 +143,7 @@ def test_significance(statfunction, data, filename=None, alpha=0.05, n_samples=1
 			res = fl.readlines()
 	print(filename, "results:", res)
 	return res
+
 
 if __name__ == '__main__':
 	main()
