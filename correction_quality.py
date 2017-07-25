@@ -22,9 +22,14 @@ from nltk.tokenize import sent_tokenize as nltk_sent_tokenize
 from nltk.stem import WordNetLemmatizer
 
 # ucca
-sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
-sys.path.append('/home/borgr/ucca/ucca/ucca')
-sys.path.append('/home/borgr/ucca/ucca')
+# UCCA_DIR = '/home/borgr/ucca/ucca'
+# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
+TUPA_DIR = '/cs/labs/oabend/borgr/tupa'
+UCCA_DIR = TUPA_DIR +'/ucca'
+ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
+sys.path.append(UCCA_DIR + '/scripts/distances')
+sys.path.append(UCCA_DIR + '/ucca')
+sys.path.append(UCCA_DIR)
 import align
 
 #constants
@@ -43,7 +48,7 @@ MAX_SENTENCES = 1400 # accounts for the maximum number of lines to get from the 
 MAX_DIST = 2
 SHORT_WORD_LEN = 4
 CHANGING_RATIO = 5
-PATH = r"/home/borgr/ucca/assess_learner_language/data/paragraphs/"
+PATH = ASSESS_DIR + r"/data/paragraphs/"
 
 ORDERED = "original order"
 FIRST_LONGER = "sentence splitted"
@@ -60,16 +65,16 @@ trial_name = ""
 
 def main():
 	# UCCASim_conservatism()
-	outputs_conservatism()
-	# ranking_conservatism()
+	# outputs_conservatism()
+	ranking_conservatism()
 
 
 def outputs_conservatism():
 	change_date = "160111"
 	filename = "results/results"+ change_date + ".json"
+	learner_file = "conll.tok.orig"
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	char_based_file = "filtered_test.txt"
-	learner_file = "conll.tok.orig"
 	JMGR_file = "JMGR"
 	amu_file = "AMU"
 	cuui_file = "CUUI"
@@ -88,6 +93,7 @@ def outputs_conservatism():
 	from fce import LEARNER_FILE as fce_learner_file
 	autocorrect = read_paragraph(ACL2016RozovskayaRothOutput_file)
 	char_based = read_paragraph(char_based_file)
+	jmgr = read_paragraph(JMGR_file)
 	amu = read_paragraph(amu_file)
 	camb = read_paragraph(camb_file)
 	cuui = read_paragraph(cuui_file)
@@ -100,7 +106,6 @@ def outputs_conservatism():
 	sjtu = read_paragraph(sjtu_file)
 	ufc = read_paragraph(ufc_file)
 	umc = read_paragraph(umc_file)
-	jmgr = read_paragraph(JMGR_file)
 	origin = read_paragraph(learner_file, preprocess_paragraph)
 	gold = read_paragraph(gold_file, preprocess_paragraph_minimal)
 	fce_gold = read_paragraph(fce_gold_file)
@@ -331,7 +336,7 @@ def ranking_conservatism():
 	for fl in files:
 		if "subset" in fl:
 			filenames.append(fl)
-	names = [name[18:] for name in filenames]
+	names = [name[18:].replace("subset", " refs") for name in filenames]
 	for name in names:
 		if name[1].isdigit():
 			nums.append(int(name[:2]))
