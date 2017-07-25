@@ -59,11 +59,18 @@ NO_ALIGNED = ""
 trial_name = ""
 
 def main():
+	# UCCASim_conservatism()
+	outputs_conservatism()
+	# ranking_conservatism()
+
+
+def outputs_conservatism():
 	change_date = "160111"
 	filename = "results/results"+ change_date + ".json"
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	char_based_file = "filtered_test.txt"
 	learner_file = "conll.tok.orig"
+	JMGR_file = "JMGR"
 	amu_file = "AMU"
 	cuui_file = "CUUI"
 	iitb_file = "IITB"
@@ -93,6 +100,7 @@ def main():
 	sjtu = read_paragraph(sjtu_file)
 	ufc = read_paragraph(ufc_file)
 	umc = read_paragraph(umc_file)
+	jmgr = read_paragraph(JMGR_file)
 	origin = read_paragraph(learner_file, preprocess_paragraph)
 	gold = read_paragraph(gold_file, preprocess_paragraph_minimal)
 	fce_gold = read_paragraph(fce_gold_file)
@@ -197,6 +205,15 @@ def main():
 		dump(res_list, filename)
 	else:
 		res_list.append(old_res[name])
+	
+	name = "jmgr"
+	print(name)
+	if name not in old_res:
+		broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, jmgr)
+		res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+		dump(res_list, filename)
+	else:
+		res_list.append(old_res[name])
 
 	# compare origin to Char_based_file
 	name = "Char"
@@ -297,11 +314,11 @@ def main():
 		dump(res_list, filename)
 	else:
 		res_list.append(old_res[name])
+	dump(res_list, filename)
+	plot_comparison(res_list)
+	convert_file_to_csv(filename)
 
-	# dump(res_list, filename)
-	# plot_comparison(res_list)
-	# convert_file_to_csv(filename)
-
+def ranking_conservatism():
 	change_date = "170531"
 	filename = "results/reranking_results"+ change_date + ".json"
 	all_file = "first_rank_resultsALL"
@@ -332,13 +349,21 @@ def main():
 
 	learner_file = "conll.tok.orig"
 	origin = read_paragraph(learner_file, preprocess_paragraph)
-	# compare(filenames, names, filename, origin)
+	compare(filenames, names, filename, origin)
 
+def UCCASim_conservatism():
+	change_date = "170531"
+	all_file = "first_rank_resultsALL"
+	NUCLEA_file = "first_rank_resultsNUCLEA"
+	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	base_rerank = "uccasim_rank_results"
-	filenames = [all_file, ACL2016RozovskayaRothOutput_file, filenames[0]] + \
+	filenames = [all_file, ACL2016RozovskayaRothOutput_file, NUCLEA_file] + \
 				[str(base)+ "_" + base_rerank for base in np.linspace(0,1,11)]
-	names = ["all", names[0], "RoRo"] + [str(base) +"combined" for base in np.linspace(0,1,11) ]
+	names = ["all", "RoRo", "NUCLEA"] + [str(base) +"combined" for base in np.linspace(0,1,11) ]
 	filename = "results/ucca_reranking_results"+ change_date + ".json"
+
+	learner_file = "conll.tok.orig"
+	origin = read_paragraph(learner_file, preprocess_paragraph)
 	compare(filenames, names, filename, origin)
 
 
@@ -358,7 +383,6 @@ def compare(filenames, names, backup, origin):
 			dump(res_list, backup)
 		else:
 			res_list.append(old_res[name])
-
 	dump(res_list, backup)
 	plot_comparison(res_list)
 	convert_file_to_csv(backup)
@@ -947,6 +971,7 @@ def plot_differences_hist(l, ax, pivot, diff_type, bottom, bins=None):
 	name = -1
 	if bins != None:
 		bins = np.array(bins) + 1 - bottom
+	total_width = len(l) * width
 	for i, tple in enumerate(l):
 		full_hist = create_hist(tple[pivot], bottom=bottom)
 		print(full_hist)
@@ -962,10 +987,10 @@ def plot_differences_hist(l, ax, pivot, diff_type, bottom, bins=None):
 		x = np.array(range(len(y)))
 		print(diff_type + " hist results ",tple[name],":",y[:7])
 		colors = many_colors(range(len(l)))
-		ax.bar(x + i*width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
+		ax.bar(x + i*width - 0.5*total_width, y, width=width, color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
 	plt.autoscale(enable=True, axis='x', tight=False)
 	plt.ylabel("amount")
-	plt.xlim(xmin=0)
+	plt.xlim(xmin=0 - 0.5*total_width)
 	plt.xlabel("number of " + diff_type + " changed")
 	# plt.title("number of " + diff_type + " changed by method of correction")
 	plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
