@@ -21,8 +21,7 @@ sys.path.append(UCCA_DIR + '/scripts/distances')
 import align
 import re
 from ucca import layer0, layer1
-<<<<<<< HEAD
-POOL_SIZE = 8
+
 PATH = ASSESS_DIR + r"/data/xmls/"
 trial_name = "mle"
 UNCOMBINED_DIR = "uncombined/"
@@ -33,24 +32,13 @@ passage_filenames  = []
 
 parsed_paragraphs = [2, 3, 5, 6, 7, 8, 10]
 passage_filenames = []
-=======
-POOL_SIZE = 4
-UNCOMBINED_DIR = "uncombined/"
-corrected_stamp = "_corrected"
-passage_filenames = []
 r2s = True
 # trial_name = "parser_r2s"
 # PATH = r"/home/borgr/ucca/assess_learner_language/data/xmls/"
 # filenames = []
 # parsed_paragraphs = [2, 3, 5, 6, 7, 8, 10]
 # passage_filenames = []
->>>>>>> e78dfd4c3f1d3b1bf619bb61e57beb6262ff03b8
-# for x in parsed_paragraphs:
-# 	passage_filenames.append(str(x))
-# 	passage_filenames.append(str(x) + corrected_stamp)
-# sys.setrecursionlimit(10000000)
 
-<<<<<<< HEAD
 # JFLEG parsed
 path, dirs, files = next(os.walk(JFLEG_DIR))
 for filename in files:
@@ -68,26 +56,13 @@ print(passage_filenames)
 # passage_filenames = [x + ".xml" for x in passage_filenames]
 
 # # sentence splitted xmls
-=======
 # # # combined passage names
 # # passage_filenames = [x + ".xml" for x in passage_filenames]
 
 # # sentence splitted xmls
 # passage_filenames  = []
->>>>>>> e78dfd4c3f1d3b1bf619bb61e57beb6262ff03b8
-# for root, dirs, files in os.walk(PATH + UNCOMBINED_DIR):
-# 	for filename in files:
-# 		if filename.endswith(".xml"):
-# 			print(filename)
-# 			if corrected_stamp not in filename:
-# 				passage_filenames.append(UNCOMBINED_DIR + filename[:-7] + corrected_stamp + filename[-7:])
-# 				passage_filenames.append(UNCOMBINED_DIR + filename)
-# print(passage_filenames)
-<<<<<<< HEAD
-=======
 
 PATH = r"/home/borgr/ucca/assess_learner_language/data/annotations/"
->>>>>>> e78dfd4c3f1d3b1bf619bb61e57beb6262ff03b8
 
 # trial_name = "same"
 # borgr = list(("tree1197", "tree1297", "tree1198", "tree1298", "tree1200", "tree1300", "tree1202", "tree1302")) # "tree1299",  "tree1301"
@@ -120,13 +95,8 @@ funcs = [align.fully_aligned_distance, align.aligned_top_down_distance,
 		 lambda x, y: align.token_distance(x, y, align.fully_align)]
 complex_func = align.token_level_similarity
 
-<<<<<<< HEAD
-# funcs = [align.fully_aligned_distance]
-# complex_func = lambda x,y: {}
-=======
 if r2s:
 	trial_name += "r2s_"
->>>>>>> e78dfd4c3f1d3b1bf619bb61e57beb6262ff03b8
 
 def test(func, p, maximum=1, sym=True):
 	print("testing "+ str(func.__name__))
