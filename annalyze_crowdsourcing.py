@@ -779,8 +779,6 @@ def plot_sig(significances, names, show, save):
 		plt.ylabel(measure)
 		plt.xlabel("$M$ - Number of references in gold standard")
 		if measure == fscore:
-			print("ys!!!!!!!!")
-			print(ys)
 			res = ys[2]
 		if save:
 			plt.savefig(PLOTS_DIR + measure + "_Ms_significance" + ".png", bbox_inches='tight')
@@ -816,8 +814,6 @@ def plot_sig_bars(significances, names, show, save, line=None):
 		plt.xticks(xs, labels, rotation=70)
 		plt.ylabel(measure)
 		if line != None and measure == fscore:
-			print("ys!!!!!!!")
-			print(ys)
 			plt.axhline(line, color="red")
 		if save:
 			plt.savefig(PLOTS_DIR + measure + "_significance" + ".png", bbox_inches='tight')
