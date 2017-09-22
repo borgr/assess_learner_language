@@ -698,6 +698,14 @@ def plot_expected_best_coverage(dist, ax, title_addition="", show=True, save_nam
 
 
 def plot_significance(show=True, save=True):
+	print("sig results")
+	files = ["perfect_output_for_" + str(m+1) + "_sgss.m2" for m in np.arange(10)]
+	results = parse_sigfiles(files)
+	for i, file in enumerate(files):
+		print (file, results[i])
+	names = [str(m+1) for m in np.arange(10)]
+	f5_2 = plot_sig(results, names, show, save)
+
 	learner_file = "source"
 	ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
 	char_based_file = "filtered_test.txt"
@@ -729,7 +737,7 @@ def plot_significance(show=True, save=True):
 	umc_file,
 	camb_file]
 	results = parse_sigfiles(files)
-	print("sig results")
+
 	for i, file in enumerate(files):
 		print (file, results[i])
 	names = [filename if filename != ACL2016RozovskayaRothOutput_file else "RoRo" for filename in files]
@@ -739,19 +747,14 @@ def plot_significance(show=True, save=True):
 	#no gold standard
 	results = results[:-1]
 	names = names[:-1]
-	plot_sig_bars(results, names, show, save)
-	files = ["perfect_output_for_" + str(m+1) + "_sgss.m2" for m in np.arange(10)]
-	results = parse_sigfiles(files)
-	print("sig results")
-	for i, file in enumerate(files):
-		print (file, results[i])
-	names = [str(m+1) for m in np.arange(10)]
-	plot_sig(results, names, show, save)
+	plot_sig_bars(results, names, show, save, line=f5_2)
 
 
 def plot_sig(significances, names, show, save):
+	precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
 	names = np.array([0]+names)
-	for measure_idx, measure in enumerate(["precision", "recall", "$F_{0.5}$"]):
+	for measure_idx, measure in enumerate([precision, recall, fscore]):
+
 		xs = [0]
 		ys = [0]
 		cis = [0]
@@ -775,16 +778,22 @@ def plot_sig(significances, names, show, save):
 		plt.xticks(xs, labels)
 		plt.ylabel(measure)
 		plt.xlabel("$M$ - Number of references in gold standard")
+		if measure == fscore:
+			print("ys!!!!!!!!")
+			print(ys)
+			res = ys[2]
 		if save:
 			plt.savefig(PLOTS_DIR + measure + "_Ms_significance" + ".png", bbox_inches='tight')
 		if show:
 			plt.show()
 		plt.cla()
+	return res
 
 
-def plot_sig_bars(significances, names, show, save):
+def plot_sig_bars(significances, names, show, save, line=None):
+	precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
 	names = np.array(names)
-	for measure_idx, measure in enumerate(["precision", "recall", "$F_{0.5}$"]):
+	for measure_idx, measure in enumerate([precision, recall, fscore]):
 		xs = []
 		ys = []
 		cis = []
@@ -806,6 +815,10 @@ def plot_sig_bars(significances, names, show, save):
 		plt.bar(xs, ys, yerr=cis, align='center', label=labels, edgecolor=colors, color=colors)
 		plt.xticks(xs, labels, rotation=70)
 		plt.ylabel(measure)
+		if line != None and measure == fscore:
+			print("ys!!!!!!!")
+			print(ys)
+			plt.axhline(line, color="red")
 		if save:
 			plt.savefig(PLOTS_DIR + measure + "_significance" + ".png", bbox_inches='tight')
 		if show:
