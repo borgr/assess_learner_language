@@ -30,21 +30,15 @@ corrected_stamp = "_corrected"
 JFLEG_DIR = ASSESS_DIR + r"/data/jfleg/dev/xmls"
 filenames = []
 passage_filenames  = []
-
 parsed_paragraphs = [2, 3, 5, 6, 7, 8, 10]
 passage_filenames = []
 r2s = True
 # trial_name = "parser_r2s"
-# PATH = r"/home/borgr/ucca/assess_learner_language/data/xmls/"
-# filenames = []
-# parsed_paragraphs = [2, 3, 5, 6, 7, 8, 10]
-# passage_filenames = []
 
 # for x in parsed_paragraphs:
 # 	passage_filenames.append(str(x))
 # 	passage_filenames.append(str(x) + corrected_stamp)
 # sys.setrecursionlimit(10000000)
-
 
 # JFLEG parsed
 path, dirs, files = next(os.walk(JFLEG_DIR))
@@ -75,8 +69,7 @@ print(passage_filenames)
 # 				passage_filenames.append(UNCOMBINED_DIR + filename)
 # print(passage_filenames)
 
-
-PATH = r"/home/borgr/ucca/assess_learner_language/data/annotations/"
+PATH = ASSESS_DIR +r"/data/annotations/"
 
 # trial_name = "same"
 # borgr = list(("tree1197", "tree1297", "tree1198", "tree1298", "tree1200", "tree1300", "tree1202", "tree1302")) # "tree1299",  "tree1301"
