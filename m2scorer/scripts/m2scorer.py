@@ -29,8 +29,10 @@
 #   --beta B                    -  Beta value for F-measure. Default 0.5."
 #   --ignore_whitespace_casing  -  Ignore edits that only affect whitespace and caseing. Default no."
 #
-
+import os
 import sys
+
+# sys.path.append(os.path.abspath("./scripts/"))
 import levenshtein 
 from getopt import getopt
 from m2util import paragraphs

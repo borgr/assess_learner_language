@@ -17,19 +17,23 @@ from collections import Counter
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
-sys.path.append('/home/borgr/ucca/ucca/scripts')
+TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
+# UCCA_DIR = '/home/borgr/ucca/ucca'
+UCCA_DIR = TUPA_DIR +'/ucca/'
+sys.path.append(UCCA_DIR + '/scripts')
 import pickle
-sys.path.append('/home/borgr/ucca/ucca/ucca')
-sys.path.append('/home/borgr/ucca/ucca')
+sys.path.append(UCCA_DIR + '/ucca')
+sys.path.append(UCCA_DIR)
 import convert
 import textutil
-sys.path.append('/home/borgr/ucca/ucca/scripts/distances')
+sys.path.append(UCCA_DIR + '/scripts/distances')
 import align
 from correction_quality import align_sentence_words
 from correction_quality import preprocess_word
 
 #file locations
-ASSESS_LEARNER_DIR = r"/home/borgr/ucca/assess_learner_language/"
+# ASSESS_LEARNER_DIR = r"/home/borgr/ucca/assess_learner_language/"
+ASSESS_LEARNER_DIR = '/cs/labs/oabend/borgr/assess_learner_language/'
 GOLD_FILE = ASSESS_LEARNER_DIR + r"data/conll14st-test-data/noalt/official-2014.combined.m2"
 CORRECTIONS_DIR = ASSESS_LEARNER_DIR + r"batches/"
 DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
@@ -63,11 +67,13 @@ CORRECTION_NUMS = list(range(51))
 ALTERNATIVE_GOLD_MS = [1,3,4,6,7,9,10]
 
 def main():
-	db = read_batches()
-	create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
+	# # db = read_batches()
+	# # create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
 
-	db = clean_data(db)
-	learner_sentences = db[LEARNER_SENTENCES_COL].unique()
+	# # db = clean_data(db)
+	# print(db.groupby(LEARNER_SENTENCES_COL)[CORRECTED_SENTENCES_COL].nunique())
+
+	# learner_sentences = db[LEARNER_SENTENCES_COL].unique()
 	show_correction = False
 	save_correction = False
 	show_coverage = False
@@ -76,16 +82,16 @@ def main():
 	save_dists = False
 	show_significance = True
 	save_significance = True
-	compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
-	db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
-	compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
-	for root, dirs, files in os.walk(HISTS_DIR):
-		for filename in files:
-			if INPUT_HIST_IDENTIFIER in filename:
-				assess_real_distributions(root+filename, str(0))
-	plot_dists(show_dists, save_dists, EXACT_COMP)
-	assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
-	coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
+	# compare_correction_distributions(db, EXACT_COMP, show=show_correction, save=save_correction)
+	# db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
+	# compare_correction_distributions(db, INDEX_COMP, index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
+	# for root, dirs, files in os.walk(HISTS_DIR):
+	# 	for filename in files:
+	# 		if INPUT_HIST_IDENTIFIER in filename:
+	# 			assess_real_distributions(root+filename, str(0))
+	# plot_dists(show_dists, save_dists, EXACT_COMP)
+	# assess_coverage(True, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
+	# coverage_by_corrections_num = assess_coverage(False, show=show_coverage, save=save_coverage, res_type=EXACT_COMP)
 	plot_significance(show=show_significance,save=save_significance)
 
 def create_golds(sentences, corrections, gold_file, ms):
@@ -716,7 +722,7 @@ def plot_significance(show=True, save=True):
 	camb_file = "CAMB"
 	gold_file = "gold"
 	files = [ACL2016RozovskayaRothOutput_file,
-	JMGR,
+	JMGR_file,
 	char_based_file,
 	amu_file,
 	cuui_file,
@@ -818,7 +824,7 @@ def plot_sig_bars(significances, names, show, save):
 def parse_sigfiles(files):
 	results = []
 	for file in files:
-		filename = r"/home/borgr/ucca/assess_learner_language/results/significance/1000_" + file
+		filename = ASSESS_LEARNER_DIR + r"/results/significance/1000_" + file
 		with open(filename, "r") as fl:
 			str_content = fl.readlines()
 		content = []
