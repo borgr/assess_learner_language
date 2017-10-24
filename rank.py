@@ -30,12 +30,15 @@ from ucca.ioutil import passage2file
 from ucca.convert import from_text
 from correction_quality import word_diff
 
+from simplification import SARI
+import annalyze_crowdsourcing as an
+
 POOL_SIZE = 7
 full_rerank = True
 
-from tupa.parse import Parser
-model_path = "/cs/labs/oabend/borgr/tupa/models/bilstm"
-parser = Parser(model_path, "bilstm")
+# from tupa.parse import Parser
+# model_path = "/cs/labs/oabend/borgr/tupa/models/bilstm"
+# parser = Parser(model_path, "bilstm")
 
 
 def main():
@@ -233,6 +236,62 @@ def rerank_by_m2():
 				fl.write(results)
 
 
+def rerank_by_SARI():
+	data_dir = "data/simplification/"
+	k_best_dir = data_dir + "K-best/"
+	system_file = k_best_dir + "Moses_based"
+
+	DATA_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep + "/simplification/data/"
+	TURKERS_DIR = DATA_DIR + "turkcorpus/truecased/"
+
+	ORIGIN = "origin"
+
+	db = []
+	for root, dirs, files in os.walk(TURKERS_DIR):
+		for filename in files:
+			cur_db = pd.read_table(TURKERS_DIR + filename, names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
+			db.append(cur_db)
+	db = pd.concat(db, ignore_index=True)
+	db.drop("index", inplace=True, axis=1)
+	db.dropna(inplace=True, axis=0)
+	db.applymap(an.normalize_sentence)
+	source_sentences = db[ORIGIN].tolist()
+	references = db.iloc[:, -8:].values
+
+
+	calculations_dir = "calculations_data/"
+	output_file = "simplification_rank_results"
+	for ref_num in [1, 2, 3, 4, 5, 6, 7, 8]:
+		out_text_file = calculations_dir + output_file + str(ref_num) + "refs"
+		out_res_file = calculations_dir + "SARI_" + output_file + str(ref_num) + "refs"
+		if not os.path.isfile(out_text_file):
+			print("ranking with", ref_num, "refs")
+
+			# load system hypotheses
+
+			# pack k-best
+			packed_system_sentences = []
+			for source, refs, system in zip(source_sentences, references, system_sentences):
+				packed_system_sentences.append(source, references, system_sentences[np.random.randint(0, 8, ref_num)].tolist())
+
+			# find top ranking
+			pool = Pool(POOL_SIZE)
+			assert(len(packed_system_sentences) == len(gold_edits) and len(gold_edits) == len(source_sentences))
+			results = pool.imap(RBM_oracle, zip(source_sentences, packed_system_sentences))
+			pool.close()
+			pool.join()
+			results = list(results)
+			sentences = "\n".join(zip(*results)[0])
+			results = zip(*results)[1]
+			results = "\n".join([str(x) for x in results])
+			
+			print("writing to " + out_text_file)
+			with codecs.open(out_text_file, "w+", "utf-8") as fl:
+				fl.write(sentences)
+			with open(out_res_file, "w+") as fl:
+				fl.write(results)
+
+
 def reduce_k_best(big_k, small_k, filename, outfile=None):
 	if outfile is None:
 		outfile = os.path.normpath(filename)
@@ -263,7 +322,6 @@ def wordist_oracle(source, system_sentences):
 		if maximum <= combined_score:
 			maximum = combined_score
 			chosen = sentence, combined_score
-	# print(chosen)
 	return chosen
 
 
@@ -286,6 +344,17 @@ def RBM_oracle(tple):
 		if maximum <= f:
 			maximum = f
 			chosen = sentence, (p,r,f)
+	return chosen
+
+
+def SARI_oracle(tple):
+	maximum = 0
+	source, references, system_sentences = tple
+	for sentence in system_sentences:
+		score = SARI_score(source, references, sentence)
+		if maximum <= score:
+			maximum = score
+			chosen = sentence
 	return chosen
 
 
@@ -407,6 +476,10 @@ def score(source, gold_edits, system):
 	return sentence_m2(source, gold_edits, system)
 
 
+def SARI_score(source, references, system):
+	return SARI.SARIsent(system, source, references)
+
+
 def sentence_m2(source, gold_edits, system):
 	return m2scorer.get_score([system], [source], [gold_edits], max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False, should_cache=False)
 
@@ -433,4 +506,18 @@ def anounce_finish():
 		winsound.Beep(300,2)
 
 if __name__ == '__main__':
-	main()	
+	fnamenorm   = "./turkcorpus/test.8turkers.tok.norm"
+	fnamesimp   = "./turkcorpus/test.8turkers.tok.simp"
+	fnameturk  = "./turkcorpus/test.8turkers.tok.turk."
+
+
+	ssent = "About 95 species are currently accepted ."
+	csent1 = "About 95 you now get in ."
+	csent2 = "About 95 species are now agreed ."
+	csent3 = "About 95 species are currently agreed ."
+	rsents = ["About 95 species are currently known .", "About 95 species are now accepted .", "95 species are now accepted ."]
+
+	print(SARI_score(csent1, rsents, ssent))
+	print(SARI_score(csent2, rsents, ssent))
+	print(SARI_score(csent3, rsents, ssent))
+	main()
