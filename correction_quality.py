@@ -66,7 +66,8 @@ trial_name = ""
 def main():
 	# UCCASim_conservatism()
 	# outputs_conservatism()
-	ranking_conservatism()
+	# ranking_conservatism()
+	reranking_simplification_conservatism()
 
 
 def outputs_conservatism():
@@ -326,10 +327,21 @@ def outputs_conservatism():
 
 def reranking_simplification_conservatism():
 	change_date = "171026"
+	complex_file = "test.8turkers.tok.norm"
 	filename = "results/simplification_reranking_results"+ change_date + ".json"
+	(path, dirs, files) = next(os.walk(PATH))
+	filenames = []
+	names = []
+	for fl in files:
+		if "simplification" in fl:
+			filenames.append(fl)
+			names.append(fl[-5:])
 
-
-	compare(filenames, names, filename, origin)
+	argsort = np.argsort(names)
+	names = np.array(names)[argsort]
+	filenames = np.array(filenames)[argsort]
+	origin = read_text(complex_file)
+	compare(filenames, names, filename, origin, read_text, compare_aligned_paragraphs)
 
 
 def ranking_conservatism():
@@ -365,6 +377,7 @@ def ranking_conservatism():
 	origin = read_paragraph(learner_file, preprocess_paragraph)
 	compare(filenames, names, filename, origin)
 
+
 def UCCASim_conservatism():
 	change_date = "170531"
 	all_file = "first_rank_resultsALL"
@@ -379,35 +392,6 @@ def UCCASim_conservatism():
 	learner_file = "conll.tok.orig"
 	origin = read_paragraph(learner_file, preprocess_paragraph)
 	compare(filenames, names, filename, origin)
-
-
-def compare(filenames, names, backup, origin):
-	""" compares the conservatism of an iterable of files to an origin text
-	filenames - iterable containing file names of sentences
-				that correspond to the sentences in origin file.
-				One sentence per line.
-	names - iterable of names to call each file 
-	backup - cache file
-	origin - filename with original sentences (line sparated)
-	"""
-	contents = []
-	res_list = []
-	for filename in filenames:
-		contents.append(read_paragraph(filename))
-	old_res = read(backup) if backup else {}
-	for (name, res) in old_res.items():
-		res.append(name)
-		dump(res_list, backup)
-	for name, content in zip(names, contents):
-		if name not in old_res:
-			broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, content)
-			res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
-			dump(res_list, backup)
-		else:
-			res_list.append(old_res[name])
-	dump(res_list, backup)
-	plot_comparison(res_list)
-	convert_file_to_csv(backup)
 
 
 ###########################################################
@@ -582,6 +566,7 @@ def calculate_endings(sentences, paragraph):
 		endings.append(current)
 	return endings
 
+
 def align_sentence_words(s1, s2, isString, empty_cache=False):
 	"""aligns words from sentence s1 to s2m, allows caching
 		returns arrays of word tuplds and indexes tuples"""
@@ -597,6 +582,7 @@ def align_sentence_words(s1, s2, isString, empty_cache=False):
 		align_sentence_words.cache[(s2, s1, isString)] = res
 		return res
 align_sentence_words.cache={}
+
 
 ###########################################################
 ####                    WORDS CHANGED                   ###
@@ -835,6 +821,36 @@ def get_sentences_from_endings(paragraph, endings):
 		last = cur
 
 
+def calculate_conservatism(origin_sentences, corrected_sentences):
+	print("calculating conservatism")
+	index_differences = [index_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
+	spearman_differences = [spearman_diff(orig, cor)[0] for orig, cor in zip(origin_sentences, corrected_sentences)]
+	word_differences = [word_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
+	print("comparing done, printing interesting results")
+	for i, dif in enumerate(word_differences):
+		if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+			print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
+			print ("word dif:", dif)
+			print("match num:", i)
+	for i, dif in enumerate(index_differences):
+		if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+			print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
+			print ("word dif:", dif)
+			print("match num:", i)
+	return word_differences, index_differences, spearman_differences
+
+
+def compare_aligned_paragraphs(origin, corrected, break_sent1=sent_token_by_char, break_sent2=sent_token_by_char):
+	origin_sentences = break_sent1(origin)
+	corrected_sentences = break_sent2(corrected)
+	broken1 = [i for i, char in enumerate(origin) if char == "\n"]
+	broken2 = [i for i, char in enumerate(corrected) if char == "\n"]
+
+	word_differences, index_differences, spearman_differences = calculate_conservatism(origin_sentences, corrected_sentences)
+	assert len(origin_sentences) == len(corrected_sentences)
+	return [broken1, broken2], word_differences, index_differences, spearman_differences, [ORDERED_ALIGNED] * len(origin_sentences)
+
+
 def compare_paragraphs(origin, corrected, break_sent1=sent_tokenize_default, break_sent2=sent_tokenize_default):
 	""" compares two paragraphs
 		return:
@@ -850,21 +866,19 @@ def compare_paragraphs(origin, corrected, break_sent1=sent_tokenize_default, bre
 	origin_sentences = list(get_sentences_from_endings(origin, broken[0]))
 	corrected_sentences = list(get_sentences_from_endings(corrected, broken[1]))
 	# print(corrected_sentences)
-	index_differences = [index_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
-	spearman_differences = [spearman_diff(orig, cor)[0] for orig, cor in zip(origin_sentences, corrected_sentences)]
-	word_differences = [word_diff(orig, cor) for orig, cor in zip(origin_sentences, corrected_sentences)]
-	print("comparing done, printing interesting results")
-	for i, dif in enumerate(word_differences):
-		if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
-			print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
-			print ("word dif:", dif)
-			print("match num:", i)
-	for i, dif in enumerate(index_differences):
-		if dif > 10: # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
-			print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
-			print ("word dif:", dif)
-			print("match num:", i)
+	word_differences, index_differences, spearman_differences = calculate_conservatism(origin_sentences, corrected_sentences)
 	return broken, word_differences, index_differences, spearman_differences, aligned_by
+
+def preprocess_simplification(s):
+	s = s.replace("-rrb-", " ")
+	s = s.replace("-lrb-", "")
+	s = re.sub(r"[ \t]+", r" ", s)
+	return s
+
+
+def read_text(filename, process=preprocess_simplification):
+	with open(PATH + filename, "r") as fl:
+		return process(fl.read())
 
 
 def read_paragraph(filename, process=preprocess_paragraph):
@@ -880,6 +894,36 @@ def extract_aligned_by_dict(a):
 	res[FIRST_LONGER] = count[FIRST_LONGER] + count[FIRST_LONGER_ALIGNED]
 	res[SECOND_LONGER] = count[SECOND_LONGER] + count[SECOND_LONGER_ALIGNED]
 	return res
+
+
+def compare(filenames, names, backup, origin, read_paragraph=read_paragraph, compare_paragraphs=compare_paragraphs):
+	""" compares the conservatism of an iterable of files to an origin text
+	filenames - iterable containing file names of sentences
+				that correspond to the sentences in origin file.
+				One sentence per line.
+	names - iterable of names to call each file 
+	backup - cache file
+	origin - paragran with original sentences (not a filename)
+	"""
+	contents = []
+	res_list = []
+	for filename in filenames:
+		contents.append(read_paragraph(filename))
+	old_res = read(backup) if backup else {}
+	for (name, res) in old_res.items():
+		res.append(name)
+		dump(res_list, backup)
+	for name, content in zip(names, contents):
+		if name not in old_res:
+			broken, words_differences, index_differences, spearman_differences, aligned_by = compare_paragraphs(origin, content)
+			res_list.append((broken, words_differences, index_differences, spearman_differences, aligned_by, name))
+			dump(res_list, backup)
+		else:
+			res_list.append(old_res[name])
+	dump(res_list, backup)
+	plot_comparison(res_list)
+	convert_file_to_csv(backup)
+
 
 
 ###########################################################
@@ -1226,6 +1270,7 @@ def convert_file_to_csv(filename):
 	max_len = 0
 	for value in l.values():
 		for lst in value:
+			print(value[0])
 			lst = lst[1:] # remove sentence breaks
 			max_len = max(max_len, len(lst))
 	with open(filename, 'w', newline='') as csvfile:
