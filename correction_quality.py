@@ -323,6 +323,15 @@ def outputs_conservatism():
 	plot_comparison(res_list)
 	convert_file_to_csv(filename)
 
+
+def reranking_simplification_conservatism():
+	change_date = "171026"
+	filename = "results/simplification_reranking_results"+ change_date + ".json"
+
+
+	compare(filenames, names, filename, origin)
+
+
 def ranking_conservatism():
 	change_date = "170531"
 	filename = "results/reranking_results"+ change_date + ".json"
@@ -373,6 +382,14 @@ def UCCASim_conservatism():
 
 
 def compare(filenames, names, backup, origin):
+	""" compares the conservatism of an iterable of files to an origin text
+	filenames - iterable containing file names of sentences
+				that correspond to the sentences in origin file.
+				One sentence per line.
+	names - iterable of names to call each file 
+	backup - cache file
+	origin - filename with original sentences (line sparated)
+	"""
 	contents = []
 	res_list = []
 	for filename in filenames:
@@ -391,12 +408,16 @@ def compare(filenames, names, backup, origin):
 	dump(res_list, backup)
 	plot_comparison(res_list)
 	convert_file_to_csv(backup)
+
+
 ###########################################################
 ####                    GENEERAL NLP                    ###
 ###########################################################
 
+
 def is_word(w):
 	return True if w != align.EMPTY_WORD and re.search('\w', w) else False
+
 
 def split_by_pattern(tokens, p, first=1, second=2):
 	""" gets a list of tokens and splits tokens by a compiled regex pattern
