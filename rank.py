@@ -14,6 +14,7 @@ from ucca.ioutil import file2passage
 from subprocess import call
 import subprocess
 import codecs
+import pandas as pd
 import numpy as np
 # from m2scorer import m2scorer
 import re
@@ -53,7 +54,8 @@ def main():
 	# 			  gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
 	# reduce_k_best(100, 10, filename)
 	# rerank_by_wordist()
-	anounce_finish()
+	rerank_by_SARI()
+	# anounce_finish()
 
 
 def parse_JFLEG():
@@ -225,8 +227,8 @@ def rerank_by_m2():
 			pool.close()
 			pool.join()
 			results = list(results)
-			sentences = "\n".join(zip(*results)[0])
-			results = zip(*results)[1]
+			sentences = "\n".join(list(zip(*results))[0])
+			results = list(zip(*results))[1]
 			results = "\n".join([str(x) for x in results])
 			
 			print("writing to " + out_text_file)
@@ -247,42 +249,52 @@ def rerank_by_SARI():
 	ORIGIN = "origin"
 
 	db = []
-	for root, dirs, files in os.walk(TURKERS_DIR):
-		for filename in files:
-			cur_db = pd.read_table(TURKERS_DIR + filename, names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
-			db.append(cur_db)
-	db = pd.concat(db, ignore_index=True)
+	# for root, dirs, files in os.walk(TURKERS_DIR):
+	# 	for filename in files:
+	# 		cur_db = pd.read_table(TURKERS_DIR + filename, names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
+	# 		db.append(cur_db)
+	# db = pd.concat(db, ignore_index=True)
+	filename = "test.8turkers.organized.tsv"
+	db = pd.read_table(TURKERS_DIR + filename, names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
 	db.drop("index", inplace=True, axis=1)
 	db.dropna(inplace=True, axis=0)
 	db.applymap(an.normalize_sentence)
 	source_sentences = db[ORIGIN].tolist()
 	references = db.iloc[:, -8:].values
 
+	# load system hypotheses
+	with open(system_file, "r") as fl:
+		system_sentences = []
+		cur = "0"
+		for line in fl:
+			splitted = line.split("|||")
+			if cur != splitted[0]:
+				system_sentences.append([])
+				cur = splitted[0]
+			system_sentences[-1].append(splitted[1])
 
 	calculations_dir = "calculations_data/"
 	output_file = "simplification_rank_results"
-	for ref_num in [1, 2, 3, 4, 5, 6, 7, 8]:
+	for ref_num in range(8,0,-1):
 		out_text_file = calculations_dir + output_file + str(ref_num) + "refs"
 		out_res_file = calculations_dir + "SARI_" + output_file + str(ref_num) + "refs"
 		if not os.path.isfile(out_text_file):
 			print("ranking with", ref_num, "refs")
 
-			# load system hypotheses
-
 			# pack k-best
 			packed_system_sentences = []
 			for source, refs, system in zip(source_sentences, references, system_sentences):
-				packed_system_sentences.append(source, references, system_sentences[np.random.randint(0, 8, ref_num)].tolist())
+				packed_system_sentences.append((source, refs[np.random.randint(0, 8, ref_num)].tolist(), system))
 
 			# find top ranking
 			pool = Pool(POOL_SIZE)
-			assert(len(packed_system_sentences) == len(gold_edits) and len(gold_edits) == len(source_sentences))
-			results = pool.imap(RBM_oracle, zip(source_sentences, packed_system_sentences))
+			assert(len(packed_system_sentences) == len(references) and len(references) == len(source_sentences))
+			results = pool.imap(SARI_oracle, packed_system_sentences)
 			pool.close()
 			pool.join()
 			results = list(results)
-			sentences = "\n".join(zip(*results)[0])
-			results = zip(*results)[1]
+			sentences = "\n".join(list(zip(*results))[0])
+			results = list(zip(*results))[1]
 			results = "\n".join([str(x) for x in results])
 			
 			print("writing to " + out_text_file)
@@ -354,7 +366,7 @@ def SARI_oracle(tple):
 		score = SARI_score(source, references, sentence)
 		if maximum <= score:
 			maximum = score
-			chosen = sentence
+			chosen = sentence, score
 	return chosen
 
 
@@ -506,18 +518,18 @@ def anounce_finish():
 		winsound.Beep(300,2)
 
 if __name__ == '__main__':
-	fnamenorm   = "./turkcorpus/test.8turkers.tok.norm"
-	fnamesimp   = "./turkcorpus/test.8turkers.tok.simp"
-	fnameturk  = "./turkcorpus/test.8turkers.tok.turk."
+	# fnamenorm   = "./turkcorpus/test.8turkers.tok.norm"
+	# fnamesimp   = "./turkcorpus/test.8turkers.tok.simp"
+	# fnameturk  = "./turkcorpus/test.8turkers.tok.turk."
 
 
-	ssent = "About 95 species are currently accepted ."
-	csent1 = "About 95 you now get in ."
-	csent2 = "About 95 species are now agreed ."
-	csent3 = "About 95 species are currently agreed ."
-	rsents = ["About 95 species are currently known .", "About 95 species are now accepted .", "95 species are now accepted ."]
+	# ssent = "About 95 species are currently accepted ."
+	# csent1 = "About 95 you now get in ."
+	# csent2 = "About 95 species are now agreed ."
+	# csent3 = "About 95 species are currently agreed ."
+	# rsents = ["About 95 species are currently known .", "About 95 species are now accepted .", "95 species are now accepted ."]
 
-	print(SARI_score(csent1, rsents, ssent))
-	print(SARI_score(csent2, rsents, ssent))
-	print(SARI_score(csent3, rsents, ssent))
+	# print(SARI_score(csent1, rsents, ssent))
+	# print(SARI_score(csent2, rsents, ssent))
+	# print(SARI_score(csent3, rsents, ssent))
 	main()
