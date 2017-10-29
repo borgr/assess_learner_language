@@ -1,14 +1,14 @@
 import time
 import sys
-# UCCA_DIR = '/home/borgr/ucca/ucca'
-# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
+UCCA_DIR = '/home/borgr/ucca/ucca'
+ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
-UCCA_DIR = TUPA_DIR +'ucca'
-ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
+# UCCA_DIR = TUPA_DIR +'ucca'
+# ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
 sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
-# sys.path.append(UCCA_DIR)
-# sys.path.append(UCCA_DIR + '/scripts/distances')
-# sys.path.append(UCCA_DIR + '/ucca')
+sys.path.append(UCCA_DIR)
+sys.path.append(UCCA_DIR + '/scripts/distances')
+sys.path.append(UCCA_DIR + '/ucca')
 # sys.path.append(TUPA_DIR)
 from ucca.ioutil import file2passage
 from subprocess import call
@@ -244,7 +244,8 @@ def rerank_by_SARI():
 	system_file = k_best_dir + "Moses_based"
 
 	DATA_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep + "/simplification/data/"
-	TURKERS_DIR = DATA_DIR + "turkcorpus/truecased/"
+	TURK_CORPUS_DIR = DATA_DIR + "turkcorpus/"
+	TURKERS_DIR = TURK_CORPUS_DIR + "truecased/"
 
 	ORIGIN = "origin"
 
@@ -259,9 +260,17 @@ def rerank_by_SARI():
 	db.drop("index", inplace=True, axis=1)
 	db.dropna(inplace=True, axis=0)
 	db.applymap(an.normalize_sentence)
+
+	with open(TURK_CORPUS_DIR + "test.8turkers.tok.simp") as fl:
+		gold = fl.readlines()
+
+	keep = []
+	for i, row in db.iloc[:, -8:].iterrows():
+		keep.append(db.ix[i, ORIGIN] in row.values)
+	keep = np.array(keep)
+	db = db.iloc[keep,:]
 	source_sentences = db[ORIGIN].tolist()
 	references = db.iloc[:, -8:].values
-
 	# load system hypotheses
 	with open(system_file, "r") as fl:
 		system_sentences = []
@@ -272,9 +281,20 @@ def rerank_by_SARI():
 				system_sentences.append([])
 				cur = splitted[0]
 			system_sentences[-1].append(splitted[1])
+	system_sentences = np.array(system_sentences)[keep]
+	gold = np.array(gold)[keep]
 
 	calculations_dir = "calculations_data/"
 	output_file = "simplification_rank_results"
+
+	out_text_file = calculations_dir + output_file + "origin"
+	with codecs.open(out_text_file, "w+", "utf-8") as fl:
+		fl.write("\n".join(source_sentences))
+
+	out_text_file = calculations_dir + output_file + "gold"
+	with codecs.open(out_text_file, "w+", "utf-8") as fl:
+		fl.write("\n".join(gold))
+
 	for ref_num in range(8,0,-1):
 		out_text_file = calculations_dir + output_file + str(ref_num) + "refs"
 		out_res_file = calculations_dir + "SARI_" + output_file + str(ref_num) + "refs"
