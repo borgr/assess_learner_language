@@ -22,11 +22,11 @@ from nltk.tokenize import sent_tokenize as nltk_sent_tokenize
 from nltk.stem import WordNetLemmatizer
 
 # ucca
-# UCCA_DIR = '/home/borgr/ucca/ucca'
-# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
+UCCA_DIR = '/home/borgr/ucca/ucca'
+ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa'
-UCCA_DIR = TUPA_DIR +'/ucca'
-ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
+# UCCA_DIR = TUPA_DIR +'/ucca'
+# ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
 sys.path.append(UCCA_DIR + '/scripts/distances')
 sys.path.append(UCCA_DIR + '/ucca')
 sys.path.append(UCCA_DIR)
@@ -327,15 +327,19 @@ def outputs_conservatism():
 
 def reranking_simplification_conservatism():
 	change_date = "171026"
-	complex_file = "test.8turkers.tok.norm"
+	complex_file = "simplification_rank_resultsorigin"
 	filename = "results/simplification_reranking_results"+ change_date + ".json"
 	(path, dirs, files) = next(os.walk(PATH))
 	filenames = []
 	names = []
+	# filenames.append("test.8turkers.tok.simp")
+	# names.append("gold")
 	for fl in files:
-		if "simplification" in fl:
+		if "simplification" in fl and "origin" not in fl:
 			filenames.append(fl)
 			names.append(fl[-5:])
+			if "gold" in fl:
+				names[-1] = "gold"
 
 	argsort = np.argsort(names)
 	names = np.array(names)[argsort]
@@ -872,6 +876,8 @@ def compare_paragraphs(origin, corrected, break_sent1=sent_tokenize_default, bre
 def preprocess_simplification(s):
 	s = s.replace("-rrb-", " ")
 	s = s.replace("-lrb-", "")
+	s = s.replace("&quot", '"')
+	s = s.replace("&apos", "'")
 	s = re.sub(r"[ \t]+", r" ", s)
 	return s
 
@@ -1270,7 +1276,6 @@ def convert_file_to_csv(filename):
 	max_len = 0
 	for value in l.values():
 		for lst in value:
-			print(value[0])
 			lst = lst[1:] # remove sentence breaks
 			max_len = max(max_len, len(lst))
 	with open(filename, 'w', newline='') as csvfile:
