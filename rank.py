@@ -455,23 +455,6 @@ def get_roro_packed(system_sentences):
 	return packed_system_sentences
 
 
-def semantics_score(source, sentence, parse_dir):
-	source_xml = file2passage(parse_dir + str(get_sentence_id(source, parse_dir, False)) + ".xml")
-	sentence_xml = file2passage(parse_dir + str(get_sentence_id(sentence, parse_dir, False)) + ".xml")
-	return align.fully_aligned_distance(source_xml, sentence_xml)
-
-
-def grammaticality_score(source, sentence, parse_dir):
-	command = "java -jar ../softwares/LanguageTool-3.7/languagetool-commandline.jar --json -l en-US" 
-	filename = str(get_sentence_id(sentence, parse_dir, False)) + ".txt"
-	with open(os.devnull, 'wb') as devnull:
-		res = subprocess.run(command.split() + [parse_dir + filename], stdout=subprocess.PIPE, stderr=devnull)
-	out = res.stdout.decode("utf-8")
-	out = re.sub(r"\\'", "'", out)
-	res = json.loads(out)
-	return 1/(1 + len(res["matches"]))
-
-
 _id_dics = {}
 def get_sentence_id(sentence, parse_dir, graceful=True):
 	""" returns the sentence id in the parse_dir, 
@@ -512,8 +495,29 @@ def SARI_score(source, references, system):
 	return SARI.SARIsent(system, source, references)
 
 
+def semantics_score(source, sentence, parse_dir):
+	source_xml = file2passage(parse_dir + str(get_sentence_id(source, parse_dir, False)) + ".xml")
+	sentence_xml = file2passage(parse_dir + str(get_sentence_id(sentence, parse_dir, False)) + ".xml")
+	return align.fully_aligned_distance(source_xml, sentence_xml)
+
+
+def grammaticality_score(source, sentence, parse_dir):
+	command = "java -jar ../softwares/LanguageTool-3.7/languagetool-commandline.jar --json -l en-US" 
+	filename = str(get_sentence_id(sentence, parse_dir, False)) + ".txt"
+	with open(os.devnull, 'wb') as devnull:
+		res = subprocess.run(command.split() + [parse_dir + filename], stdout=subprocess.PIPE, stderr=devnull)
+	out = res.stdout.decode("utf-8")
+	out = re.sub(r"\\'", "'", out)
+	res = json.loads(out)
+	return 1/(1 + len(res["matches"]))
+
+
 def sentence_m2(source, gold_edits, system):
 	return m2scorer.get_score([system], [source], [gold_edits], max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False, should_cache=False)
+
+
+def glue(source, references, system):
+	return None
 
 
 def basename(name):
@@ -522,6 +526,7 @@ def basename(name):
 
 def name_extension(name):
 	return basename(name).split(".")
+
 
 def anounce_finish():
 	if sys.platform == "linux":
