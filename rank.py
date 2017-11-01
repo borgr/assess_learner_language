@@ -1,32 +1,35 @@
 import time
-import sys
-UCCA_DIR = '/home/borgr/ucca/ucca'
-ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
-TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
-# UCCA_DIR = TUPA_DIR +'ucca'
-# ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
-sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
-sys.path.append(UCCA_DIR)
-sys.path.append(UCCA_DIR + '/scripts/distances')
-sys.path.append(UCCA_DIR + '/ucca')
-# sys.path.append(TUPA_DIR)
-from ucca.ioutil import file2passage
-from subprocess import call
-import subprocess
-import codecs
-import pandas as pd
-import numpy as np
-from m2scorer import m2scorer
-import re
 import os
+import sys
+import re
+import numpy as np
+import pandas as pd
 from multiprocessing import Pool
-# import align
+from subprocess import call
 import pickle
 import json
 from functools import reduce
 import operator
-# from significance_testing import m2score
 import platform
+
+ASSESS_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
+# UCCA_DIR = '/home/borgr/ucca/ucca'
+# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
+# ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
+TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
+UCCA_DIR = TUPA_DIR +'ucca'
+sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
+sys.path.append(UCCA_DIR)
+sys.path.append(UCCA_DIR + '/scripts/distances')
+sys.path.append(UCCA_DIR + '/ucca')
+sys.path.append(TUPA_DIR)
+from ucca.ioutil import file2passage
+import subprocess
+import codecs
+from m2scorer import m2scorer
+from gleu import GLEU
+# import align
+# from significance_testing import m2score
 from ucca.ioutil import passage2file
 from ucca.convert import from_text
 from correction_quality import word_diff
@@ -516,9 +519,9 @@ def sentence_m2(source, gold_edits, system):
     return m2scorer.get_score([system], [source], [gold_edits], max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False, should_cache=False)
 
 
-def glue_from_file(source, references, system, hypothesis, ngrams_len=4, num_iterations=500, debug=False):
+def glue_scores(source, references, systems, ngrams_len=4, num_iterations=500, debug=False):
     # if there is only one reference, just do one iteration
-    if len(reference_files) == 1:
+    if len(references) == 1:
         num_iterations = 1
 
     gleu_calculator = GLEU(ngrams_len)
@@ -535,7 +538,7 @@ def glue_from_file(source, references, system, hypothesis, ngrams_len=4, num_ite
 
     total = []
     per_sentence = []
-    for hpath in hypothesis:
+    for hpath in systems:
         if os.path.isfile(hpath):
             with open(hpath) as instream:
                 hyp = [line.split() for line in instream]
@@ -601,7 +604,8 @@ def glue_from_file(source, references, system, hypothesis, ngrams_len=4, num_ite
             print('Mean Stdev 95%CI GLEU')
             print(' '.join(total[-1]))
         else:
-            print(total[-1])[0])
+            print(total[-1][0])
+    return total, per_sentence
 
 def glue_score(source, references, system):
     return None
