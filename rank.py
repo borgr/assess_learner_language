@@ -59,7 +59,8 @@ def main():
     #             gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
     # reduce_k_best(100, 10, filename)
     # rerank_by_wordist()
-    rerank_by_SARI()
+    # rerank_by_SARI()
+    rerank_by_SARI("moses")
     # anounce_finish()
 
 
@@ -255,10 +256,37 @@ def rerank_by_m2():
                 fl.write(results)
 
 
-def rerank_by_SARI():
+def load_nisioi_k_best(k_best_dir):
+    system_dir = k_best_dir + "NTS_beam12_12hyp"
+    for root, dirs, files in os.walk(system_dir):
+        all_lines = []
+        for filename in files:
+            if re.search("h\d+$", filename):
+                with open(root + os.sep + filename) as fl:
+                    all_lines.append([line.replace("\n", "")
+                                      for line in fl.readlines()])
+    all_lines = list(zip(*all_lines))
+    return all_lines
+
+
+def load_moses_k_best(k_best_dir):
+    system_file = k_best_dir + "Moses_based"
+    # load system hypotheses
+    with open(system_file, "r") as fl:
+        system_sentences = []
+        cur = "0"
+        for line in fl:
+            splitted = line.split("|||")
+            if cur != splitted[0]:
+                system_sentences.append([])
+                cur = splitted[0]
+            system_sentences[-1].append(splitted[1])
+    return system_sentences
+
+
+def rerank_by_SARI(k_best="nisioi"):
     data_dir = "data/simplification/"
     k_best_dir = data_dir + "K-best/"
-    system_file = k_best_dir + "Moses_based"
 
     DATA_DIR = os.path.dirname(os.path.realpath(
         __file__)) + os.sep + "/simplification/data/"
@@ -280,7 +308,7 @@ def rerank_by_SARI():
     db.dropna(inplace=True, axis=0)
     db.applymap(an.normalize_sentence)
 
-    with open(TURK_CORPUS_DIR + "test.8turkers.tok.simp") as fl:
+    with open(TURK_CORPUS_DIR + "test.8turkers.tok.turk.0") as fl:
         gold = fl.readlines()
 
     keep = []
@@ -290,29 +318,23 @@ def rerank_by_SARI():
     db = db.iloc[keep, :]
     source_sentences = db[ORIGIN].tolist()
     references = db.iloc[:, -8:].values
-    # load system hypotheses
-    with open(system_file, "r") as fl:
-        system_sentences = []
-        cur = "0"
-        for line in fl:
-            splitted = line.split("|||")
-            if cur != splitted[0]:
-                system_sentences.append([])
-                cur = splitted[0]
-            system_sentences[-1].append(splitted[1])
-    system_sentences = np.array(system_sentences)[keep]
+
+    if "nisioi":
+        system_sentences = np.array(load_nisioi_k_best(k_best_dir))[keep]
+    else:
+        system_sentences = np.array(load_moses_k_best(k_best_dir))[keep]
     gold = np.array(gold)[keep]
 
     calculations_dir = "calculations_data/"
-    output_file = "simplification_rank_results"
+    output_file = "simplification_rank_results_" + k_best
 
-    out_text_file = calculations_dir + output_file + "origin"
+    out_text_file = calculations_dir + output_file + "_origin"
     with codecs.open(out_text_file, "w+", "utf-8") as fl:
         fl.write("\n".join(source_sentences))
 
-    out_text_file = calculations_dir + output_file + "gold"
+    out_text_file = calculations_dir + output_file + "_gold"
     with codecs.open(out_text_file, "w+", "utf-8") as fl:
-        fl.write("\n".join(gold))
+        fl.write("\n".join(gold).replace("\n\n","\n"))
 
     for ref_num in range(8, 0, -1):
         out_text_file = calculations_dir + output_file + str(ref_num) + "refs"
@@ -339,11 +361,13 @@ def rerank_by_SARI():
             results = list(zip(*results))[1]
             results = "\n".join([str(x) for x in results])
 
-            print("writing to " + out_text_file)
+            print("writing to " + os.path.realpath(out_text_file))
             with codecs.open(out_text_file, "w+", "utf-8") as fl:
                 fl.write(sentences)
             with open(out_res_file, "w+") as fl:
                 fl.write(results)
+        else:
+            print("skipped calculating with",ref_num," references, file already exists.")
 
 
 def reduce_k_best(big_k, small_k, filename, outfile=None):
@@ -559,7 +583,7 @@ def get_gleu_stats(scores):
             '(%.3f,%.3f)' % (ci[0], ci[1])]
 
 
-def glue_scores(source, references, systems, ngrams_len=4, num_iterations=500, debug=False):
+def gleu_scores(source, references, systems, ngrams_len=4, num_iterations=500, debug=False):
     # if there is only one reference, just do one iteration
     if len(references) == 1:
         num_iterations = 1
@@ -587,7 +611,6 @@ def glue_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
         else:
             instream = hpath
             hyp = [line.split() for line in instream]
-
 
         # first generate a random list of indices, using a different seed
         # for each iteration
@@ -644,11 +667,11 @@ def glue_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
             print('Mean Stdev 95%CI GLEU')
             print(' '.join(total[-1]))
         else:
-            print(total[-1][0])
+            print("total", total[-1][0])
     return total, per_sentence
 
 
-def glue_score(source, references, system):
+def gleu_score(source, references, system):
     return None
 
 
