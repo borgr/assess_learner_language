@@ -71,13 +71,12 @@ def main():
 	# combined_nucle = REFERENCE_DIR + "NUCLE.m2"
 	# BN = REFERENCE_DIR + "BN.m2"
 	# ALL =  REFERENCE_DIR + "ALL.m2"
-	references_files = [first_nucle]
-	edits_files = [first_nucle + ".m2"]
+	references_files = [second_nucle]
+	edits_files = [second_nucle + ".m2"]
 
 	references_edits = list(zip(*[list(get_edits_from_file(fl, sentence_ids)) for fl in edits_files]))
 	references_lines = list(zip(*[list(get_lines_from_file(fl, sentence_ids)) for fl in references_files]))
 
-	# print("are the edits good?", references_edits[-10], origin_lines[-10], references_lines[-10])
 	JMGR_file = PARAGRAPHS_DIR + "JMGR"
 	amu_file = PARAGRAPHS_DIR + "AMU"
 	cuui_file = PARAGRAPHS_DIR + "CUUI"
@@ -93,12 +92,13 @@ def main():
 	camb_file = PARAGRAPHS_DIR + "CAMB"
 	system_files = [JMGR_file, amu_file, cuui_file, iitb_file,
 				    ipn_file, nthu_file, pku_file, post_file,
-				    rac_file, sjtu_file, ufc_file, umc_file, camb_file, second_nucle]
+				    rac_file, sjtu_file, ufc_file, umc_file, camb_file, first_nucle]
 	# ucca_parse_files(system_files + references_files, PARSE_DIR)
 	print("enable other similarities")
 	score_db = []
 	system_sentences_calculated = set()
 	for system_file in system_files:
+		glue_from_file()
 		system_lines = get_lines_from_file(system_file, sentence_ids)
 		for source, references, edits, system in zip(origin_lines, references_lines, references_edits, system_lines):
 			if system not in system_sentences_calculated:
