@@ -2,7 +2,7 @@ import os
 import re
 import pandas as pd
 import numpy as np
-from rank import sentence_m2, grammaticality_score, semantics_score, glue_score, ucca_parse_files
+from rank import sentence_m2, grammaticality_score, semantics_score, glue_score, ucca_parse_files, glue_scores
 from m2scorer import m2scorer
 
 SYSTEM1RANK = "system1rank"
@@ -61,8 +61,9 @@ def main():
 	judgments_file = HUMAN_JUDGMENTS_DIR + "all_judgments.xml" 
 	judgments_file = HUMAN_JUDGMENTS_DIR + "8judgments.xml" 
 	db = parse_xml(judgments_file)
-	print("number of judgments:", len(db.index))
-	sentence_ids = db[SENTENCE_ID].map(lambda x: int(x))
+	sentence_ids = db[SENTENCE_ID].map(lambda x: int(x)).unique()
+	print("number of judgments:", len(sentence_ids))
+
 	# read relevant lines note that id135 = line 136
 	learner_file = PARAGRAPHS_DIR + "conll.tok.orig"
 	origin_lines = list(get_lines_from_file(learner_file, sentence_ids))
@@ -74,8 +75,11 @@ def main():
 	references_files = [second_nucle]
 	edits_files = [second_nucle + ".m2"]
 
-	references_edits = list(zip(*[list(get_edits_from_file(fl, sentence_ids)) for fl in edits_files]))
-	references_lines = list(zip(*[list(get_lines_from_file(fl, sentence_ids)) for fl in references_files]))
+	references_edits = zip(*[get_edits_from_file(fl, sentence_ids) for fl in edits_files])
+	references_edits = [list(x) for x in references_edits]
+	references_lines = [list(get_lines_from_file(fl, sentence_ids)) for fl in references_files]
+	# references_lines = zip(*[get_lines_from_file(fl, sentence_ids) for fl in references_files])
+	# references_lines = [list(x) for x in references_lines]
 
 	JMGR_file = PARAGRAPHS_DIR + "JMGR"
 	amu_file = PARAGRAPHS_DIR + "AMU"
@@ -98,8 +102,9 @@ def main():
 	score_db = []
 	system_sentences_calculated = set()
 	for system_file in system_files:
-		glue_from_file()
-		system_lines = get_lines_from_file(system_file, sentence_ids)
+		system_lines = get_lines_from_file(system_files[-1], sentence_ids)
+		print(glue_scores(origin_lines, references_lines, [system_lines])[0])
+		return
 		for source, references, edits, system in zip(origin_lines, references_lines, references_edits, system_lines):
 			if system not in system_sentences_calculated:
 				glue = 0

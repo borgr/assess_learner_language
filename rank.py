@@ -2,6 +2,7 @@ import time
 import os
 import sys
 import re
+import scipy
 import numpy as np
 import pandas as pd
 from multiprocessing import Pool
@@ -11,13 +12,14 @@ import json
 from functools import reduce
 import operator
 import platform
-
+import random
+import six
 ASSESS_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
 # UCCA_DIR = '/home/borgr/ucca/ucca'
 # ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
 # ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
-UCCA_DIR = TUPA_DIR +'ucca'
+UCCA_DIR = TUPA_DIR + 'ucca'
 sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
 sys.path.append(UCCA_DIR)
 sys.path.append(UCCA_DIR + '/scripts/distances')
@@ -27,7 +29,7 @@ from ucca.ioutil import file2passage
 import subprocess
 import codecs
 from m2scorer import m2scorer
-from gleu import GLEU
+from gec_ranking.scripts.gleu import GLEU
 # import align
 # from significance_testing import m2score
 from ucca.ioutil import passage2file
@@ -66,12 +68,12 @@ def parse_JFLEG():
     (path, dirs, files) = next(os.walk(JFLEG_dir))
     filenames = [path + os.sep + fl for fl in files]
     ucca_parse_files(filenames, JFLEG_dir + os.sep + "xmls")
-    
 
 
 def rerank_by_uccasim(gamma=0.27):
     data_dir = "data/"
-    first_nucle =  data_dir + "references/" + "NUCLEA.m2" # only used to extract source sentences
+    # only used to extract source sentences
+    first_nucle = data_dir + "references/" + "NUCLEA.m2"
     k_best_dir = data_dir + "K-best/"
     system_file = k_best_dir + "conll14st.output.1.best100"
     calculations_dir = "calculations_data/uccasim_rerank/"
@@ -82,7 +84,7 @@ def rerank_by_uccasim(gamma=0.27):
     out_res_file = calculations_dir + "score_" + output_file
 
     if not os.path.isfile(out_text_file):
-        gold_file = first_nucle # only used to extract source sentences
+        gold_file = first_nucle  # only used to extract source sentences
         print("acquiring source")
         source_sentences, _ = m2scorer.load_annotation(gold_file)
 
@@ -96,16 +98,19 @@ def rerank_by_uccasim(gamma=0.27):
 
         print("parsing")
         # print(reduce(operator.add, packed_system_sentences))
-        ucca_parse(reduce(operator.add, packed_system_sentences) + source_sentences, ucca_parse_dir)
+        ucca_parse(reduce(operator.add, packed_system_sentences) +
+                   source_sentences, ucca_parse_dir)
 
         print("reranking")
         # find top ranking
         pool = Pool(POOL_SIZE)
         assert(len(packed_system_sentences) == len(source_sentences))
         if full_rerank:
-            results = pool.starmap(referece_less_full_rerank, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences), [gamma] * len(packed_system_sentences)))
+            results = pool.starmap(referece_less_full_rerank, zip(source_sentences, packed_system_sentences, [
+                                   ucca_parse_dir] * len(packed_system_sentences), [gamma] * len(packed_system_sentences)))
         else:
-            results = pool.starmap(referece_less_oracle, zip(source_sentences, packed_system_sentences, [ucca_parse_dir] * len(packed_system_sentences), [gamma] * len(packed_system_sentences)))
+            results = pool.starmap(referece_less_oracle, zip(source_sentences, packed_system_sentences, [
+                                   ucca_parse_dir] * len(packed_system_sentences), [gamma] * len(packed_system_sentences)))
         pool.close()
         pool.join()
         results = list(results)
@@ -114,16 +119,18 @@ def rerank_by_uccasim(gamma=0.27):
         sentences = "\n".join(list(zip(*results))[0])
         results = list(zip(*results))[1]
         results = "\n".join([str(x) for x in results])
-        
+
         print("writing to " + out_text_file)
         with codecs.open(out_text_file, "w+", "utf-8") as fl:
             fl.write(sentences)
         with open(out_res_file, "w+") as fl:
             fl.write(results)
 
+
 def rerank_by_wordist():
     data_dir = "data/"
-    first_nucle =  data_dir + "references/" + "NUCLEA.m2" # only used to extract source sentences
+    # only used to extract source sentences
+    first_nucle = data_dir + "references/" + "NUCLEA.m2"
     k_best_dir = data_dir + "K-best/"
     system_file = k_best_dir + "conll14st.output.1.best100"
     calculations_dir = "calculations_data/uccasim_rerank/"
@@ -134,7 +141,7 @@ def rerank_by_wordist():
     out_res_file = calculations_dir + "score_" + output_file
     out_source_file = calculations_dir + "source" + output_file
     if not os.path.isfile(out_text_file):
-        gold_file = first_nucle # only used to extract source sentences
+        gold_file = first_nucle  # only used to extract source sentences
         print("acquiring source")
         source_sentences, _ = m2scorer.load_annotation(gold_file)
 
@@ -154,15 +161,16 @@ def rerank_by_wordist():
         # find top ranking
         pool = Pool(POOL_SIZE)
         assert(len(packed_system_sentences) == len(source_sentences))
-        results = pool.starmap(wordist_oracle, zip(source_sentences, packed_system_sentences))
+        results = pool.starmap(wordist_oracle, zip(
+            source_sentences, packed_system_sentences))
         pool.close()
         pool.join()
         results = list(results)
         tmp = []
         out_sentences = []
-        for (k,n), sent in zip(results, source_sentences):
+        for (k, n), sent in zip(results, source_sentences):
             if n > min_change:
-                tmp.append((k,n))
+                tmp.append((k, n))
                 out_sentences.append(sent)
         results = tmp
 
@@ -170,7 +178,7 @@ def rerank_by_wordist():
         results = list(zip(*results))[1]
         results = "\n".join([str(x) for x in results])
         out_sentences = "\n".join([str(x) for x in out_sentences])
-        
+
         print("writing to " + out_text_file)
         with codecs.open(out_text_file, "w+", "utf-8") as fl:
             fl.write(sentences)
@@ -179,16 +187,17 @@ def rerank_by_wordist():
         with open(out_res_file, "w+") as fl:
             fl.write(results)
 
+
 def rerank_by_m2():
     data_dir = "data/"
     k_best_dir = data_dir + "K-best/"
     system_file = k_best_dir + "conll14st.output.1.best100"
 
     reference_dir = data_dir + "references/"
-    first_nucle =  reference_dir + "NUCLEA.m2"
+    first_nucle = reference_dir + "NUCLEA.m2"
     combined_nucle = reference_dir + "NUCLE.m2"
     BN = reference_dir + "BN.m2"
-    ALL =  reference_dir + "ALL.m2"
+    ALL = reference_dir + "ALL.m2"
     gold_files = [first_nucle, combined_nucle, BN, ALL]
 
     (path, dirs, files) = next(os.walk(reference_dir))
@@ -199,15 +208,18 @@ def rerank_by_m2():
     calculations_dir = "calculations_data/"
     output_file = "first_rank_results"
     for gold_file in gold_files:
-        out_text_file = calculations_dir + output_file + name_extension(gold_file)[0]
-        out_res_file = calculations_dir + "prf_" + output_file + name_extension(gold_file)[0]
+        out_text_file = calculations_dir + \
+            output_file + name_extension(gold_file)[0]
+        out_res_file = calculations_dir + "prf_" + \
+            output_file + name_extension(gold_file)[0]
         if not os.path.isfile(out_text_file):
             print("processing " + gold_file)
             source_sentences, gold_edits = m2scorer.load_annotation(gold_file)
 
             # load system hypotheses
             fin = m2scorer.smart_open(system_file, 'r')
-            system_sentences = [line.decode("utf8").strip() for line in fin.readlines()]
+            system_sentences = [line.decode("utf8").strip()
+                                for line in fin.readlines()]
             fin.close()
 
             # pack and parse RoRo's k-best
@@ -225,15 +237,17 @@ def rerank_by_m2():
 
             # find top ranking
             pool = Pool(POOL_SIZE)
-            assert(len(packed_system_sentences) == len(gold_edits) and len(gold_edits) == len(source_sentences))
-            results = pool.imap(RBM_oracle, zip(source_sentences, packed_system_sentences))
+            assert(len(packed_system_sentences) == len(gold_edits)
+                   and len(gold_edits) == len(source_sentences))
+            results = pool.imap(RBM_oracle, zip(
+                source_sentences, packed_system_sentences))
             pool.close()
             pool.join()
             results = list(results)
             sentences = "\n".join(list(zip(*results))[0])
             results = list(zip(*results))[1]
             results = "\n".join([str(x) for x in results])
-            
+
             print("writing to " + out_text_file)
             with codecs.open(out_text_file, "w+", "utf-8") as fl:
                 fl.write(sentences)
@@ -246,7 +260,8 @@ def rerank_by_SARI():
     k_best_dir = data_dir + "K-best/"
     system_file = k_best_dir + "Moses_based"
 
-    DATA_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep + "/simplification/data/"
+    DATA_DIR = os.path.dirname(os.path.realpath(
+        __file__)) + os.sep + "/simplification/data/"
     TURK_CORPUS_DIR = DATA_DIR + "turkcorpus/"
     TURKERS_DIR = TURK_CORPUS_DIR + "truecased/"
 
@@ -259,7 +274,8 @@ def rerank_by_SARI():
     #       db.append(cur_db)
     # db = pd.concat(db, ignore_index=True)
     filename = "test.8turkers.organized.tsv"
-    db = pd.read_table(TURKERS_DIR + filename, names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
+    db = pd.read_table(TURKERS_DIR + filename,
+                       names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
     db.drop("index", inplace=True, axis=1)
     db.dropna(inplace=True, axis=0)
     db.applymap(an.normalize_sentence)
@@ -271,7 +287,7 @@ def rerank_by_SARI():
     for i, row in db.iloc[:, -8:].iterrows():
         keep.append(db.ix[i, ORIGIN] in row.values)
     keep = np.array(keep)
-    db = db.iloc[keep,:]
+    db = db.iloc[keep, :]
     source_sentences = db[ORIGIN].tolist()
     references = db.iloc[:, -8:].values
     # load system hypotheses
@@ -298,20 +314,23 @@ def rerank_by_SARI():
     with codecs.open(out_text_file, "w+", "utf-8") as fl:
         fl.write("\n".join(gold))
 
-    for ref_num in range(8,0,-1):
+    for ref_num in range(8, 0, -1):
         out_text_file = calculations_dir + output_file + str(ref_num) + "refs"
-        out_res_file = calculations_dir + "SARI_" + output_file + str(ref_num) + "refs"
+        out_res_file = calculations_dir + "SARI_" + \
+            output_file + str(ref_num) + "refs"
         if not os.path.isfile(out_text_file):
             print("ranking with", ref_num, "refs")
 
             # pack k-best
             packed_system_sentences = []
             for source, refs, system in zip(source_sentences, references, system_sentences):
-                packed_system_sentences.append((source, refs[np.random.randint(0, 8, ref_num)].tolist(), system))
+                packed_system_sentences.append(
+                    (source, refs[np.random.randint(0, 8, ref_num)].tolist(), system))
 
             # find top ranking
             pool = Pool(POOL_SIZE)
-            assert(len(packed_system_sentences) == len(references) and len(references) == len(source_sentences))
+            assert(len(packed_system_sentences) == len(references)
+                   and len(references) == len(source_sentences))
             results = pool.imap(SARI_oracle, packed_system_sentences)
             pool.close()
             pool.join()
@@ -319,7 +338,7 @@ def rerank_by_SARI():
             sentences = "\n".join(list(zip(*results))[0])
             results = list(zip(*results))[1]
             results = "\n".join([str(x) for x in results])
-            
+
             print("writing to " + out_text_file)
             with codecs.open(out_text_file, "w+", "utf-8") as fl:
                 fl.write(sentences)
@@ -338,16 +357,17 @@ def reduce_k_best(big_k, small_k, filename, outfile=None):
         for i, line in enumerate(fl):
             if i % big_k < small_k:
                 output.append(line)
-    # finish that 
+    # finish that
     raise
 
 
 def referece_less_full_rerank(source, system_sentences, parse_dir, gamma):
     combined_scores = []
     for sentence in set(system_sentences):
-        combined_scores.append((sentence, reference_less_score(source, sentence, parse_dir, gamma)))
+        combined_scores.append(
+            (sentence, reference_less_score(source, sentence, parse_dir, gamma)))
 
-    return sorted(combined_scores, key=lambda x:x[1])
+    return sorted(combined_scores, key=lambda x: x[1])
 
 
 def wordist_oracle(source, system_sentences):
@@ -363,7 +383,8 @@ def wordist_oracle(source, system_sentences):
 def referece_less_oracle(source, system_sentences, parse_dir, gamma):
     maximum = 0
     for sentence in set(system_sentences):
-        combined_scores = reference_less_score(source, sentence, parse_dir, gamma)
+        combined_scores = reference_less_score(
+            source, sentence, parse_dir, gamma)
         if maximum <= combined_score:
             maximum = combined_score
             chosen = sentence, combined_score
@@ -375,10 +396,10 @@ def RBM_oracle(tple):
     maximum = 0
     source, this_edits, system_sentences = tple
     for sentence in system_sentences:
-        p,r,f = score(source, this_edits, sentence)
+        p, r, f = score(source, this_edits, sentence)
         if maximum <= f:
             maximum = f
-            chosen = sentence, (p,r,f)
+            chosen = sentence, (p, r, f)
     return chosen
 
 
@@ -405,13 +426,15 @@ def ucca_parse_files(filenames, output_dir):
             text = from_text(text, split=True)
             print(text)
             for i, passage in enumerate(parser.parse(text)):
-                passage2file(passage, output_dir + os.sep + os.path.basename(filename) + str(i) + ".xml")
-            print("printed all xmls from " + output_dir + os.sep + os.path.basename(filename))
+                passage2file(passage, output_dir + os.sep +
+                             os.path.basename(filename) + str(i) + ".xml")
+            print("printed all xmls from " + output_dir +
+                  os.sep + os.path.basename(filename))
         # res = subprocess.run(parse_command.split() + list(files), stdout=subprocess.PIPE)
 
 
 def ucca_parse(sentences, output_dir):
-    parse_command = "python ../tupa/tupa/parse.py -c bilstm -m ../tupa/models/bilstm -o "+ output_dir +" "
+    parse_command = "python ../tupa/tupa/parse.py -c bilstm -m ../tupa/models/bilstm -o " + output_dir + " "
     # print("parsing with:", parse_command)
     filenames = []
     count = 0
@@ -436,7 +459,8 @@ def ucca_parse(sentences, output_dir):
     # print(sorted(filenames))
     if filenames:
         print("parsing sentences")
-        res = subprocess.run(parse_command.split() + filenames, stdout=subprocess.PIPE)
+        res = subprocess.run(parse_command.split() +
+                             filenames, stdout=subprocess.PIPE)
     # print(res)
     # call(parse_command.split() + filenames)
 
@@ -447,10 +471,12 @@ def get_roro_packed(system_sentences):
     packed_system_sentences = []
     for sentence_num, source in enumerate(system_sentences):
         curr_sentences = []
-        # keep packing until reached another sentence, assumes k-best are consequetive
+        # keep packing until reached another sentence, assumes k-best are
+        # consequetive
         while (candidate_num < len(system_sentences) and
-              system_sentences[candidate_num].split()[0] == str(sentence_num)):
-            sentence = re.sub("\|\d+-\d+\| ","",system_sentences[candidate_num].split("|||")[1][1:])
+               system_sentences[candidate_num].split()[0] == str(sentence_num)):
+            sentence = re.sub(
+                "\|\d+-\d+\| ", "", system_sentences[candidate_num].split("|||")[1][1:])
             candidate_num += 1
             curr_sentences.append(sentence)
         if curr_sentences:
@@ -459,6 +485,8 @@ def get_roro_packed(system_sentences):
 
 
 _id_dics = {}
+
+
 def get_sentence_id(sentence, parse_dir, graceful=True):
     """ returns the sentence id in the parse_dir, 
         if graceful is true adds a new sentence id 
@@ -499,24 +527,36 @@ def SARI_score(source, references, system):
 
 
 def semantics_score(source, sentence, parse_dir):
-    source_xml = file2passage(parse_dir + str(get_sentence_id(source, parse_dir, False)) + ".xml")
-    sentence_xml = file2passage(parse_dir + str(get_sentence_id(sentence, parse_dir, False)) + ".xml")
+    source_xml = file2passage(
+        parse_dir + str(get_sentence_id(source, parse_dir, False)) + ".xml")
+    sentence_xml = file2passage(
+        parse_dir + str(get_sentence_id(sentence, parse_dir, False)) + ".xml")
     return align.fully_aligned_distance(source_xml, sentence_xml)
 
 
 def grammaticality_score(source, sentence, parse_dir):
-    command = "java -jar ../softwares/LanguageTool-3.7/languagetool-commandline.jar --json -l en-US" 
+    command = "java -jar ../softwares/LanguageTool-3.7/languagetool-commandline.jar --json -l en-US"
     filename = str(get_sentence_id(sentence, parse_dir, False)) + ".txt"
     with open(os.devnull, 'wb') as devnull:
-        res = subprocess.run(command.split() + [parse_dir + filename], stdout=subprocess.PIPE, stderr=devnull)
+        res = subprocess.run(
+            command.split() + [parse_dir + filename], stdout=subprocess.PIPE, stderr=devnull)
     out = res.stdout.decode("utf-8")
     out = re.sub(r"\\'", "'", out)
     res = json.loads(out)
-    return 1/(1 + len(res["matches"]))
+    return 1 / (1 + len(res["matches"]))
 
 
 def sentence_m2(source, gold_edits, system):
     return m2scorer.get_score([system], [source], [gold_edits], max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False, should_cache=False)
+
+
+def get_gleu_stats(scores):
+    mean = np.mean(scores)
+    std = np.std(scores)
+    ci = scipy.stats.norm.interval(0.95, loc=mean, scale=std)
+    return ['%f' % mean,
+            '%f' % std,
+            '(%.3f,%.3f)' % (ci[0], ci[1])]
 
 
 def glue_scores(source, references, systems, ngrams_len=4, num_iterations=500, debug=False):
@@ -526,35 +566,35 @@ def glue_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
 
     gleu_calculator = GLEU(ngrams_len)
 
-    if os.path.isfile(source):
+    if isinstance(source, six.string_types):
         gleu_calculator.load_sources(source)
     else:
         gleu_calculator.set_sources(source)
 
-    if os.path.isfile(references[0]):
+    if isinstance(references[0], six.string_types):
         gleu_calculator.load_references(reference)
     else:
-        gleu_calculator.set_references(references)        
+        gleu_calculator.set_references(references)
 
     total = []
     per_sentence = []
     for hpath in systems:
-        if os.path.isfile(hpath):
+        if isinstance(hpath, six.string_types):
             with open(hpath) as instream:
                 hyp = [line.split() for line in instream]
+            if not debug:
+                print(os.path.basename(hpath),)
         else:
-            instream = sys.stdin  
+            instream = hpath
             hyp = [line.split() for line in instream]
 
-        if not debug:
-            print(os.path.basename(hpath),)
 
         # first generate a random list of indices, using a different seed
         # for each iteration
         indices = []
         for j in range(num_iterations):
-            random.seed(j*101)
-            indices.append([random.randint(0,len(args.reference)-1)
+            random.seed(j * 101)
+            indices.append([random.randint(0, len(references) - 1)
                             for i in range(len(hyp))])
 
         if debug:
@@ -562,43 +602,43 @@ def glue_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
             print('===== Sentence-level scores =====')
             print('SID Mean Stdev 95%CI GLEU')
 
-        iter_stats = [ [0 for i in range(2*args.n+2)]
-                       for j in range(num_iterations) ]
+        iter_stats = [[0 for i in range(2 * ngrams_len + 2)]
+                      for j in range(num_iterations)]
 
-        for i,h in enumerate(hyp):
+        for i, h in enumerate(hyp):
 
             gleu_calculator.load_hypothesis_sentence(h)
             # we are going to store the score of this sentence for each ref
             # so we don't have to recalculate them 500 times
 
-            stats_by_ref = [ None for r in range(len(args.reference))]
+            stats_by_ref = [None for r in range(len(references))]
 
             for j in range(num_iterations):
                 ref = indices[j][i]
                 this_stats = stats_by_ref[ref]
 
                 if this_stats is None:
-                    this_stats = [ s for s in gleu_calculator.gleu_stats(
-                        i,r_ind=ref) ]
+                    this_stats = [s for s in gleu_calculator.gleu_stats(
+                        i, r_ind=ref)]
                     stats_by_ref[ref] = this_stats
 
-                iter_stats[j] = [ sum(scores)
-                                  for scores in zip(iter_stats[j], this_stats)]
+                iter_stats[j] = [sum(scores)
+                                 for scores in zip(iter_stats[j], this_stats)]
 
-            per_sentence.append(get_gleu_stats([gleu_calculator.gleu(stats,smooth=True)
-                                               for stats in stats_by_ref]))
+            per_sentence.append(get_gleu_stats([gleu_calculator.gleu(stats, smooth=True)
+                                                for stats in stats_by_ref]))
             if debug:
                 # sentence-level GLEU is the mean GLEU of the hypothesis
                 # compared to each reference
-                for r in range(len(args.reference)):
+                for r in range(len(references)):
                     if stats_by_ref[r] is None:
                         stats_by_ref[r] = [s for s in gleu_calculator.gleu_stats(
-                            i,r_ind=r) ]
+                            i, r_ind=r)]
 
                 print(i,)
                 print(' '.join(results[-1]))
         total.append(get_gleu_stats([gleu_calculator.gleu(stats)
-                                           for stats in iter_stats ]))
+                                     for stats in iter_stats]))
         if debug:
             print('\n==== Overall score =====')
             print('Mean Stdev 95%CI GLEU')
@@ -606,6 +646,7 @@ def glue_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
         else:
             print(total[-1][0])
     return total, per_sentence
+
 
 def glue_score(source, references, system):
     return None
@@ -622,22 +663,22 @@ def name_extension(name):
 def anounce_finish():
     if sys.platform == "linux":
         if set(("debian", "Ubuntu")) & set(platform.linux_distribution()):
-            subprocess.call(['speech-dispatcher'])        #start speech dispatcher
+            subprocess.call(['speech-dispatcher'])  # start speech dispatcher
             subprocess.call(['spd-say', '"your process has finished"'])
         else:
-            #perhaps works only in ubuntu?
-            a = subprocess.Popen(('play --no-show-progress --null --channels 1 synth %s sine %f' % ( 300, 2)).split())
+            # perhaps works only in ubuntu?
+            a = subprocess.Popen(
+                ('play --no-show-progress --null --channels 1 synth %s sine %f' % (300, 2)).split())
     elif sys.platform == "darwin":
         subprocess.call('say "your process has finished"'.split())
     else:
         import winsound
-        winsound.Beep(300,2)
+        winsound.Beep(300, 2)
 
 if __name__ == '__main__':
     # fnamenorm   = "./turkcorpus/test.8turkers.tok.norm"
     # fnamesimp   = "./turkcorpus/test.8turkers.tok.simp"
     # fnameturk  = "./turkcorpus/test.8turkers.tok.turk."
-
 
     # ssent = "About 95 species are currently accepted ."
     # csent1 = "About 95 you now get in ."
