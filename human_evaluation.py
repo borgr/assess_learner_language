@@ -103,7 +103,8 @@ def main():
 		for source, references, edits, system in zip(origin_lines, references_lines, references_edits, system_lines):
 			if system not in system_sentences_calculated:
 				glue = 0
-				# glue = glue_score(source, references, system)
+				glue = glue_score(source, references, system)
+				print(glue)
 				grammar = 0
 				# grammar = grammaticality_score(source, system, PARSE_DIR)
 				uccaSim = 0

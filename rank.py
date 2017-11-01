@@ -16,7 +16,7 @@ import subprocess
 import codecs
 import pandas as pd
 import numpy as np
-# from m2scorer import m2scorer
+from m2scorer import m2scorer
 import re
 import os
 from multiprocessing import Pool
@@ -516,7 +516,85 @@ def sentence_m2(source, gold_edits, system):
 	return m2scorer.get_score([system], [source], [gold_edits], max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False, should_cache=False)
 
 
-def glue(source, references, system):
+def glue_from_file(source_file, reference_files, system_file, ngrams_len=4, num_iterations=500):
+    # if there is only one reference, just do one iteration
+    if len(reference_files) == 1 :
+        num_iterations = 1
+
+    gleu_calculator = GLEU(ngrams_len)
+
+    gleu_calculator.load_sources(source_file)
+    gleu_calculator.load_references(reference_files)
+
+    for hpath in args.hypothesis :
+    	if hpath == '-':
+        	instream = sys.stdin  
+        	hyp = [line.split() for line in instream]
+        else:
+			with open(hpath) as instream:
+	        	hyp = [line.split() for line in instream]
+
+        if not args.debug :
+            print(os.path.basename(hpath),)
+
+        # first generate a random list of indices, using a different seed
+        # for each iteration
+        indices = []
+        for j in range(num_iterations) :
+            random.seed(j*101)
+            indices.append([random.randint(0,len(args.reference)-1)
+                            for i in range(len(hyp))])
+
+        if args.debug :
+            print()
+            print('===== Sentence-level scores =====')
+            print('SID Mean Stdev 95%CI GLEU')
+
+        iter_stats = [ [0 for i in range(2*args.n+2)]
+                       for j in range(num_iterations) ]
+
+        for i,h in enumerate(hyp) :
+
+            gleu_calculator.load_hypothesis_sentence(h)
+            # we are going to store the score of this sentence for each ref
+            # so we don't have to recalculate them 500 times
+
+            stats_by_ref = [ None for r in range(len(args.reference)) ]
+
+            for j in range(num_iterations) :
+                ref = indices[j][i]
+                this_stats = stats_by_ref[ref]
+
+                if this_stats is None :
+                    this_stats = [ s for s in gleu_calculator.gleu_stats(
+                        i,r_ind=ref) ]
+                    stats_by_ref[ref] = this_stats
+
+                iter_stats[j] = [ sum(scores)
+                                  for scores in zip(iter_stats[j], this_stats)]
+
+            if args.debug :
+                # sentence-level GLEU is the mean GLEU of the hypothesis
+                # compared to each reference
+                for r in range(len(args.reference)) :
+                    if stats_by_ref[r] is None :
+                        stats_by_ref[r] = [s for s in gleu_calculator.gleu_stats(
+                            i,r_ind=r) ]
+
+                print(i,)
+                print(' '.join(get_gleu_stats([gleu_calculator.gleu(stats,smooth=True)
+                                               for stats in stats_by_ref])))
+
+        if args.debug :
+            print('\n==== Overall score =====')
+            print('Mean Stdev 95%CI GLEU')
+            print(' '.join(get_gleu_stats([gleu_calculator.gleu(stats)
+                                           for stats in iter_stats ])))
+        else :
+            print(get_gleu_stats([gleu_calculator.gleu(stats)
+                                  for stats in iter_stats ])[0])
+
+def glue_score(source, references, system):
 	return None
 
 
