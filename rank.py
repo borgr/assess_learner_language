@@ -24,13 +24,14 @@ sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
 sys.path.append(UCCA_DIR)
 sys.path.append(UCCA_DIR + '/scripts/distances')
 sys.path.append(UCCA_DIR + '/ucca')
-sys.path.append(TUPA_DIR)
+# sys.path.append(TUPA_DIR)
+
 from ucca.ioutil import file2passage
 import subprocess
 import codecs
 from m2scorer import m2scorer
 from gec_ranking.scripts.gleu import GLEU
-# import align
+import align
 # from significance_testing import m2score
 from ucca.ioutil import passage2file
 from ucca.convert import from_text
@@ -42,9 +43,9 @@ import annalyze_crowdsourcing as an
 POOL_SIZE = 7
 full_rerank = True
 
-# from tupa.parse import Parser
-# model_path = "/cs/labs/oabend/borgr/tupa/models/bilstm"
-# parser = Parser(model_path, "bilstm")
+from tupa.parse import Parser
+model_path = "/cs/labs/oabend/borgr/tupa/models/bilstm"
+parser = Parser(model_path, "bilstm")
 
 
 def main():
@@ -334,7 +335,7 @@ def rerank_by_SARI(k_best="nisioi"):
 
     out_text_file = calculations_dir + output_file + "_gold"
     with codecs.open(out_text_file, "w+", "utf-8") as fl:
-        fl.write("\n".join(gold).replace("\n\n","\n"))
+        fl.write("\n".join(gold).replace("\n\n", "\n"))
 
     for ref_num in range(8, 0, -1):
         out_text_file = calculations_dir + output_file + str(ref_num) + "refs"
@@ -367,7 +368,8 @@ def rerank_by_SARI(k_best="nisioi"):
             with open(out_res_file, "w+") as fl:
                 fl.write(results)
         else:
-            print("skipped calculating with",ref_num," references, file already exists.")
+            print("skipped calculating with", ref_num,
+                  " references, file already exists.")
 
 
 def reduce_k_best(big_k, small_k, filename, outfile=None):
@@ -438,25 +440,55 @@ def SARI_oracle(tple):
     return chosen
 
 
-def ucca_parse_files(filenames, output_dir):
+def parse_location(output_dir, filename, sentence_num=None):
+    filename = os.path.basename(filename)
+    cur_dir = os.path.join(output_dir, filename)
+    if sentence_num is None:
+        return cur_dir
+    return os.path.join(cur_dir, filename + str(sentence_num) + ".xml")
+
+
+def ucca_parse_files(filenames, output_dir, clean=False):
     # parse_command = "python ../tupa/tupa/parse.py -c bilstm -m ../tupa/models/bilstm -o "+ output_dir +" "
     # print("parsing with:", parse_command)
 
     if filenames:
         for filename in filenames:
-            print("parsing " + filename)
-            with open(filename, "r") as fl:
-                text = fl.readlines()
-            text = from_text(text, split=True)
-            print(text)
-            for i, passage in enumerate(parser.parse(text)):
-                passage2file(passage, output_dir + os.sep +
-                             os.path.basename(filename) + str(i) + ".xml")
-            print("printed all xmls from " + output_dir +
-                  os.sep + os.path.basename(filename))
+            cur_output_dir = parse_location(output_dir, filename)
+            if os.path.isdir(cur_output_dir):
+                print("Skipping parsing, file already parsed in", cur_output_dir)
+            else:
+                os.mkdir(cur_output_dir)
+                print("parsing " + filename)
+                with open(filename, "r") as fl:
+                    text = fl.readlines()
+                text = from_text(text, split=True, one_per_line=True)
+                text = list(text)
+                # text = [item for line in text for item in from_text(line, split=True)]
+                for i, passage in enumerate(parser.parse(text)):
+                    passage2file(passage, parse_location(
+                        output_dir, filename, i))
+                print("printed all xmls from " + cur_output_dir)
+                if clean:
+                    filenames = os.listdir(cur_output_dir)
+                    for filename in filenames:
+                        if filename.endswith(".txt"):
+                            os.remove(os.path.join(cur_output_dir, item))
         # res = subprocess.run(parse_command.split() + list(files), stdout=subprocess.PIPE)
 
 
+def create_one_sentence_files(sentences, output_dir):
+    count = 0
+    for sentence in list(set(sentences)):
+        filename = str(get_sentence_id(sentence, output_dir))
+        txt_file = filename + ".txt"
+        filepath = os.path.join(output_dir, txt_file)
+        if not os.path.isfile(filepath):
+            with open(filepath, "w+") as fl:
+                fl.write(sentence)
+
+
+#! deprecated
 def ucca_parse(sentences, output_dir):
     parse_command = "python ../tupa/tupa/parse.py -c bilstm -m ../tupa/models/bilstm -o " + output_dir + " "
     # print("parsing with:", parse_command)
@@ -528,6 +560,9 @@ def get_sentence_id(sentence, parse_dir, graceful=True):
         with open(parse_dir + os.sep + filename, "rb") as fl:
             id_dic = pickle.load(fl)
             _id_dics[parse_dir] = id_dic
+    if not graceful:
+        # print(id_dic)
+        pass
     if graceful and not sentence in id_dic:
         # print("dumping" + sentence + "\n")
         id_dic[max_id] += 1
@@ -550,11 +585,29 @@ def SARI_score(source, references, system):
     return SARI.SARIsent(system, source, references)
 
 
-def semantics_score(source, sentence, parse_dir):
-    source_xml = file2passage(
-        parse_dir + str(get_sentence_id(source, parse_dir, False)) + ".xml")
-    sentence_xml = file2passage(
-        parse_dir + str(get_sentence_id(sentence, parse_dir, False)) + ".xml")
+def semantics_score(source, sentence, parse_dir, source_sentence_id=None, sentence_id=None):
+    """ accepts filename instead of sentence\source and a sentence id\source_sentence id for locating the file"""
+    if align.regularize_word(source) == "":
+        if align.regularize_word(sentence) == "":
+            return 1
+        else:
+            return 0
+    elif align.regularize_word(sentence) == "":
+        return 0
+
+    if source_sentence_id is None:
+        source_xml = file2passage(
+            parse_dir + str(get_sentence_id(source, parse_dir, False)) + ".xml")
+    else:
+        source_xml = file2passage(parse_location(
+            parse_dir, source, source_sentence_id))
+    if sentence_id is None:
+        sentence_xml = file2passage(
+            parse_dir + str(get_sentence_id(sentence, parse_dir, False)) + ".xml")
+    else:
+        sentence_xml = file2passage(
+            parse_location(parse_dir, sentence, sentence_id))
+
     return align.fully_aligned_distance(source_xml, sentence_xml)
 
 
@@ -666,8 +719,8 @@ def gleu_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
             print('\n==== Overall score =====')
             print('Mean Stdev 95%CI GLEU')
             print(' '.join(total[-1]))
-        else:
-            print("total", total[-1][0])
+        # else:
+        #     print("total", total[-1][0])
     return total, per_sentence
 
 
