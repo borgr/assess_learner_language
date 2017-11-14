@@ -6,24 +6,10 @@ import create_confirmation_batch as ccb
 import os
 
 DATA_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep + "/simplification/data/"
-TURKERS_DIR = DATA_DIR + "turkcorpus/truecased/"
 
 DIFFERENT_REFS = "ref_num"
 ORIGIN = "origin"
 
-
-def read():
-	# filename = "test.8turkers.organized.tsv"
-	db = []
-	for root, dirs, files in os.walk(TURKERS_DIR):
-		for filename in files:
-			cur_db = pd.read_table(TURKERS_DIR + filename, names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
-			db.append(cur_db)
-	db = pd.concat(db, ignore_index=True)
-	db.drop("index", inplace=True, axis=1)
-	db.dropna(inplace=True, axis=0)
-	db.applymap(an.normalize_sentence)
-	return db
 
 def extract_short(db, max_len):
 	length = "len"
@@ -51,7 +37,7 @@ def remove_non_simplified(db):
 	return db
 
 def main():
-	db = read()
+	db = an.read_simplification()
 
 	db = remove_non_simplified(db)
 
