@@ -34,7 +34,7 @@ from correction_quality import preprocess_word
 SIMPLIFICATION = "simpl"
 GEC = "gec"
 TASK = SIMPLIFICATION
-TASK = GEC
+# TASK = GEC
 
 # file locations
 ASSESS_LEARNER_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
@@ -123,10 +123,10 @@ def main():
     # db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
     # compare_correction_distributions(db, INDEX_COMP,
     # index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
-    for root, dirs, files in os.walk(HISTS_DIR):
-        for filename in files:
-            if INPUT_HIST_IDENTIFIER in filename:
-                assess_real_distributions(root + filename, str(0))
+    root, dirs, files = next(os.walk(HISTS_DIR))
+    for filename in files:
+        if INPUT_HIST_IDENTIFIER in filename:
+            assess_real_distributions(os.path.join(root + filename), str(0))
     plot_dists(show_dists, save_dists, EXACT_COMP)
     assess_coverage(True, show=show_coverage,
                     save=save_coverage, res_type=EXACT_COMP)
@@ -186,7 +186,7 @@ def sari_coverage(show, save):
         print(file, results[i])
     names = [str(m + 1) for m in np.arange(10)]
     sari = "SARI"
-    f5_2 = plot_sig(results, names, show, save, [sari])
+    f5_2 = plot_sig(results, names, show, save, [sari], False)
 
 
 def create_golds(sentences, corrections, gold_file, ms):
@@ -391,30 +391,30 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
             all_ys = pickle.load(fl)
     else:
         all_ys = [[] for i in range(len(COMPARISON_METHODS))]
-        for root, dirs, files in os.walk(HISTS_DIR):
-            for filename in files:
-                if OUTPUT_HIST_IDENTIFIER in filename:
-                    dist = read_dist_from_file(root + filename)
-                    i = 0
-                    while i < len(dist[0]):
-                        if dist[VARIANTS_NUM_COL][i] > 1:
-                            dist = np.append(dist, np.array(
-                                [[dist[PROB_COL][i], dist[VARIANTS_NUM_COL][i] - 1]]).transpose(), axis=1)
-                            dist[VARIANTS_NUM_COL][i] = 1
-                        i += 1
-                    results = []
-                    for correction_num in CORRECTION_NUMS:
-                        results.append(compute_probability_to_account_async(
-                            dist, correction_num, REPETITIONS, only_different_samples))
-                    results = np.array(results)
-                    ys = []
-                    for coverage_method in COVERAGE_METHODS:
-                        ys.append(coverage_method(results))
-                    ys = np.array(ys)
-                    # save y
-                    for i, comparison_method in enumerate(COMPARISON_METHODS):
-                        if comparison_method in filename:
-                            all_ys[i].append(ys)
+        root, dirs, files = next(os.walk(HISTS_DIR))
+        for filename in files:
+            if OUTPUT_HIST_IDENTIFIER in filename:
+                dist = read_dist_from_file(root + filename)
+                i = 0
+                while i < len(dist[0]):
+                    if dist[VARIANTS_NUM_COL][i] > 1:
+                        dist = np.append(dist, np.array(
+                            [[dist[PROB_COL][i], dist[VARIANTS_NUM_COL][i] - 1]]).transpose(), axis=1)
+                        dist[VARIANTS_NUM_COL][i] = 1
+                    i += 1
+                results = []
+                for correction_num in CORRECTION_NUMS:
+                    results.append(compute_probability_to_account_async(
+                        dist, correction_num, REPETITIONS, only_different_samples))
+                results = np.array(results)
+                ys = []
+                for coverage_method in COVERAGE_METHODS:
+                    ys.append(coverage_method(results))
+                ys = np.array(ys)
+                # save y
+                for i, comparison_method in enumerate(COMPARISON_METHODS):
+                    if comparison_method in filename:
+                        all_ys[i].append(ys)
         print("should write to ")
         with open(data_filename, "wb+") as fl:
             print(data_filename)
@@ -913,21 +913,26 @@ def plot_significance(show=True, save=True):
     plot_sig_bars(results, names, show, save, line=f5_2)
 
 
-def plot_sig(significances, names, show, save, measures, line_measure=None):
+def plot_sig(significances, names, show, save, measures, add_zero=True, line_measure=None):
     if line_measure == None:
         line_measure = measures[-1]
-    names = np.array([0] + names)
+    names = np.array(([0] if add_zero else []) + names)
     for measure_idx, measure in enumerate(measures):
-        xs = [0]
-        ys = [0]
-        cis = [np.array([0,0])]
+        xs = []
+        ys = []
+        cis = []
+        if add_zero:
+            xs.append(0)
+            ys.append(0)
+            cis.append(0)
         lower_confidence_bound = 0
-        upper_confidence_bound = len(significances[0]) - 1
+        upper_confidence_bound = 1
         for x, significance in enumerate(significances):
             print(x, significance)
             if len(significance) == 1:
-                sig = [significance[lower_confidence_bound],
-                       significance[upper_confidence_bound]]
+                sig = [significance[0][lower_confidence_bound],
+                       significance[0][upper_confidence_bound]]
+                # print(significances)
             else:
                 sig = [significance[lower_confidence_bound][measure_idx],
                        significance[upper_confidence_bound][measure_idx]]
@@ -935,10 +940,11 @@ def plot_sig(significances, names, show, save, measures, line_measure=None):
             xs.append(x + 1)
             ys.append(y)
             cis.append(y - sig[0])
-            # print(cis[-1])
-            # print(cis)
-            # raise
-        xs = np.array(xs)
+        # print(xs)
+        # raise
+        xs = np.array(xs, dtype="float64")
+        # if not add_zero:
+            # xs += 0.1
         ys = np.array(ys)
         cis = np.array(cis)
         # print(len(cis), len(xs), len(ys))
@@ -946,13 +952,13 @@ def plot_sig(significances, names, show, save, measures, line_measure=None):
         labels = names[sort_idx]
         ys = ys[sort_idx]
         cis = cis[sort_idx]
-        colors = many_colors(xs, cm.copper)
-        colors = [colors[i] for i in xs]
         plt.errorbar(xs, ys, yerr=cis)
         plt.plot(xs, ys)
         plt.xticks(xs, labels)
+        print(names)
         plt.ylabel(measure)
         plt.xlabel("$M$ - Number of references in gold standard")
+        plt.xlim(xs[0] - 0.1, xs[-1])
         if measure == line_measure:
             res = ys[2]
         if save:
