@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath("./m2scorer/scripts/"))
 
+import pandas as pd
 import subprocess
 import scikits.bootstrap
 from m2scorer.scripts import m2scorer
@@ -9,7 +10,7 @@ import numpy as np
 from multiprocessing import Pool
 from rank import SARI_score
 import annalyze_crowdsourcing as an
-POOL_SIZE = 4
+POOL_SIZE = 8
 ALTERNATIVE_GOLD_MS = an.ALTERNATIVE_GOLD_MS
 # ALTERNATIVE_GOLD_MS = np.arange(10) + 1
 
@@ -83,12 +84,21 @@ def main():
     # print(results)
 
     # perfect annotator sari score
-
-    pool = Pool(POOL_SIZE)
-    results = pool.imap_unordered(sari_score, [ALTERNATIVE_GOLD_MS])
+    import time
+    # sentences, simplifications = an.sari_source_simplifications_tuple()
+    # print("once",np.mean([sari_score(1, sentences, simplifications) for x in range(10)]))
+    # s = time.time()
+    # print("sari sig", sari_sig(1))
+    # print("time elapsed in seconds", time.time() - s)
+    
+    s = time.time()
+    pool = Pool(len(ALTERNATIVE_GOLD_MS))
+    results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
+    # results = pool.imap_unordered(sari_sent_sig, ALTERNATIVE_GOLD_MS)
     pool.close()
     pool.join()
     results = list(results)
+    print("time elapsed in seconds", time.time() - s)
     print(results)
 
 
@@ -144,24 +154,51 @@ def m2score_sig(filename, gold_file=r"./data/conll14st-test-data/noalt/official-
                       str(n_samples) + "_" + filename, n_samples=n_samples)
 
 
+def sari_sent_sig(m, output_dir=r"./results/significance/"):
+    n_samples = 1000
+    print("testing significance of sari with m=" + str(m))
+    sentences, simplifications = an.sari_source_simplifications_tuple()
+    corpus_size = 2000
+    unique_sentences = pd.Series(sentences.unique())
+    all_chosen_sentences = []
+    all_chosen_simplifications = []
+    for i in range(corpus_size):
+        chosen_index = np.random.randint(0, unique_sentences.size - 1)
+        chosen_sentence = unique_sentences.iloc[chosen_index]
+        corresponding_simplifications = simplifications[
+            sentences == chosen_sentence]
+        chosen_simplifications = []
+        for i in range(m + 1):
+            chosen_ind = np.random.randint(
+                0, corresponding_simplifications.size)
+            chosen_simplifications.append(corresponding_simplifications.iloc[
+                chosen_ind])
+        all_chosen_simplifications.append(chosen_simplifications)
+        all_chosen_sentences.append(chosen_sentence)
+
+    statfunction = lambda x: sari_sent_score(all_chosen_sentences, all_chosen_simplifications)
+    return test_significance(statfunction, ([None]*10000,)  , output_dir +
+                      str(n_samples) + "_sari" + str(m), n_samples=n_samples, method="pi")
+
+def sari_sent_score(sentences, simplifications):
+    res = []
+    for chosen_sentence, chosen_simplifications in zip(sentences, simplifications):
+        res.append(SARI_score(chosen_sentence, chosen_simplifications[:-1], chosen_simplifications[-1]))
+    return np.mean(res)
+
 def sari_sig(m, output_dir=r"./results/significance/"):
     n_samples = 1000
     print("testing significance of sari with m=" + str(m))
-    gold_db = read_simplification()
-    idx = gold_db[ORIGIN].apply(normalize_sentence).isin(
-        sentences.apply(normalize_sentence))
-    sentences = pd.concat(
-        [sentences] + [gold_db.loc[idx, ORIGIN]] * len(gold_files), ignore_index=True)
-    simplifications = pd.concat(
-        [simplifications] + [gold_db.loc[idx, i] for i in range(1, 9)], ignore_index=True)
+    sentences, simplifications = an.sari_source_simplifications_tuple()
     statfunction = lambda x: sari_score(m, sentences, simplifications)
-    test_significance(statfunction, None, output_dir +
-                      str(n_samples) + "_sari" + str(m), n_samples=n_samples)
+    # statfunction = lambda x: np.random.randint(6)
+    return test_significance(statfunction, ([None]*10000,)  , output_dir +
+                      str(n_samples) + "_sari" + str(m), n_samples=n_samples, method="pi")
 
 
 def sari_score(m, sentences, simplifications):
     corpus_size = 2000
-    unique_sentences = sentences.unique()
+    unique_sentences = pd.Series(sentences.unique())
     res = []
     for i in range(corpus_size):
         chosen_index = np.random.randint(0, unique_sentences.size - 1)

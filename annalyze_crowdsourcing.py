@@ -34,6 +34,7 @@ from correction_quality import preprocess_word
 SIMPLIFICATION = "simpl"
 GEC = "gec"
 TASK = SIMPLIFICATION
+TASK = GEC
 
 # file locations
 ASSESS_LEARNER_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
@@ -134,9 +135,24 @@ def main():
     if TASK == GEC:
         plot_significance(show=show_significance, save=save_significance)
     else:
-        sari_coverage(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL],
-                      GOLD_FILE, ALTERNATIVE_GOLD_MS, LEARNER_FILE,
-                      show=show_significance, save=save_significance)
+        sari_coverage(show=show_significance, save=save_significance)
+
+
+def sari_source_simplifications_tuple():
+    db = read_batches()
+    db = clean_data(db)
+    sentences = db.loc[:, LEARNER_SENTENCES_COL]
+    simplifications = db.loc[:, CORRECTED_SENTENCES_COL]
+    gold_cols = list(range(1, 9))
+
+    gold_db = read_simplification()
+    idx = gold_db[ORIGIN].apply(normalize_sentence).isin(
+        sentences.apply(normalize_sentence))
+    sentences = pd.concat(
+        [sentences] + [gold_db.loc[idx, ORIGIN]] * len(gold_cols), ignore_index=True)
+    simplifications = pd.concat(
+        [simplifications] + [gold_db.loc[idx, i] for i in gold_cols], ignore_index=True)
+    return sentences, simplifications
 
 
 def read_simplification():
@@ -161,8 +177,16 @@ def get_lines_from_file(file, lines):
         return (line.replace("\n", "") for line in text[lines])
 
 
-def sari_coverage(sentences, simplifications, gold_files, ms, complex_file, show, save):
-	pass
+def sari_coverage(show, save):
+    print("sari sig results")
+    files = ["sari" +
+             str(m + 1) for m in np.arange(10)]
+    results = parse_sigfiles(files)
+    for i, file in enumerate(files):
+        print(file, results[i])
+    names = [str(m + 1) for m in np.arange(10)]
+    sari = "SARI"
+    f5_2 = plot_sig(results, names, show, save, [sari])
 
 
 def create_golds(sentences, corrections, gold_file, ms):
@@ -190,6 +214,8 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m):
     if gold_file:
         with open(gold_file, "r") as fl:
             lines = fl.readlines()
+    # choose a sentence randomly for each sentence in the original corpus that
+    # was not kept as the original
     i = 0
     while i < len(lines):
         if lines[i].startswith("S"):
@@ -835,7 +861,9 @@ def plot_significance(show=True, save=True):
     for i, file in enumerate(files):
         print(file, results[i])
     names = [str(m + 1) for m in np.arange(10)]
-    f5_2 = plot_sig(results, names, show, save)
+
+    precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
+    f5_2 = plot_sig(results, names, show, save, [precision, recall, fscore])
 
     learner_file = "source"
     JMGR_file = "JMGR"
@@ -885,23 +913,35 @@ def plot_significance(show=True, save=True):
     plot_sig_bars(results, names, show, save, line=f5_2)
 
 
-def plot_sig(significances, names, show, save):
-    precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
+def plot_sig(significances, names, show, save, measures, line_measure=None):
+    if line_measure == None:
+        line_measure = measures[-1]
     names = np.array([0] + names)
-    for measure_idx, measure in enumerate([precision, recall, fscore]):
-
+    for measure_idx, measure in enumerate(measures):
         xs = [0]
         ys = [0]
-        cis = [0]
+        cis = [np.array([0,0])]
+        lower_confidence_bound = 0
+        upper_confidence_bound = len(significances[0]) - 1
         for x, significance in enumerate(significances):
-            sig = [significance[0][measure_idx], significance[1][measure_idx]]
+            print(x, significance)
+            if len(significance) == 1:
+                sig = [significance[lower_confidence_bound],
+                       significance[upper_confidence_bound]]
+            else:
+                sig = [significance[lower_confidence_bound][measure_idx],
+                       significance[upper_confidence_bound][measure_idx]]
             y = np.mean(sig)
             xs.append(x + 1)
             ys.append(y)
             cis.append(y - sig[0])
+            # print(cis[-1])
+            # print(cis)
+            # raise
         xs = np.array(xs)
         ys = np.array(ys)
         cis = np.array(cis)
+        # print(len(cis), len(xs), len(ys))
         sort_idx = xs.argsort()
         labels = names[sort_idx]
         ys = ys[sort_idx]
@@ -913,7 +953,7 @@ def plot_sig(significances, names, show, save):
         plt.xticks(xs, labels)
         plt.ylabel(measure)
         plt.xlabel("$M$ - Number of references in gold standard")
-        if measure == fscore:
+        if measure == line_measure:
             res = ys[2]
         if save:
             plt.savefig(PLOTS_DIR + measure + "_Ms_significance" +
