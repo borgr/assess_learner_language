@@ -10,7 +10,8 @@ import numpy as np
 from multiprocessing import Pool
 from rank import SARI_score
 import annalyze_crowdsourcing as an
-POOL_SIZE = 8
+import multiprocessing
+POOL_SIZE = multiprocessing.cpu_count()
 ALTERNATIVE_GOLD_MS = an.ALTERNATIVE_GOLD_MS
 # ALTERNATIVE_GOLD_MS = np.arange(10) + 1
 
@@ -93,7 +94,8 @@ def main():
     
     s = time.time()
     pool = Pool(len(ALTERNATIVE_GOLD_MS))
-    results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
+    results = pool.imap_unordered(lucky_sari, ALTERNATIVE_GOLD_MS)
+    # results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
     # results = pool.imap_unordered(sari_sent_sig, ALTERNATIVE_GOLD_MS)
     pool.close()
     pool.join()
@@ -179,6 +181,21 @@ def sari_sent_sig(m, output_dir=r"./results/significance/"):
     statfunction = lambda x: sari_sent_score(all_chosen_sentences, all_chosen_simplifications)
     return test_significance(statfunction, ([None]*10000,)  , output_dir +
                       str(n_samples) + "_sari" + str(m), n_samples=n_samples, method="pi")
+
+def lucky_sari(m, output_dir=r"./results/significance/"):
+    n_samples = 1000
+    print("testing significance of lucky sari with m=" + str(m))
+    _, simplifications = an.sari_source_simplifications_tuple()
+    sentences = simplifications.iloc[:, 0]
+    print(simplifications)
+    print(sentences)
+    raise
+    statfunction = lambda x: sari_score(m, sentences, simplifications)
+    # statfunction = lambda x: np.random.randint(6)
+    return test_significance(statfunction, ([None]*10000,)  , output_dir +
+                      str(n_samples) + "_sari" + str(m), n_samples=n_samples, method="pi")
+
+def max_sari(m, output_dir=r"./results/significance/"):
 
 def sari_sent_score(sentences, simplifications):
     res = []
