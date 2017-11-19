@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath("./m2scorer/scripts/"))
 
+from itertools import repeat
 import pandas as pd
 import subprocess
 import scikits.bootstrap
@@ -11,46 +12,53 @@ from multiprocessing import Pool
 from rank import SARI_score
 import annalyze_crowdsourcing as an
 import multiprocessing
+import time
 POOL_SIZE = multiprocessing.cpu_count()
 ALTERNATIVE_GOLD_MS = an.ALTERNATIVE_GOLD_MS
 # ALTERNATIVE_GOLD_MS = np.arange(10) + 1
+PAPER = "paper"
+LUCKY = "lucky"
+MAX = "max"
+
 
 def main():
-    ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
-    char_based_file = "filtered_test.txt"
-    learner_file = "conll.tok.orig"
-    JMGR_file = "JMGR"
-    amu_file = "AMU"
-    cuui_file = "CUUI"
-    iitb_file = "IITB"
-    ipn_file = "IPN"
-    nthu_file = "NTHU"
-    pku_file = "PKU"
-    post_file = "POST"
-    rac_file = "RAC"
-    sjtu_file = "SJTU"
-    ufc_file = "UFC"
-    umc_file = "UMC"
-    camb_file = "CAMB"
-    gold_file = "corrected_official-2014.0.txt.comparable"
-    files = [ACL2016RozovskayaRothOutput_file,
-    char_based_file,
-    JMGR_file,
-    amu_file,
-    cuui_file,
-    iitb_file,
-    ipn_file,
-    nthu_file,
-    pku_file,
-    post_file,
-    rac_file,
-    sjtu_file,
-    ufc_file,
-    umc_file,
-    camb_file]
-    last = False
-    correction = 0
-    count = 0
+    s = time.time()
+
+    # ACL2016RozovskayaRothOutput_file = "conll14st.output.1cleaned"
+    # char_based_file = "filtered_test.txt"
+    # learner_file = "conll.tok.orig"
+    # JMGR_file = "JMGR"
+    # amu_file = "AMU"
+    # cuui_file = "CUUI"
+    # iitb_file = "IITB"
+    # ipn_file = "IPN"
+    # nthu_file = "NTHU"
+    # pku_file = "PKU"
+    # post_file = "POST"
+    # rac_file = "RAC"
+    # sjtu_file = "SJTU"
+    # ufc_file = "UFC"
+    # umc_file = "UMC"
+    # camb_file = "CAMB"
+    # gold_file = "corrected_official-2014.0.txt.comparable"
+    # files = [ACL2016RozovskayaRothOutput_file,
+    #          char_based_file,
+    #          JMGR_file,
+    #          amu_file,
+    #          cuui_file,
+    #          iitb_file,
+    #          ipn_file,
+    #          nthu_file,
+    #          pku_file,
+    #          post_file,
+    #          rac_file,
+    #          sjtu_file,
+    #          ufc_file,
+    #          umc_file,
+    #          camb_file]
+    # last = False
+    # correction = 0
+    # count = 0
 
     # # calculate the number of sentences with corrections and ratio
     # with open(r"/home/borgr/ucca/data/conll14st-test-data/noalt/official-2014.combined.m2", "r") as fl:
@@ -85,16 +93,22 @@ def main():
     # print(results)
 
     # perfect annotator sari score
-    import time
     # sentences, simplifications = an.sari_source_simplifications_tuple()
     # print("once",np.mean([sari_score(1, sentences, simplifications) for x in range(10)]))
     # s = time.time()
     # print("sari sig", sari_sig(1))
     # print("time elapsed in seconds", time.time() - s)
-    
-    s = time.time()
-    pool = Pool(len(ALTERNATIVE_GOLD_MS))
-    results = pool.imap_unordered(lucky_sari, ALTERNATIVE_GOLD_MS)
+
+    pool = Pool(POOL_SIZE)
+    # sari_type = LUCKY
+    sari_type = MAX
+    output_dir = os.path.join(r"./results/significance/", sari_type)
+    if not os.path.isdir(output_dir):
+        print("directory not found, creating", output_dir)
+        os.mkdir(output_dir)
+    results = pool.starmap(sari_sig, zip(
+        ALTERNATIVE_GOLD_MS, repeat(output_dir), repeat(sari_type)))
+    # results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
     # results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
     # results = pool.imap_unordered(sari_sent_sig, ALTERNATIVE_GOLD_MS)
     pool.close()
@@ -116,7 +130,8 @@ def read_system(file):
     # load system hypotheses
     fin = m2scorer.smart_open(file, 'r')
     if sys.version_info < (3, 0):
-        system_sentences = [line.decode("utf8").strip() for line in fin.readlines()]
+        system_sentences = [line.decode("utf8").strip()
+                            for line in fin.readlines()]
     else:
         system_sentences = [line.strip() for line in fin.readlines()]
     fin.close()
@@ -178,42 +193,33 @@ def sari_sent_sig(m, output_dir=r"./results/significance/"):
         all_chosen_simplifications.append(chosen_simplifications)
         all_chosen_sentences.append(chosen_sentence)
 
-    statfunction = lambda x: sari_sent_score(all_chosen_sentences, all_chosen_simplifications)
-    return test_significance(statfunction, ([None]*10000,)  , output_dir +
-                      str(n_samples) + "_sari" + str(m), n_samples=n_samples, method="pi")
+    statfunction = lambda x: sari_sent_score(
+        all_chosen_sentences, all_chosen_simplifications)
+    return test_significance(statfunction, ([None] * 10000,), output_dir +
+                             str(n_samples) + "_sari" + str(m), n_samples=n_samples, method="pi")
 
-def lucky_sari(m, output_dir=r"./results/significance/"):
-    n_samples = 1000
-    print("testing significance of lucky sari with m=" + str(m))
-    _, simplifications = an.sari_source_simplifications_tuple()
-    sentences = simplifications.iloc[:, 0]
-    print(simplifications)
-    print(sentences)
-    raise
-    statfunction = lambda x: sari_score(m, sentences, simplifications)
-    # statfunction = lambda x: np.random.randint(6)
-    return test_significance(statfunction, ([None]*10000,)  , output_dir +
-                      str(n_samples) + "_sari" + str(m), n_samples=n_samples, method="pi")
-
-def max_sari(m, output_dir=r"./results/significance/"):
 
 def sari_sent_score(sentences, simplifications):
     res = []
     for chosen_sentence, chosen_simplifications in zip(sentences, simplifications):
-        res.append(SARI_score(chosen_sentence, chosen_simplifications[:-1], chosen_simplifications[-1]))
+        res.append(SARI_score(chosen_sentence, chosen_simplifications[
+                   :-1], chosen_simplifications[-1]))
     return np.mean(res)
 
-def sari_sig(m, output_dir=r"./results/significance/"):
+
+def sari_sig(m, output_dir=r"./results/significance/", sari_type=PAPER):
     n_samples = 1000
     print("testing significance of sari with m=" + str(m))
     sentences, simplifications = an.sari_source_simplifications_tuple()
-    statfunction = lambda x: sari_score(m, sentences, simplifications)
+    statfunction = lambda x: sari_score(
+        m, sentences, simplifications, sari_type)
     # statfunction = lambda x: np.random.randint(6)
-    return test_significance(statfunction, ([None]*10000,)  , output_dir +
-                      str(n_samples) + "_sari" + str(m), n_samples=n_samples, method="pi")
+    filename = str(n_samples) + "_sari" + str(m)
+    return test_significance(statfunction, ([None] * 10000,),
+                             os.path.join(output_dir, filename), n_samples=n_samples, method="pi")
 
 
-def sari_score(m, sentences, simplifications):
+def sari_score(m, sentences, simplifications, sari_type):
     corpus_size = 2000
     unique_sentences = pd.Series(sentences.unique())
     res = []
@@ -228,18 +234,31 @@ def sari_score(m, sentences, simplifications):
                 0, corresponding_simplifications.size)
             chosen_simplifications.append(corresponding_simplifications.iloc[
                 chosen_ind])
-        res.append(SARI_score(chosen_sentence, chosen_simplifications[:-1], chosen_simplifications[-1]))
+        if sari_type == PAPER:
+            res.append(SARI_score(chosen_sentence, chosen_simplifications[
+                       :-1], chosen_simplifications[-1]))
+        if sari_type == LUCKY:
+            res.append(SARI_score(chosen_sentence, chosen_simplifications[
+                       :-1], chosen_simplifications[0]))
+        if sari_type == MAX:
+            scr = [SARI_score(chosen_sentence, chosen_simplifications[
+                i], chosen_simplifications[-1]) for i in range(len(chosen_simplifications) - 1)]
+            scr = np.max(scr)
+            res.append(scr)
     return np.mean(res)
+
 
 def test_significance(statfunction, data, filename=None, alpha=0.05, n_samples=100, method='bca', output='lowhigh', epsilon=0.001, multi=True):
     """ checks the confidence rate of alpha over n_samples based on the empirical distribution data writes to file the results.
         if filename already exists its content is considered to be the results of the function
         if filename is None the results are not save to any file"""
     if filename == None:
-        res = scikits.bootstrap.ci(data, statfunction, alpha, n_samples, method, output, epsilon, multi)
+        res = scikits.bootstrap.ci(
+            data, statfunction, alpha, n_samples, method, output, epsilon, multi)
     elif not os.path.isfile(filename):
         print("calculating for " + str(filename))
-        res = scikits.bootstrap.ci(data, statfunction, alpha, n_samples, method, output, epsilon, multi)
+        res = scikits.bootstrap.ci(
+            data, statfunction, alpha, n_samples, method, output, epsilon, multi)
         with open(filename, "w") as fl:
             fl.write(str(res))
     else:
