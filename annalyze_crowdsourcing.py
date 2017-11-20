@@ -185,22 +185,28 @@ def get_lines_from_file(file, lines):
 
 def sari_coverage(show, save):
     print("sari sig results")
-    for measure in SARI_TYPES:
+    for j, measure in enumerate(SARI_TYPES * 2):
         files = ["sari" +
                  str(m + 1) for m in np.arange(10)]
-        paths = [os.path.join(SIG_DIR, measure, " 1000_" + file) for file in files]
-        results = parse_sigfiles(files)
-        for i, file in enumerate(files):
+        paths = [os.path.join(SIG_DIR, measure, "1000_" + file)
+                 for file in files]
+        results = parse_sigfiles(paths)
+        for i, file in enumerate(paths):
             print(file, results[i])
         names = [str(m + 1) for m in np.arange(10)]
         sari = "SARI"
-        f5_2 = plot_sig(results, names, show, save, [sari], False)
+        if j < len(SARI_TYPES):
+            f5_2 = plot_sig(results, names, show, save,
+                            [measure], False, clean=True)
+        else:
+            f5_2 = plot_sig(results, names, False, False,
+                            [measure], False, clean=False)
     if save:
+        plt.legend()
         plt.savefig(PLOTS_DIR + ",".join(SARI_TYPES) + "_Ms_significance" +
-                        ".png", bbox_inches='tight')
+                    ".png", bbox_inches='tight')
     if show:
         plt.show()
-
 
 
 def create_golds(sentences, corrections, gold_file, ms):
@@ -961,7 +967,7 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
         # raise
         xs = np.array(xs, dtype="float64")
         # if not add_zero:
-            # xs += 0.1
+        # xs += 0.1
         ys = np.array(ys)
         cis = np.array(cis)
         # print(len(cis), len(xs), len(ys))
@@ -969,8 +975,8 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
         labels = names[sort_idx]
         ys = ys[sort_idx]
         cis = cis[sort_idx]
-        plt.errorbar(xs, ys, yerr=cis)
-        plt.plot(xs, ys)
+        plt.errorbar(xs, ys, yerr=cis, ecolor="blue")
+        plt.plot(xs, ys, label=measure)
         plt.xticks(xs, labels)
         plt.ylabel(measure)
         plt.xlabel("$M$ - Number of references in gold standard")
@@ -978,12 +984,14 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
         if measure == line_measure:
             res = ys[2]
         if save:
-            plt.savefig(PLOTS_DIR + measure + "_Ms_significance" +
-                        ".png", bbox_inches='tight')
+            plot_filename = PLOTS_DIR + measure + "_Ms_significance" + ".png"
+            print("saving plot in", plot_filename)
+            plt.savefig(plot_filename, bbox_inches='tight')
         if show:
             plt.show()
 
         if clean:
+            print("cleaning")
             plt.cla()
     return res
 
