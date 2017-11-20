@@ -73,8 +73,8 @@ def main():
     # UCCASim_conservatism()
     # outputs_conservatism()
     # ranking_conservatism()
-    reranking_simplification_conservatism("moses")
-    # reranking_simplification_conservatism()
+    # reranking_simplification_conservatism("moses")
+    reranking_simplification_conservatism()
 
 
 def outputs_conservatism():

@@ -6,6 +6,7 @@ import scipy
 import numpy as np
 import pandas as pd
 from multiprocessing import Pool
+import multiprocessing
 from subprocess import call
 import pickle
 import json
@@ -40,7 +41,7 @@ from correction_quality import word_diff
 from simplification import SARI
 import annalyze_crowdsourcing as an
 
-POOL_SIZE = 7
+POOL_SIZE = multiprocessing.cpu_count()
 full_rerank = True
 
 from tupa.parse import Parser
@@ -60,7 +61,7 @@ def main():
     #             gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
     # reduce_k_best(100, 10, filename)
     # rerank_by_wordist()
-    # rerank_by_SARI()
+    rerank_by_SARI()
     rerank_by_SARI("moses")
     # anounce_finish()
 
@@ -320,10 +321,12 @@ def rerank_by_SARI(k_best="nisioi"):
     source_sentences = db[ORIGIN].tolist()
     references = db.iloc[:, -8:].values
 
-    if "nisioi":
+    if k_best == "nisioi":
         system_sentences = np.array(load_nisioi_k_best(k_best_dir))[keep]
-    else:
+    elif k_best == "moses":
         system_sentences = np.array(load_moses_k_best(k_best_dir))[keep]
+    else:
+        raise "unknown system"
     gold = np.array(gold)[keep]
 
     calculations_dir = "calculations_data/"
@@ -582,6 +585,7 @@ def score(source, gold_edits, system):
 
 
 def SARI_score(source, references, system):
+    return SARI.SARIsent(source, system, references)
     return SARI.SARIsent(system, source, references)
 
 
