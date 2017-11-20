@@ -181,7 +181,6 @@ def m2score_sig(filename, gold_file=r"./data/conll14st-test-data/noalt/official-
 def sari_sent_sig(m, output_dir=r"./results/significance/"):
     """ checks the confidence intervals with specific samples of sources and corrections"""
     n_samples = 1000
-    print("testing significance of sari with m=" + str(m))
     sentences, simplifications = an.sari_source_simplifications_tuple()
     corpus_size = 2000
     unique_sentences = pd.Series(sentences.unique())
