@@ -14,11 +14,10 @@ import annalyze_crowdsourcing as an
 import multiprocessing
 import time
 POOL_SIZE = multiprocessing.cpu_count()
+# POOL_SIZE = 14
+print("pool size is", POOL_SIZE)
 ALTERNATIVE_GOLD_MS = an.ALTERNATIVE_GOLD_MS
 # ALTERNATIVE_GOLD_MS = np.arange(10) + 1
-PAPER = "paper"
-LUCKY = "lucky"
-MAX = "max"
 
 
 def main():
@@ -98,24 +97,32 @@ def main():
     # s = time.time()
     # print("sari sig", sari_sig(1))
     # print("time elapsed in seconds", time.time() - s)
+    # output_dir = os.path.join(r"./results/significance/", an.LUCKY)
+    # sari_sig(1, output_dir, an.LUCKY)
 
     pool = Pool(POOL_SIZE)
-    # sari_type = LUCKY
-    sari_type = MAX
-    output_dir = os.path.join(r"./results/significance/", sari_type)
-    if not os.path.isdir(output_dir):
-        print("directory not found, creating", output_dir)
-        os.mkdir(output_dir)
-    results = pool.starmap(sari_sig, zip(
-        ALTERNATIVE_GOLD_MS, repeat(output_dir), repeat(sari_type)))
+    # sari_type = an.LUCKY
+    # sari_type = an.MAX
+    results_per_type = {}
+    sari_types = [an.MAX, an.LUCKY, an.PAPER]
+    for sari_type in sari_types:
+        output_dir = os.path.join(r"./results/significance/", sari_type)
+        if not os.path.isdir(output_dir):
+            print("directory not found, creating", output_dir)
+            os.mkdir(output_dir)
+        results = pool.starmap(sari_sig, zip(
+            ALTERNATIVE_GOLD_MS, repeat(output_dir), repeat(sari_type)))
+        results_per_type[sari_type] = results
     # results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
     # results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
     # results = pool.imap_unordered(sari_sent_sig, ALTERNATIVE_GOLD_MS)
     pool.close()
     pool.join()
-    results = list(results)
-    print("time elapsed in seconds", time.time() - s)
-    print(results)
+    for sari_type in sari_types:
+        results = results_per_type[sari_type]
+        results = list(results)
+        print("time elapsed in seconds", time.time() - s)
+        print(results)
 
 
 def m2score_sig_in_one(tpl):
@@ -172,8 +179,8 @@ def m2score_sig(filename, gold_file=r"./data/conll14st-test-data/noalt/official-
 
 
 def sari_sent_sig(m, output_dir=r"./results/significance/"):
+    """ checks the confidence intervals with specific samples of sources and corrections"""
     n_samples = 1000
-    print("testing significance of sari with m=" + str(m))
     sentences, simplifications = an.sari_source_simplifications_tuple()
     corpus_size = 2000
     unique_sentences = pd.Series(sentences.unique())
@@ -207,7 +214,8 @@ def sari_sent_score(sentences, simplifications):
     return np.mean(res)
 
 
-def sari_sig(m, output_dir=r"./results/significance/", sari_type=PAPER):
+def sari_sig(m, output_dir=r"./results/significance/", sari_type=an.PAPER):
+    """ checks the confidence when each sample could be another sentence and another sampled references for it"""
     n_samples = 1000
     print("testing significance of sari with m=" + str(m))
     sentences, simplifications = an.sari_source_simplifications_tuple()
@@ -215,8 +223,10 @@ def sari_sig(m, output_dir=r"./results/significance/", sari_type=PAPER):
         m, sentences, simplifications, sari_type)
     # statfunction = lambda x: np.random.randint(6)
     filename = str(n_samples) + "_sari" + str(m)
+    filename = os.path.join(output_dir, filename)
+    # filename = None
     return test_significance(statfunction, ([None] * 10000,),
-                             os.path.join(output_dir, filename), n_samples=n_samples, method="pi")
+                             filename, n_samples=n_samples, method="pi")
 
 
 def sari_score(m, sentences, simplifications, sari_type):
@@ -234,13 +244,16 @@ def sari_score(m, sentences, simplifications, sari_type):
                 0, corresponding_simplifications.size)
             chosen_simplifications.append(corresponding_simplifications.iloc[
                 chosen_ind])
-        if sari_type == PAPER:
+        if sari_type == an.PAPER:
             res.append(SARI_score(chosen_sentence, chosen_simplifications[
                        :-1], chosen_simplifications[-1]))
-        if sari_type == LUCKY:
+        if sari_type == an.LUCKY:
             res.append(SARI_score(chosen_sentence, chosen_simplifications[
                        :-1], chosen_simplifications[0]))
-        if sari_type == MAX:
+            # print(res[-1], chosen_sentence, chosen_simplifications[
+            #     :-1], chosen_simplifications[0])
+            # print(SARI_score("who I do, really.", ["who I do, really."], "who I do, really."))
+        if sari_type == an.MAX:
             scr = [SARI_score(chosen_sentence, chosen_simplifications[
                 i], chosen_simplifications[-1]) for i in range(len(chosen_simplifications) - 1)]
             scr = np.max(scr)

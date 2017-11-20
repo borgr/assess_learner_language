@@ -1,1 +1,10 @@
 *.pyc
+cluster_runner.sh
+unseenEst
+np
+pd
+an
+plt
+ccb
+*.log
+calculations_data

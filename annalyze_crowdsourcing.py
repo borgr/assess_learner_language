@@ -31,6 +31,11 @@ sys.path.append(UCCA_DIR + '/scripts/distances')
 from correction_quality import align_sentence_words
 from correction_quality import preprocess_word
 
+PAPER = "paper"
+LUCKY = "lucky"
+MAX = "max"
+SARI_TYPES = [LUCKY, MAX, PAPER]
+
 SIMPLIFICATION = "simpl"
 GEC = "gec"
 TASK = SIMPLIFICATION
@@ -40,6 +45,7 @@ TASK = SIMPLIFICATION
 ASSESS_LEARNER_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
 # ASSESS_LEARNER_DIR = r"/home/borgr/ucca/assess_learner_language/"
 # ASSESS_LEARNER_DIR = '/cs/labs/oabend/borgr/assess_learner_language/'
+SIG_DIR = ASSESS_LEARNER_DIR + r"/results/significance/"
 
 if TASK == GEC:
     GOLD_FILE = ASSESS_LEARNER_DIR + \
@@ -179,14 +185,28 @@ def get_lines_from_file(file, lines):
 
 def sari_coverage(show, save):
     print("sari sig results")
-    files = ["sari" +
-             str(m + 1) for m in np.arange(10)]
-    results = parse_sigfiles(files)
-    for i, file in enumerate(files):
-        print(file, results[i])
-    names = [str(m + 1) for m in np.arange(10)]
-    sari = "SARI"
-    f5_2 = plot_sig(results, names, show, save, [sari], False)
+    for j, measure in enumerate(SARI_TYPES * 2):
+        files = ["sari" +
+                 str(m + 1) for m in np.arange(10)]
+        paths = [os.path.join(SIG_DIR, measure, "1000_" + file)
+                 for file in files]
+        results = parse_sigfiles(paths)
+        for i, file in enumerate(paths):
+            print(file, results[i])
+        names = [str(m + 1) for m in np.arange(10)]
+        sari = "SARI"
+        if j < len(SARI_TYPES):
+            f5_2 = plot_sig(results, names, show, save,
+                            [measure], False, clean=True)
+        else:
+            f5_2 = plot_sig(results, names, False, False,
+                            [measure], False, clean=False)
+    if save:
+        plt.legend()
+        plt.savefig(PLOTS_DIR + ",".join(SARI_TYPES) + "_Ms_significance" +
+                    ".png", bbox_inches='tight')
+    if show:
+        plt.show()
 
 
 def create_golds(sentences, corrections, gold_file, ms):
@@ -857,7 +877,9 @@ def plot_significance(show=True, save=True):
     print("sig results")
     files = ["perfect_output_for_" +
              str(m + 1) + "_sgss.m2" for m in np.arange(10)]
-    results = parse_sigfiles(files)
+    paths = [os.path.join(SIG_DIR, "1000_" + file) for file in files]
+
+    results = parse_sigfiles(paths)
     for i, file in enumerate(files):
         print(file, results[i])
     names = [str(m + 1) for m in np.arange(10)]
@@ -897,7 +919,9 @@ def plot_significance(show=True, save=True):
              ufc_file,
              umc_file,
              camb_file]
-    results = parse_sigfiles(files)
+
+    paths = [os.path.join(SIG_DIR, "1000_" + file) for file in files]
+    results = parse_sigfiles(paths)
 
     for i, file in enumerate(files):
         print(file, results[i])
@@ -913,7 +937,7 @@ def plot_significance(show=True, save=True):
     plot_sig_bars(results, names, show, save, line=f5_2)
 
 
-def plot_sig(significances, names, show, save, measures, add_zero=True, line_measure=None):
+def plot_sig(significances, names, show, save, measures, add_zero=True, clean=True, line_measure=None):
     if line_measure == None:
         line_measure = measures[-1]
     names = np.array(([0] if add_zero else []) + names)
@@ -928,7 +952,6 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, line_mea
         lower_confidence_bound = 0
         upper_confidence_bound = 1
         for x, significance in enumerate(significances):
-            print(x, significance)
             if len(significance) == 1:
                 sig = [significance[0][lower_confidence_bound],
                        significance[0][upper_confidence_bound]]
@@ -944,7 +967,7 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, line_mea
         # raise
         xs = np.array(xs, dtype="float64")
         # if not add_zero:
-            # xs += 0.1
+        # xs += 0.1
         ys = np.array(ys)
         cis = np.array(cis)
         # print(len(cis), len(xs), len(ys))
@@ -952,21 +975,24 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, line_mea
         labels = names[sort_idx]
         ys = ys[sort_idx]
         cis = cis[sort_idx]
-        plt.errorbar(xs, ys, yerr=cis)
-        plt.plot(xs, ys)
+        plt.errorbar(xs, ys, yerr=cis, ecolor="blue")
+        plt.plot(xs, ys, label=measure)
         plt.xticks(xs, labels)
-        print(names)
         plt.ylabel(measure)
         plt.xlabel("$M$ - Number of references in gold standard")
         plt.xlim(xs[0] - 0.1, xs[-1])
         if measure == line_measure:
             res = ys[2]
         if save:
-            plt.savefig(PLOTS_DIR + measure + "_Ms_significance" +
-                        ".png", bbox_inches='tight')
+            plot_filename = PLOTS_DIR + measure + "_Ms_significance" + ".png"
+            print("saving plot in", plot_filename)
+            plt.savefig(plot_filename, bbox_inches='tight')
         if show:
             plt.show()
-        plt.cla()
+
+        if clean:
+            print("cleaning")
+            plt.cla()
     return res
 
 
@@ -1008,8 +1034,7 @@ def plot_sig_bars(significances, names, show, save, line=None):
 
 def parse_sigfiles(files):
     results = []
-    for file in files:
-        filename = ASSESS_LEARNER_DIR + r"/results/significance/1000_" + file
+    for filename in files:
         with open(filename, "r") as fl:
             str_content = fl.readlines()
         content = []
