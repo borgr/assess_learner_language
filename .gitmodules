@@ -1,3 +1,6 @@
 [submodule "gec_ranking"]
 	path = gec_ranking
 	url = https://github.com/borgr/gec-ranking.git
+[submodule "gec-ranking"]
+	path = gec_ranking/gec_ranking
+	url = https://github.com/borgr/gec-ranking.git
