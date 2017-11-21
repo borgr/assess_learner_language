@@ -73,9 +73,10 @@ def main():
     # UCCASim_conservatism()
     # outputs_conservatism()
     # ranking_conservatism()
-    # reranking_simplification_conservatism("moses")
-    reranking_simplification_conservatism()
-
+    reranking_simplification_conservatism("moses")
+    # reranking_simplification_conservatism()
+    reranking_simplification_conservatism("moses", mx=True)
+    # reranking_simplification_conservatism(mx=True)
 
 def outputs_conservatism():
     change_date = "160111"
@@ -366,24 +367,29 @@ def outputs_conservatism():
     convert_file_to_csv(filename)
 
 
-def reranking_simplification_conservatism(k_best="nisioi"):
+def reranking_simplification_conservatism(k_best="nisioi", mx=False):
     change_date = "011126"
-    complex_file = "simplification_rank_results_" + k_best + "_origin"
-    filename = "results/simplification_reranking_results" + k_best + change_date + ".json"
+    maxname = "max_" if mx else ""
+    complex_file = "simplification_rank_results_" + maxname + k_best + "_origin"
+    filename = "results/simplification_reranking_results" + \
+        maxname + k_best + change_date + ".json"
     (path, dirs, files) = next(os.walk(PATH))
     filenames = []
     names = []
     # filenames.append("test.8turkers.tok.simp")
     # names.append("gold")
     for fl in files:
-        if "simplification" in fl and "origin" not in fl and k_best in fl:
+        # print(fl, "simplification" in fl, "origin" not in fl, k_best in fl, (("max" in fl) == mx))
+        if "simplification" in fl and "origin" not in fl and k_best in fl and (("max" in fl) == mx):
+            print(fl)
             filenames.append(fl)
             names.append(fl[-5:])
             if "gold" in fl:
                 names[-1] = "gold"
-
     argsort = np.argsort(names)
     names = np.array(names)[argsort]
+    # print(names)
+    # return
     filenames = np.array(filenames)[argsort]
     origin = read_text(complex_file)
     compare(filenames, names, filename, origin,
@@ -898,19 +904,19 @@ def calculate_conservatism(origin_sentences, corrected_sentences):
         origin_sentences, corrected_sentences)]
     word_differences = [word_diff(orig, cor) for orig, cor in zip(
         origin_sentences, corrected_sentences)]
-    print("comparing done, printing interesting results")
-    for i, dif in enumerate(word_differences):
-        if dif > 10:  # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
-            print("-------\nsentences:\n",
-                  corrected_sentences[i], "\norignal:\n", origin_sentences[i])
-            print("word dif:", dif)
-            print("match num:", i)
-    for i, dif in enumerate(index_differences):
-        if dif > 10:  # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
-            print("-------\nsentences:\n",
-                  corrected_sentences[i], "\norignal:\n", origin_sentences[i])
-            print("word dif:", dif)
-            print("match num:", i)
+    # print("comparing done, printing interesting results")
+    # for i, dif in enumerate(word_differences):
+    #     if dif > 10:  # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+    #         print("-------\nsentences:\n",
+    #               corrected_sentences[i], "\norignal:\n", origin_sentences[i])
+    #         print("word dif:", dif)
+    #         print("match num:", i)
+    # for i, dif in enumerate(index_differences):
+    #     if dif > 10:  # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+    #         print("-------\nsentences:\n",
+    #               corrected_sentences[i], "\norignal:\n", origin_sentences[i])
+    #         print("word dif:", dif)
+    #         print("match num:", i)
     return word_differences, index_differences, spearman_differences
 
 

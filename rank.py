@@ -10,6 +10,7 @@ import multiprocessing
 from subprocess import call
 import pickle
 import json
+from itertools import repeat
 from functools import reduce
 import operator
 import platform
@@ -61,8 +62,11 @@ def main():
     #             gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
     # reduce_k_best(100, 10, filename)
     # rerank_by_wordist()
-    rerank_by_SARI()
-    rerank_by_SARI("moses")
+    rerank_by_SARI(mx=True)
+    rerank_by_SARI("moses", mx=True)
+    # rerank_by_SARI()
+    # rerank_by_SARI("moses")
+
     # anounce_finish()
 
 
@@ -286,7 +290,7 @@ def load_moses_k_best(k_best_dir):
     return system_sentences
 
 
-def rerank_by_SARI(k_best="nisioi"):
+def rerank_by_SARI(k_best="nisioi", mx=False):
     data_dir = "data/simplification/"
     k_best_dir = data_dir + "K-best/"
 
@@ -330,14 +334,17 @@ def rerank_by_SARI(k_best="nisioi"):
     gold = np.array(gold)[keep]
 
     calculations_dir = "calculations_data/"
-    output_file = "simplification_rank_results_" + k_best
+    maxname = "max_" if mx else ""
+    output_file = "simplification_rank_results_" + maxname + k_best
 
     out_text_file = calculations_dir + output_file + "_origin"
     with codecs.open(out_text_file, "w+", "utf-8") as fl:
+        print("writing origin", out_text_file)
         fl.write("\n".join(source_sentences))
 
     out_text_file = calculations_dir + output_file + "_gold"
     with codecs.open(out_text_file, "w+", "utf-8") as fl:
+        print("writing gold", out_text_file)
         fl.write("\n".join(gold).replace("\n\n", "\n"))
 
     for ref_num in range(8, 0, -1):
@@ -357,7 +364,7 @@ def rerank_by_SARI(k_best="nisioi"):
             pool = Pool(POOL_SIZE)
             assert(len(packed_system_sentences) == len(references)
                    and len(references) == len(source_sentences))
-            results = pool.imap(SARI_oracle, packed_system_sentences)
+            results = pool.starmap(SARI_oracle, zip(packed_system_sentences, repeat(mx)))
             pool.close()
             pool.join()
             results = list(results)
@@ -432,11 +439,14 @@ def RBM_oracle(tple):
     return chosen
 
 
-def SARI_oracle(tple):
+def SARI_oracle(tple, mx=False):
     maximum = 0
     source, references, system_sentences = tple
     for sentence in system_sentences:
-        score = SARI_score(source, references, sentence)
+        if mx:
+            score = SARI_max_score(source, references, sentence)
+        else:
+            score = SARI_score(source, references, sentence)
         if maximum <= score:
             maximum = score
             chosen = sentence, score
@@ -584,9 +594,13 @@ def score(source, gold_edits, system):
     return sentence_m2(source, gold_edits, system)
 
 
+def SARI_max_score(source, references, system):
+    return np.max([SARI_score(source, [reference], system) for reference in references])
+
+
 def SARI_score(source, references, system):
     return SARI.SARIsent(source, system, references)
-    return SARI.SARIsent(system, source, references)
+    # return SARI.SARIsent(system, source, references)
 
 
 def semantics_score(source, sentence, parse_dir, source_sentence_id=None, sentence_id=None):

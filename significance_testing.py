@@ -101,8 +101,6 @@ def main():
     # sari_sig(1, output_dir, an.LUCKY)
 
     pool = Pool(POOL_SIZE)
-    # sari_type = an.LUCKY
-    # sari_type = an.MAX
     results_per_type = {}
     sari_types = [an.MAX, an.LUCKY, an.PAPER]
     for sari_type in sari_types:
@@ -250,12 +248,10 @@ def sari_score(m, sentences, simplifications, sari_type):
         if sari_type == an.LUCKY:
             res.append(SARI_score(chosen_sentence, chosen_simplifications[
                        :-1], chosen_simplifications[0]))
-            # print(res[-1], chosen_sentence, chosen_simplifications[
-            #     :-1], chosen_simplifications[0])
-            # print(SARI_score("who I do, really.", ["who I do, really."], "who I do, really."))
         if sari_type == an.MAX:
-            scr = [SARI_score(chosen_sentence, chosen_simplifications[
-                i], chosen_simplifications[-1]) for i in range(len(chosen_simplifications) - 1)]
+            assert(len(chosen_simplifications) - 1 == m)
+            scr = [SARI_score(chosen_sentence, [chosen_simplifications[i]],
+                              chosen_simplifications[-1]) for i in range(len(chosen_simplifications) - 1)]
             scr = np.max(scr)
             res.append(scr)
     return np.mean(res)
