@@ -22,12 +22,10 @@ from nltk.tokenize import sent_tokenize as nltk_sent_tokenize
 from nltk.stem import WordNetLemmatizer
 
 # ucca
-# UCCA_DIR = '/home/borgr/ucca/ucca'
-# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language'
+UCCA_DIR = '/home/borgr/ucca/ucca'
 ASSESS_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa'
-UCCA_DIR = TUPA_DIR + '/ucca'
-# ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
+# UCCA_DIR = TUPA_DIR + '/ucca'
 sys.path.append(UCCA_DIR + '/scripts/distances')
 sys.path.append(UCCA_DIR + '/ucca')
 sys.path.append(UCCA_DIR)
