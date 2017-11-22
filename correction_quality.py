@@ -1052,17 +1052,32 @@ def plot_ygrid(ymin, ymax, magnitude):
 
 
 def remove_spines(ax=None):
-    if ax is None:
-        ax = plt.gca()
+    ax = init_ax(ax)
     ax.spines["top"].set_visible(False)
     ax.spines["bottom"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(False)
 
 
-def beautify_heatmap(ymin, ymax, magnitude, ax=None, fontsize=14):
+def init_ax(ax=None):
     if ax is None:
         ax = plt.gca()
+    return ax
+
+
+def init_ylim(ymin=None, ymax=None, ax=None):
+    ax = init_ax(ax)
+    if ymin is None or ymax is None:
+        tymin, tymax = ax.get_ylim()
+        if ymin is None:
+            ymin = tymin
+        if ymax is None:
+            ymax = tymax
+    return ymin, ymax
+
+
+def beautify_heatmap(colorbar=None, magnitude=None, ymin=None, ymax=None,  ax=None, fontsize=14):
+    ax = init_ax(ax)
     remove_spines(ax)
     ax.get_xaxis().tick_bottom()
     ax.get_yaxis().tick_left()
@@ -1070,12 +1085,12 @@ def beautify_heatmap(ymin, ymax, magnitude, ax=None, fontsize=14):
     plt.yticks(fontsize=fontsize)
     plt.tick_params(axis="both", which="both", bottom="off", top="off",
                     labelbottom="on", left="off", right="off", labelleft="on")
+    if colorbar:
+        colorbar.ax.tick_params(labelsize=fontsize)
 
-
-def beautify_lines_graph(ymin, ymax, magnitude, ax=None, fontsize=14):
-    if ax is None:
-        ax = plt.gca()
-
+def beautify_lines_graph(magnitude, ymin=None, ymax=None, ax=None, fontsize=14):
+    ax = init_ax(ax)
+    ymin, ymax = init_ylim(ymin, ymax, ax)
     remove_spines(ax)
 
     # Ensure that the axis ticks only show up on the bottom and left of the plot.
@@ -1345,9 +1360,10 @@ def plot_differences_heatmap(l, ax, pivot, diff_type, bins, colors=cm.bone_r):
     ax.set_yticklabels(names)
     ax.set_xticks(x + 0.5)
     ax.set_xticklabels(bin_names, minor=False)
-    beautify_heatmap()
+
+    colorbar = plt.colorbar(heatmap)
+    beautify_heatmap(colorbar=colorbar)
     # plt.title("number of " + diff_type + " changed by method of correction")
-    plt.colorbar(heatmap)
     # plt.tight_layout()
 
 

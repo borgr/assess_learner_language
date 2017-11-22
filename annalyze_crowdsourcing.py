@@ -19,8 +19,8 @@ import matplotlib.cm as cm
 import numpy as np
 import pickle
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
-# UCCA_DIR = TUPA_DIR +'/ucca/'
-UCCA_DIR = '/home/borgr/ucca/ucca'
+UCCA_DIR = TUPA_DIR +'/ucca/'
+# UCCA_DIR = '/home/borgr/ucca/ucca'
 sys.path.append(UCCA_DIR + '/scripts')
 sys.path.append(UCCA_DIR + '/ucca')
 sys.path.append(UCCA_DIR)
@@ -120,8 +120,8 @@ def main():
     save_coverage = False
     show_dists = False
     save_dists = False
-    show_significance = False
-    save_significance = False
+    show_significance = True
+    save_significance = True
     compare_correction_distributions(
         db, EXACT_COMP, show=show_correction, save=save_correction)
     # db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
@@ -198,9 +198,8 @@ def sari_coverage(show, save):
         sari = "SARI"
         ax = plt.gca()
         ymin, ymax = ax.get_ylim()
-        xmin, xmax = ax.get_xlim()
         if j < len(SARI_TYPES):
-            beautify_lines_graph(min(1, ymin), min(1, ymax), 0.1)
+            beautify_lines_graph(0.1, min(1, ymin), min(1, ymax))
 
             f5_2 = plot_sig(results, names, show, save,
                             [measure], False, clean=True)
@@ -208,7 +207,7 @@ def sari_coverage(show, save):
             print("color", colors[j - len(SARI_TYPES)])
             f5_2 = plot_sig(results, names, False, False,
                             [measure], False, clean=False, line_color=colors[measure])
-    beautify_lines_graph(min(1, ymin), min(1, ymax), 0.1)
+    beautify_lines_graph(0.1, min(1, ymin), min(1, ymax))
     if save:
         plt.legend(loc='best', fancybox=True, fontsize=10, shadow=True)
         plt.savefig(PLOTS_DIR + ",".join(SARI_TYPES) + "_Ms_significance" +
@@ -984,12 +983,16 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
         ys = ys[sort_idx]
         cis = cis[sort_idx]
         plt.errorbar(xs, ys, yerr=cis, ecolor="blue")
+        ax = plt.gca()
+        ymin, ymax = ax.get_ylim()
+        beautify_lines_graph(0.1, max(0, ymin), min(1, ymax))
         measure_label = measure if measure != PAPER else "sari"
+        print(measure_label)
         if line_color:
             plt.plot(xs, ys, linewidth=2,
                      label=measure_label, color=line_color)
         else:
-            plt.plot(xs, ys, linewidth=2, label=measure_label)
+            plt.plot(xs, ys, linewidth=2, label=measure_label, color="blue")
         plt.xticks(xs, labels)
         plt.ylabel(measure)
         plt.xlabel("$M$ - Number of references in gold standard")
