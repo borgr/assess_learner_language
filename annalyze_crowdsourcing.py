@@ -39,12 +39,10 @@ SARI_TYPES = [LUCKY, MAX, PAPER]
 SIMPLIFICATION = "simple"
 GEC = "gec"
 TASK = SIMPLIFICATION
-# TASK = GEC
+TASK = GEC
 
 # file locations
 ASSESS_LEARNER_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
-# ASSESS_LEARNER_DIR = r"/home/borgr/ucca/assess_learner_language/"
-# ASSESS_LEARNER_DIR = '/cs/labs/oabend/borgr/assess_learner_language/'
 SIG_DIR = ASSESS_LEARNER_DIR + r"/results/significance/"
 
 if TASK == GEC:
@@ -122,8 +120,8 @@ def main():
     save_coverage = False
     show_dists = False
     save_dists = False
-    show_significance = True
-    save_significance = True
+    show_significance = False
+    save_significance = False
     compare_correction_distributions(
         db, EXACT_COMP, show=show_correction, save=save_correction)
     # db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
