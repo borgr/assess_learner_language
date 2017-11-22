@@ -17,11 +17,11 @@ from collections import Counter
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
+import pickle
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
 # UCCA_DIR = TUPA_DIR +'/ucca/'
 UCCA_DIR = '/home/borgr/ucca/ucca'
 sys.path.append(UCCA_DIR + '/scripts')
-import pickle
 sys.path.append(UCCA_DIR + '/ucca')
 sys.path.append(UCCA_DIR)
 # import convert
@@ -30,13 +30,13 @@ sys.path.append(UCCA_DIR + '/scripts/distances')
 # import align
 from correction_quality import align_sentence_words
 from correction_quality import preprocess_word
-
+from correction_quality import beautify_lines_graph
 PAPER = "paper"
 LUCKY = "lucky"
 MAX = "max"
 SARI_TYPES = [LUCKY, MAX, PAPER]
 
-SIMPLIFICATION = "simpl"
+SIMPLIFICATION = "simple"
 GEC = "gec"
 TASK = SIMPLIFICATION
 # TASK = GEC
@@ -109,9 +109,9 @@ def main():
     # return
     # create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
     # if TASK == GEC:
-    # 	pass
+    #   pass
     # elif TASK == SIMPLIFICATION:
-    # 	return
+    #   return
     db = clean_data(db)
     # print(db.groupby(LEARNER_SENTENCES_COL)[CORRECTED_SENTENCES_COL].nunique())
 
@@ -185,6 +185,9 @@ def get_lines_from_file(file, lines):
 
 def sari_coverage(show, save):
     print("sari sig results")
+    tablaue10blind = [(255, 128, 14), (171, 171, 171), (95, 158, 209), (89, 89, 89), (0, 107, 164),
+                      (255, 188, 121), (207, 207, 207), (200, 82, 0), (162, 200, 236), (137, 137, 137)]
+    colors = many_colors(SARI_TYPES, plt.colors.ListedColormap(tablaue10blind))
     for j, measure in enumerate(SARI_TYPES * 2):
         files = ["sari" +
                  str(m + 1) for m in np.arange(10)]
@@ -195,14 +198,21 @@ def sari_coverage(show, save):
             print(file, results[i])
         names = [str(m + 1) for m in np.arange(10)]
         sari = "SARI"
+        ax = plt.gca()
+        ymin, ymax = ax.get_ylim()
+        xmin, xmax = ax.get_xlim()
         if j < len(SARI_TYPES):
+            beautify_lines_graph(min(1, ymin), min(1, ymax), 0.1)
+
             f5_2 = plot_sig(results, names, show, save,
                             [measure], False, clean=True)
         else:
+            print("color", colors[j - len(SARI_TYPES)])
             f5_2 = plot_sig(results, names, False, False,
-                            [measure], False, clean=False)
+                            [measure], False, clean=False, line_color=colors[measure])
+    beautify_lines_graph(min(1, ymin), min(1, ymax), 0.1)
     if save:
-        plt.legend()
+        plt.legend(loc='best', fancybox=True, fontsize=10, shadow=True)
         plt.savefig(PLOTS_DIR + ",".join(SARI_TYPES) + "_Ms_significance" +
                     ".png", bbox_inches='tight')
     if show:
@@ -317,10 +327,10 @@ def convert_correction_to_m2(source, correct, annotator_num=0):
                 correction = ""
                 i += 1
             # elif(-1, j):
-            # 	# correction mapped to nothing
-            # 	span = (i,tmpi)
-            # 	correction = " ".join(c[j:tmpj])
-            # 	j += 1
+            #   # correction mapped to nothing
+            #   span = (i,tmpi)
+            #   correction = " ".join(c[j:tmpj])
+            #   j += 1
             elif (i, j + 1) in index_align:
                 # print("j+1 mapped to current i", i, j)
                 span = (i, i)
@@ -385,17 +395,17 @@ def convert_correction_to_m2(source, correct, annotator_num=0):
                          "|||" + correction + "|||REQUIRED|||-NONE-|||" + str(annotator_num) + "\n")
     # last_source_index = 0
     # for (w1, w2), (i, j) in zip(words_align, index_align):
-    # 	if not is_same_words(w1, w2):
-        # 	if i == -1:
-        # 		span = (last_source_index,last_source_index)
-        # 	else:
-        # 		span = (i, i+1)
-        # 		last_source_index = i
-        # 	error = "Wform"
-        # 	correction = w2
-        # 	lines.append("A " + str(span[0]) + " " + str(span[1]) + "|||" + error + "|||" + correction+"|||REQUIRED|||-NONE-|||"+str(annotator_num))
+    #   if not is_same_words(w1, w2):
+        #   if i == -1:
+        #       span = (last_source_index,last_source_index)
+        #   else:
+        #       span = (i, i+1)
+        #       last_source_index = i
+        #   error = "Wform"
+        #   correction = w2
+        #   lines.append("A " + str(span[0]) + " " + str(span[1]) + "|||" + error + "|||" + correction+"|||REQUIRED|||-NONE-|||"+str(annotator_num))
         # else:
-        # 	last_source_index = i
+        #   last_source_index = i
     return lines
 
 
@@ -467,8 +477,8 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
             plt.cla()
 
             # if save:
-            # 	fig_prefix = "accCI_" + COMPARISON_METHODS[comparison_method_key] +"_" + repeat
-            # 	save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
+            #   fig_prefix = "accCI_" + COMPARISON_METHODS[comparison_method_key] +"_" + repeat
+            #   save = PLOTS_DIR + fig_prefix + r"_accuracy" + ".png"
             # plot_expected_best_coverage(dist, plt.subplot("111"), title_addition, show, save, xlabel, False)
             # plt.cla()
 
@@ -484,8 +494,8 @@ def assess_coverage(only_different_samples, show=True, save=True, res_type=EXACT
         plot_expected_best_coverages(all_ys, plt.subplot(
             "111"), title_addition, show, save, xlabel, True, False)
         # if save:
-        # 	fig_prefix = repeat[1:]
-        # 	save = PLOTS_DIR + "accCI_" +fig_prefix + r"_accuracy" + ".png"
+        #   fig_prefix = repeat[1:]
+        #   save = PLOTS_DIR + "accCI_" +fig_prefix + r"_accuracy" + ".png"
         # plot_expected_best_coverages(all_ys, plt.subplot("111"), title_addition, show, save, xlabel, False)
     # extract value for return
     res = []
@@ -652,9 +662,9 @@ def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, sh
     fig_prefix = str(len(learner_sentences)) + "_" + \
         str(len(corrected)) + "_" + name
     if show or save:
-        # 	ax = plt.subplot("111")
-        # 	plot_hist(learner_sentences, ax, concat, name)
-        # 	plt.show()
+        #   ax = plt.subplot("111")
+        #   plot_hist(learner_sentences, ax, concat, name)
+        #   plt.show()
 
         plt.cla()
         ax = plt.subplot("111")
@@ -680,9 +690,9 @@ def compare_correction_distributions(db, name, index=CORRECTED_SENTENCES_COL, sh
         # prefix_reverseXY = "_rev_" if reverseXY else ""
         # plot_acounts_for_percentage(learner_sentences, ax, concat, name, reverseXY=reverseXY)
         # if save:
-        # 	plt.savefig(PLOTS_DIR + fig_prefix + prefix_reverseXY + r"percentage_hist" + ".png", bbox_inches='tight')
+        #   plt.savefig(PLOTS_DIR + fig_prefix + prefix_reverseXY + r"percentage_hist" + ".png", bbox_inches='tight')
         # if show:
-        # 	plt.show()
+        #   plt.show()
     export_hists(learner_sentences, concat, name, HISTS_DIR)
 
 ##########################################################################
@@ -937,7 +947,7 @@ def plot_significance(show=True, save=True):
     plot_sig_bars(results, names, show, save, line=f5_2)
 
 
-def plot_sig(significances, names, show, save, measures, add_zero=True, clean=True, line_measure=None):
+def plot_sig(significances, names, show, save, measures, add_zero=True, clean=True, line_measure=None, line_color=None):
     if line_measure == None:
         line_measure = measures[-1]
     names = np.array(([0] if add_zero else []) + names)
@@ -976,7 +986,12 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
         ys = ys[sort_idx]
         cis = cis[sort_idx]
         plt.errorbar(xs, ys, yerr=cis, ecolor="blue")
-        plt.plot(xs, ys, label=measure)
+        measure_label = measure if measure != PAPER else "sari"
+        if line_color:
+            plt.plot(xs, ys, linewidth=2,
+                     label=measure_label, color=line_color)
+        else:
+            plt.plot(xs, ys, linewidth=2, label=measure_label)
         plt.xticks(xs, labels)
         plt.ylabel(measure)
         plt.xlabel("$M$ - Number of references in gold standard")
@@ -1266,7 +1281,7 @@ def get_all_sentences_corrected():
     return corrected
 
 
-def clean_data(db, 	max_no_correction_needed=8):
+def clean_data(db,  max_no_correction_needed=8):
     # clean rejections
     db = db[db.AssignmentStatus != "Rejected"]
     db.loc[:, CORRECTED_SENTENCES_COL] = db[

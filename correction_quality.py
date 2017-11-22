@@ -78,6 +78,7 @@ def main():
     reranking_simplification_conservatism("moses", mx=True)
     # reranking_simplification_conservatism(mx=True)
 
+
 def outputs_conservatism():
     change_date = "160111"
     filename = "results/results" + change_date + ".json"
@@ -379,7 +380,8 @@ def reranking_simplification_conservatism(k_best="nisioi", mx=False):
     # filenames.append("test.8turkers.tok.simp")
     # names.append("gold")
     for fl in files:
-        # print(fl, "simplification" in fl, "origin" not in fl, k_best in fl, (("max" in fl) == mx))
+        # print(fl, "simplification" in fl, "origin" not in fl, k_best in fl,
+        # (("max" in fl) == mx))
         if "simplification" in fl and "origin" not in fl and k_best in fl and (("max" in fl) == mx):
             print(fl)
             filenames.append(fl)
@@ -1032,6 +1034,73 @@ def create_hist(l, top=30, bottom=0):
     return hist if hist else [0]
 
 
+def plot_ygrid(ymin, ymax, magnitude):
+    print(ymax)
+    # not efficient
+    i = 1
+    while magnitude * i < ymax:
+        y = magnitude * i
+        i += 1
+        if y > ymin:
+            plt.axhline(y=y, lw=0.5, color="black", alpha=0.3, linestyle='--')
+    i = 0
+    while magnitude * i > ymin:
+        y = magnitude * i
+        i += 1
+        if y < ymax:
+            plt.axhline(y=y, lw=0.5, color="black", alpha=0.3, linestyle='--')
+
+
+def remove_spines(ax=None):
+    if ax is None:
+        ax = plt.gca()
+    ax.spines["top"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+
+
+def beautify_heatmap(ymin, ymax, magnitude, ax=None, fontsize=14):
+    if ax is None:
+        ax = plt.gca()
+    remove_spines(ax)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+    plt.xticks(fontsize=fontsize)
+    plt.yticks(fontsize=fontsize)
+    plt.tick_params(axis="both", which="both", bottom="off", top="off",
+                    labelbottom="on", left="off", right="off", labelleft="on")
+
+
+def beautify_lines_graph(ymin, ymax, magnitude, ax=None, fontsize=14):
+    if ax is None:
+        ax = plt.gca()
+
+    remove_spines(ax)
+
+    # Ensure that the axis ticks only show up on the bottom and left of the plot.
+    # Ticks on the right and top of the plot are generally unnecessary
+    # chartjunk.
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+    plt.xticks(fontsize=fontsize)
+    plt.yticks(fontsize=fontsize)
+
+    # # Limit the range of the plot to only where the data is.
+    # # Avoid unnecessary whitespace.
+    # plt.ylim(ymin, ymax)
+    # plt.xlim(xmin, xmax)
+
+    # Provide tick lines across the plot to help your viewers trace along
+    # the axis ticks. Make sure that the lines are light and small so they
+    # don't obscure the primary data lines.
+    # Remove the tick marks; they are unnecessary with the tick lines we
+    # just plotted.
+    plt.tick_params(axis="both", which="both", bottom="off", top="off",
+                    labelbottom="on", left="off", right="off", labelleft="on")
+    plot_ygrid(ymin, ymax, magnitude)
+
+
 def many_colors(labels, colors=cm.rainbow):
     """creates colors, each corresponding to a unique label"""
     cls = set(labels)
@@ -1276,6 +1345,7 @@ def plot_differences_heatmap(l, ax, pivot, diff_type, bins, colors=cm.bone_r):
     ax.set_yticklabels(names)
     ax.set_xticks(x + 0.5)
     ax.set_xticklabels(bin_names, minor=False)
+    beautify_heatmap()
     # plt.title("number of " + diff_type + " changed by method of correction")
     plt.colorbar(heatmap)
     # plt.tight_layout()
