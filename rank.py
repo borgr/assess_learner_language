@@ -52,7 +52,7 @@ parser = Parser(model_path, "bilstm")
 
 def main():
     # parse_JFLEG()
-    # # rerank_by_m2()
+    rerank_by_m2()
     # for gamma in np.linspace(0,1,11):
     #   print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
     #                 gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
@@ -62,8 +62,8 @@ def main():
     #             gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
     # reduce_k_best(100, 10, filename)
     # rerank_by_wordist()
-    rerank_by_SARI(mx=True)
-    rerank_by_SARI("moses", mx=True)
+    # rerank_by_SARI(mx=True)
+    # rerank_by_SARI("moses", mx=True)
     # rerank_by_SARI()
     # rerank_by_SARI("moses")
 
@@ -219,18 +219,21 @@ def rerank_by_m2():
             output_file + name_extension(gold_file)[0]
         out_res_file = calculations_dir + "prf_" + \
             output_file + name_extension(gold_file)[0]
-        if not os.path.isfile(out_text_file):
+        if os.path.isfile(out_text_file):
+            print("file already found", out_text_file)
+        else:
             print("processing " + gold_file)
             source_sentences, gold_edits = m2scorer.load_annotation(gold_file)
 
             # load system hypotheses
             fin = m2scorer.smart_open(system_file, 'r')
-            system_sentences = [line.decode("utf8").strip()
+            system_sentences = [line.strip()
                                 for line in fin.readlines()]
+
             fin.close()
 
             # pack and parse RoRo's k-best
-            packed_system_sentences = get_roro_packed(source_sentences)
+            packed_system_sentences = get_roro_packed(system_sentences)
             # candidate_num = 0
             # for sentence_num, (source, this_edits) in enumerate(zip(source_sentences, gold_edits)):
             #   curr_sentences = []
@@ -241,13 +244,14 @@ def rerank_by_m2():
             #       candidate_num += 1
             #       curr_sentences.append(sentence)
             #   packed_system_sentences.append(curr_sentences)
+            # print(len(packed_system_sentences), len(gold_edits), len(source_sentences))
 
             # find top ranking
             pool = Pool(POOL_SIZE)
             assert(len(packed_system_sentences) == len(gold_edits)
                    and len(gold_edits) == len(source_sentences))
-            results = pool.imap(RBM_oracle, zip(
-                source_sentences, packed_system_sentences))
+            results = pool.imap(M2SCORER_oracle, zip(
+                source_sentences, gold_edits, packed_system_sentences))
             pool.close()
             pool.join()
             results = list(results)
@@ -364,7 +368,8 @@ def rerank_by_SARI(k_best="nisioi", mx=False):
             pool = Pool(POOL_SIZE)
             assert(len(packed_system_sentences) == len(references)
                    and len(references) == len(source_sentences))
-            results = pool.starmap(SARI_oracle, zip(packed_system_sentences, repeat(mx)))
+            results = pool.starmap(SARI_oracle, zip(
+                packed_system_sentences, repeat(mx)))
             pool.close()
             pool.join()
             results = list(results)
@@ -408,9 +413,11 @@ def referece_less_full_rerank(source, system_sentences, parse_dir, gamma):
 
 def wordist_oracle(source, system_sentences):
     maximum = 0
+    chosen = [None,None]
+
     for sentence in set(system_sentences):
         combined_score = word_diff(source, sentence)
-        if maximum <= combined_score:
+        if (maximum == combined_score and chosen[0] != source) or maximum < combined_score:
             maximum = combined_score
             chosen = sentence, combined_score
     return chosen
@@ -418,38 +425,46 @@ def wordist_oracle(source, system_sentences):
 
 def referece_less_oracle(source, system_sentences, parse_dir, gamma):
     maximum = 0
+    chosen = [None,None]
     for sentence in set(system_sentences):
         combined_scores = reference_less_score(
             source, sentence, parse_dir, gamma)
-        if maximum <= combined_score:
+        if (maximum == combined_score and chosen[0] != source) or maximum < combined_score:
             maximum = combined_score
             chosen = sentence, combined_score
-    # print(chosen)
     return chosen
 
 
-def RBM_oracle(tple):
+def M2SCORER_oracle(tple):
     maximum = 0
+    chosen = [None,None]
     source, this_edits, system_sentences = tple
     for sentence in system_sentences:
         p, r, f = score(source, this_edits, sentence)
-        if maximum <= f:
+        if (maximum == f and chosen[0] != source) or maximum < f:
             maximum = f
             chosen = sentence, (p, r, f)
+    if chosen[0] == sentence:
+        print("no change got f of:", f)
+        print(this_edits)
+    else:
+        print("changed")
     return chosen
 
 
 def SARI_oracle(tple, mx=False):
     maximum = 0
+    chosen = [None,None]
     source, references, system_sentences = tple
     for sentence in system_sentences:
         if mx:
             score = SARI_max_score(source, references, sentence)
         else:
             score = SARI_score(source, references, sentence)
-        if maximum <= score:
+        if (maximum == score and chosen[0] != source) or maximum < score:
             maximum = score
             chosen = sentence, score
+    # print(chosen[0] == source)
     return chosen
 
 
