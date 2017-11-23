@@ -25,8 +25,6 @@ SYSTEM1NAME = "system1Id"
 ANNOTATOR = "judgeID"
 
 ASSESS_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
-# ASSESS_DIR = '/home/borgr/ucca/assess_learner_language/'
-# ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language/'
 DATA_DIR = ASSESS_DIR + "data/"
 HUMAN_JUDGMENTS_DIR = DATA_DIR + "human_judgements/"
 PARAGRAPHS_DIR = DATA_DIR + "paragraphs/"
@@ -98,28 +96,36 @@ def system_by_id(system):
 
 
 def create_measure_db(score_db, measure_name, measure_from_row):
-    all_rank_db = []
+    ranked_db = []
     for idx in score_db.loc[:, SENTENCE_ID].unique():
-        cur_db = score_db.loc[score_db.loc[:, SENTENCE_ID] == idx, :]
-        sentence_rank = ["Complex", "simple", idx, -1, idx, measure_name]
-        argsort = np.flipud(np.argsort(
-            cur_db.apply(measure_from_row, axis=1).values))
-        print(measure_name, "vals", cur_db.apply(
-            measure_from_row, axis=1).values)
+        cur_db = score_db.loc[score_db.loc[:, SENTENCE_ID] == idx, :].drop_duplicates()
+        sentence_ranked_row = ["Complex", "simple", idx, -1, idx, measure_name]
+        scores = cur_db.apply(measure_from_row, axis=1).values
+        argsort = np.flipud(np.argsort(scores))
+        scores = scores[argsort]
+        # print(measure_name, "vals", scores)
         cur_db = cur_db.iloc[argsort, :]
-        ranks = pd.Index(cur_db.loc[:, SYSTEM_ID])
+        ranked_systems = pd.Index(cur_db.loc[:, SYSTEM_ID])
+        ranks = []
+        for i, score in enumerate(scores):
+            if i != 0 and scores[i] == scores[i-1]:
+                ranks.append(ranks[-1])
+            else:
+                ranks.append(i + 1)
+        # print(cur_db, "cur")
+        # print(ranked_systems, "ranked_systems")
         for i in range(len(SYSTEMS)):
-            sentence_rank.append(systemXNumber(i))
+            sentence_ranked_row.append(systemXNumber(i))
             system_id = systemXId(i)
-            sentence_rank.append(system_id)
-            sentence_rank.append(ranks.get_loc(system_id) + 1)
-
-        all_rank_db.append(sentence_rank)
+            sentence_ranked_row.append(system_id)
+            sentence_ranked_row.append(ranks[ranked_systems.get_loc(system_id)])
+            # print(sentence_ranked_row)
+        ranked_db.append(sentence_ranked_row)
     columns = [SRC_LNG, TRG_LANG, SRC_ID, DOC_ID, SEG_ID, MEASURE_ID] + \
         ["system" + str(1 + x) + header
          for x in range(len(SYSTEMS)) for header in ["Number", "id", "rank"]]
-    all_rank_db = pd.DataFrame(all_rank_db, columns=columns)
-    return all_rank_db
+    ranked_db = pd.DataFrame(ranked_db, columns=columns)
+    return ranked_db
 
 
 def load_cache(cache_file):
@@ -216,7 +222,7 @@ def main():
         gleu_sentence_scores = gleu_scores(
             source_lines, lines_references, [system_lines])[1]
         gleu_sentence_scores = [s[0] for s in gleu_sentence_scores]
-
+        uncached = 0
         for i, (sent_id, source, references, edits, system, gleu) in enumerate(zip(
                 sentence_ids, source_lines, references_lines, references_edits, system_lines, gleu_sentence_scores)):
             cache = cached[cached[SENTENCE] == system]
@@ -239,16 +245,19 @@ def main():
                 score_db.append(
                     (m2, gleu, grammar, uccaSim, system, source, sent_id, system_id))
                 system_sentences_calculated.add(system)
+                uncached += 1
             else:
                 for row in score_db:
                     if row[4] == system:
                         row = list(row[:])
                         row[-1] = system_id
                         score_db.append(row)
+                        uncached += 1
                         break
                 assert score_db[-1][4] == system
 
-            if (not DEBUG) and (len(score_db) % CACHE_EVERY == 0) and (len(score_db) != 0):
+            if (not DEBUG) and (uncached == CACHE_EVERY):
+                uncached = 0
                 cur_scores = pd.DataFrame(
                     score_db, columns=[M2, GLEU, GRAMMAR, UCCA_SIM, SENTENCE, SOURCE, SENTENCE_ID, SYSTEM_ID])
                 cached = cur_scores.append(cached, ignore_index=True)
@@ -271,15 +280,15 @@ def main():
     if not DEBUG:
         save_cache(score_db, CACHE_FILE)
 
+    name = "uccaSim"
+    uccaSim_db = save_for_Truekill(create_measure_db(
+        score_db, name, lambda row: float(row[UCCA_SIM])), name)
     name = "glue"
     gleu_db = save_for_Truekill(create_measure_db(
         score_db, name, lambda row: float(row[GLEU])), name)
     name = "m2"
     m2_db = save_for_Truekill(create_measure_db(
         score_db, name, lambda row: float(row[M2][2])), name)
-    name = "uccaSim"
-    uccaSim_db = save_for_Truekill(create_measure_db(
-        score_db, name, lambda row: float(row[UCCA_SIM])), name)
     name = "grammar"
     Grammatical = save_for_Truekill(create_measure_db(
         score_db, name, lambda row: float(row[GRAMMAR])), name)
@@ -288,8 +297,6 @@ def main():
         combined = save_for_Truekill(create_measure_db(
             score_db, name, lambda row: float(
                 float(row[UCCA_SIM]) * alpha + (1 - alpha) * float(row[GRAMMAR]))), name)
-    # rank outputs on each sentence that has human judgment using ucca and lt
-    # (and gleu and m2 later)
 
     # think what to calculate with it (percentage of agreeing comparisons \
     # truekill \ expected wins both found in Human Evaluation of Grammatical
