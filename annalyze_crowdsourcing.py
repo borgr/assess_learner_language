@@ -14,12 +14,13 @@ import sys
 import os
 import re
 from collections import Counter
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 import pickle
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
-UCCA_DIR = TUPA_DIR +'/ucca/'
+UCCA_DIR = TUPA_DIR + '/ucca/'
 # UCCA_DIR = '/home/borgr/ucca/ucca'
 sys.path.append(UCCA_DIR + '/scripts')
 sys.path.append(UCCA_DIR + '/ucca')
@@ -39,7 +40,7 @@ SARI_TYPES = [LUCKY, MAX, PAPER]
 SIMPLIFICATION = "simple"
 GEC = "gec"
 TASK = SIMPLIFICATION
-TASK = GEC
+# TASK = GEC
 
 # file locations
 ASSESS_LEARNER_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
@@ -183,9 +184,12 @@ def get_lines_from_file(file, lines):
 
 def sari_coverage(show, save):
     print("sari sig results")
-    tablaue10blind = [(255, 128, 14), (171, 171, 171), (95, 158, 209), (89, 89, 89), (0, 107, 164),
-                      (255, 188, 121), (207, 207, 207), (200, 82, 0), (162, 200, 236), (137, 137, 137)]
-    colors = many_colors(SARI_TYPES, plt.colors.ListedColormap(tablaue10blind))
+    colorbrewer = [(230, 97, 1), (253, 184, 99),
+                   (178, 171, 210), (94, 60, 153)]
+    for i in range(len(colorbrewer)):    
+        r, g, b = colorbrewer[i]    
+        colorbrewer[i] = (r / 255., g / 255., b / 255.)  
+    colors = many_colors(SARI_TYPES, mpl.colors.ListedColormap(colorbrewer))
     for j, measure in enumerate(SARI_TYPES * 2):
         files = ["sari" +
                  str(m + 1) for m in np.arange(10)]
@@ -204,11 +208,11 @@ def sari_coverage(show, save):
             f5_2 = plot_sig(results, names, show, save,
                             [measure], False, clean=True)
         else:
-            print("color", colors[j - len(SARI_TYPES)])
             f5_2 = plot_sig(results, names, False, False,
-                            [measure], False, clean=False, line_color=colors[measure])
+                            [measure], False, clean=False, line_color=colors[measure], alpha=0)
     beautify_lines_graph(0.1, min(1, ymin), min(1, ymax))
     if save:
+        print("saving all in",PLOTS_DIR + ",".join(SARI_TYPES) + "_Ms_significance" +".png")
         plt.legend(loc='best', fancybox=True, fontsize=10, shadow=True)
         plt.savefig(PLOTS_DIR + ",".join(SARI_TYPES) + "_Ms_significance" +
                     ".png", bbox_inches='tight')
@@ -807,10 +811,10 @@ def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_n
         if not plot_sig:
             if label == INDEX_COMP:
                 print(save_name, "index_accuracy", y[:12])
-                ax.plot(x, y, label=label)
+                ax.plot(x, y, label=label, linewidth=2)
             else:
                 print(save_name, "accuracy", y[:22])
-                ax.plot(x, y, "--", label=label)
+                ax.plot(x, y, "--", label=label, linewidth=2)
         else:
             if label == INDEX_COMP:
                 ax.errorbar(x, y, yerr=cis, label=label)
@@ -819,6 +823,8 @@ def plot_expected_best_coverages(dists, ax, title_addition="", show=True, save_n
         # ax.plot(np.array(CORRECTION_NUMS) + width*comparison_method_key, y,
         # label=COMPARISON_METHODS[comparison_method_key])
     ax.set_ylabel("expected accuracy")
+    ymin, ymax = ax.get_ylim()
+    beautify_lines_graph(0.1, max(0, ymin), min(1, ymax), ax=ax)
     plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
     if xlabel:
         ax.set_xlabel(xlabel)
@@ -944,7 +950,7 @@ def plot_significance(show=True, save=True):
     plot_sig_bars(results, names, show, save, line=f5_2)
 
 
-def plot_sig(significances, names, show, save, measures, add_zero=True, clean=True, line_measure=None, line_color=None):
+def plot_sig(significances, names, show, save, measures, add_zero=True, clean=True, line_measure=None, line_color=None, alpha=None):
     if line_measure == None:
         line_measure = measures[-1]
     names = np.array(([0] if add_zero else []) + names)
@@ -985,10 +991,9 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
         plt.errorbar(xs, ys, yerr=cis, ecolor="blue")
         ax = plt.gca()
         ymin, ymax = ax.get_ylim()
-        beautify_lines_graph(0.1, max(0, ymin), min(1, ymax))
+        beautify_lines_graph(0.1, max(0, ymin), min(1, ymax), ygrid_alpha=alpha)
         measure_label = measure if measure != PAPER else "sari"
-        print(measure_label)
-        if line_color:
+        if line_color is not None:
             plt.plot(xs, ys, linewidth=2,
                      label=measure_label, color=line_color)
         else:
