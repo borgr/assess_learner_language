@@ -31,6 +31,7 @@ sys.path.append(UCCA_DIR + '/scripts/distances')
 from correction_quality import align_sentence_words
 from correction_quality import preprocess_word
 from correction_quality import beautify_lines_graph
+from correction_quality import remove_spines
 PAPER = "paper"
 LUCKY = "lucky"
 MAX = "max"
@@ -1038,6 +1039,10 @@ def plot_sig_bars(significances, names, show, save, line=None):
                 label=labels, edgecolor=colors, color=colors)
         plt.xticks(xs, labels, rotation=70)
         plt.ylabel(measure)
+        ax = plt.gca()
+        ax.get_xaxis().tick_bottom()
+        ax.get_yaxis().tick_left()
+        remove_spines()
         if line != None and measure == fscore:
             plt.axhline(line, color="red")
         if save:
