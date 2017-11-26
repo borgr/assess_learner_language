@@ -33,6 +33,7 @@ CALCULATIONS_DIR = "calculations_data/human_judgements/"
 PARSE_DIR = CALCULATIONS_DIR + "/ucca_parse/"
 ONE_SENTENCE_DIR = CALCULATIONS_DIR + "/one_sentence_files/"
 CACHE_FILE = CALCULATIONS_DIR + "cache.pkl"
+SCORE_FILE = CALCULATIONS_DIR + "score_db.pkl"
 RESULTS_DIR = ASSESS_DIR + "/results/"
 TRUE_KILL_DIR = RESULTS_DIR + "/HumanEvaluation/"
 M2, GLEU, GRAMMAR, UCCA_SIM, SENTENCE, SOURCE, SYSTEM_ID = "m2", "gleu", "grammar", "uccaSim", "sentence", "source", "systemId"
@@ -64,16 +65,16 @@ def parse_xml(judgments_file):
     return db
 
 
-def get_lines_from_file(file, lines):
+def get_lines_from_file(filename, lines):
     lines = np.array(lines)
-    with open(file) as fl:
+    with open(filename) as fl:
         text = np.array(fl.readlines())
         return (line.replace("\n", "") for line in text[lines])
 
 
-def get_edits_from_file(file, lines):
+def get_edits_from_file(filename, lines):
     lines = np.array(lines)
-    source_sentences, gold_edits = m2scorer.load_annotation(file)
+    source_sentences, gold_edits = m2scorer.load_annotation(filename)
     return np.array(gold_edits)[lines]
 
 
@@ -98,8 +99,10 @@ def system_by_id(system):
 def create_measure_db(score_db, measure_name, measure_from_row):
     ranked_db = []
     for idx in score_db.loc[:, SENTENCE_ID].unique():
-        cur_db = score_db.loc[score_db.loc[:, SENTENCE_ID] == idx, :].drop_duplicates()
-        sentence_ranked_row = ["Complex", "simple", idx, -1, idx, measure_name]
+        cur_db = score_db.loc[score_db.loc[
+            :, SENTENCE_ID] == idx, :].drop_duplicates()
+        sentence_ranked_row = ["Complex", "simple",
+                               int(idx), -1, int(idx), measure_name]
         scores = cur_db.apply(measure_from_row, axis=1).values
         argsort = np.flipud(np.argsort(scores))
         scores = scores[argsort]
@@ -108,7 +111,7 @@ def create_measure_db(score_db, measure_name, measure_from_row):
         ranked_systems = pd.Index(cur_db.loc[:, SYSTEM_ID])
         ranks = []
         for i, score in enumerate(scores):
-            if i != 0 and scores[i] == scores[i-1]:
+            if i != 0 and scores[i] == scores[i - 1]:
                 ranks.append(ranks[-1])
             else:
                 ranks.append(i + 1)
@@ -118,19 +121,20 @@ def create_measure_db(score_db, measure_name, measure_from_row):
             sentence_ranked_row.append(systemXNumber(i))
             system_id = systemXId(i)
             sentence_ranked_row.append(system_id)
-            sentence_ranked_row.append(ranks[ranked_systems.get_loc(system_id)])
+            sentence_ranked_row.append(
+                ranks[ranked_systems.get_loc(system_id)])
             # print(sentence_ranked_row)
         ranked_db.append(sentence_ranked_row)
     columns = [SRC_LNG, TRG_LANG, SRC_ID, DOC_ID, SEG_ID, MEASURE_ID] + \
         ["system" + str(1 + x) + header
-         for x in range(len(SYSTEMS)) for header in ["Number", "id", "rank"]]
+         for x in range(len(SYSTEMS)) for header in ["Number", "Id", "rank"]]
     ranked_db = pd.DataFrame(ranked_db, columns=columns)
     return ranked_db
 
 
 def load_cache(cache_file):
     if not os.path.isfile(cache_file):
-        print("Cache was not found, creating a new cache file", cache_file)
+        print("Cache was not found, creating a new cache results_file", cache_file)
         return pd.DataFrame(
             [], columns=[M2, GLEU, GRAMMAR, UCCA_SIM, SENTENCE, SOURCE, SENTENCE_ID])
     else:
@@ -139,43 +143,38 @@ def load_cache(cache_file):
 
 
 def save_cache(cache, cache_file, verbose=True):
+    cache.drop_duplicates(inplace=True)
     cache.to_pickle(cache_file)
     if verbose:
         print("Cached with db with size", cache.shape)
 
 
-def save_for_Truekill(db, name, dr=TRUE_KILL_DIR):
-    db.to_csv(os.path.join(dr, name + ".csv"))
+def save_for_Truekill(score_db, name, measure_from_row, dr=TRUE_KILL_DIR, force=False):
+    filename = os.path.join(dr, name + ".csv")
+    if force or not os.path.isfile(filename):
+        db = create_measure_db(
+            score_db, name, measure_from_row)
+
+        db.to_csv(filename, index=False)
+        return db
+    else:
+        return pd.read_csv(filename)
 
 
-def main():
-    if DEBUG:
-        print("***********************")
-        print("DEBUGGING!")
-        print("***********************")
+def create_score_db(cache_file, judgment_file, references_files, edits_files, learner_file, system_files, one_sentence_dir, ucca_parse_dir, cache_every, results_file=""):
+    if os.path.isfile(results_file):
+        print("reading scores from", results_file)
+        return pd.read_pickle(results_file)
 
     # parse xmls
-    # judgments_file = HUMAN_JUDGMENTS_DIR + "8judgments.xml"
-    judgments_file = HUMAN_JUDGMENTS_DIR + "all_judgments.xml"
-    db = parse_xml(judgments_file)
+    db = parse_xml(judgment_file)
     sentence_ids = db[SENTENCE_ID].map(lambda x: int(x)).unique()
     print("number of judgments:", len(sentence_ids))
 
-    cached = load_cache(CACHE_FILE)
-    # cached_ids = cached.loc[:, SENTENCE_ID].unique()
-    # sentence_ids = [
-    #     sentence_id for sentence_id in sentence_ids if sentence_id not in cached_ids]
-    # print("From which not cached", len(sentence_ids))
+    cached = load_cache(cache_file)
+
     # read relevant lines note that id135 = line 136
-    learner_file = PARAGRAPHS_DIR + "conll.tok.orig"
     source_lines = list(get_lines_from_file(learner_file, sentence_ids))
-    first_nucle = REFERENCE_DIR + "NUCLEA"
-    second_nucle = REFERENCE_DIR + "NUCLEB"
-    # combined_nucle = REFERENCE_DIR + "NUCLE.m2"
-    # BN = REFERENCE_DIR + "BN.m2"
-    # ALL =  REFERENCE_DIR + "ALL.m2"
-    references_files = [second_nucle]
-    edits_files = [second_nucle + ".m2"]
 
     score_db = []
     # load files
@@ -189,36 +188,17 @@ def main():
     lines_references = [list(get_lines_from_file(fl, sentence_ids))
                         for fl in references_files]
 
-    # JMGR_file = PARAGRAPHS_DIR + "JMGR"
-    # amu_file = PARAGRAPHS_DIR + "AMU"
-    # cuui_file = PARAGRAPHS_DIR + "CUUI"
-    # iitb_file = PARAGRAPHS_DIR + "IITB"
-    # ipn_file = PARAGRAPHS_DIR + "IPN"
-    # nthu_file = PARAGRAPHS_DIR + "NTHU"
-    # pku_file = PARAGRAPHS_DIR + "PKU"
-    # post_file = PARAGRAPHS_DIR + "POST"
-    # rac_file = PARAGRAPHS_DIR + "RAC"
-    # sjtu_file = PARAGRAPHS_DIR + "SJTU"
-    # ufc_file = PARAGRAPHS_DIR + "UFC"
-    # umc_file = PARAGRAPHS_DIR + "UMC"
-    # camb_file = PARAGRAPHS_DIR + "CAMB"
-    # system_files = [JMGR_file, amu_file, cuui_file, iitb_file,
-    #                 ipn_file, nthu_file, pku_file, post_file,
-    # rac_file, sjtu_file, ufc_file, umc_file, camb_file, first_nucle]
-    system_files = [
-        PARAGRAPHS_DIR + systemXId(x) for x in range(len(SYSTEMS) - 1)] + [REFERENCE_DIR + systemXId(len(SYSTEMS) - 1)]
     ucca_parse_files(system_files + references_files +
-                     [learner_file], PARSE_DIR)
+                     [learner_file], ucca_parse_dir)
     create_one_sentence_files([x for lines in references_lines for x in lines] +
-                              source_lines, ONE_SENTENCE_DIR)
-    # return
+                              source_lines, one_sentence_dir)
 
     system_sentences_calculated = set()
     for x, system_file in enumerate(system_files):
         system_id = systemXId(x)
         print("calculating for", system_id)
         system_lines = list(get_lines_from_file(system_file, sentence_ids))
-        create_one_sentence_files(system_lines, ONE_SENTENCE_DIR)
+        create_one_sentence_files(system_lines, one_sentence_dir)
         gleu_sentence_scores = gleu_scores(
             source_lines, lines_references, [system_lines])[1]
         gleu_sentence_scores = [s[0] for s in gleu_sentence_scores]
@@ -238,7 +218,7 @@ def main():
                 uccaSim = semantics_score(
                     learner_file, system_file, PARSE_DIR, i, i)
                 grammar = grammaticality_score(
-                    source, system, ONE_SENTENCE_DIR)
+                    source, system, one_sentence_dir)
                 edits = list(edits)
                 m2 = m2scorer.get_score([system], [source], edits, max_unchanged_words=2, beta=0.5,
                                         ignore_whitespace_casing=True, verbose=False, very_verbose=False, should_cache=False)
@@ -256,12 +236,12 @@ def main():
                         break
                 assert score_db[-1][4] == system
 
-            if (not DEBUG) and (uncached == CACHE_EVERY):
+            if (not DEBUG) and (uncached == cache_every):
                 uncached = 0
                 cur_scores = pd.DataFrame(
                     score_db, columns=[M2, GLEU, GRAMMAR, UCCA_SIM, SENTENCE, SOURCE, SENTENCE_ID, SYSTEM_ID])
                 cached = cur_scores.append(cached, ignore_index=True)
-                cached.drop_duplicates(inplace=True)
+
                 save_cache(cached, CACHE_FILE)
                 print("calculated", len(score_db),
                       "sentences overall", i + 1, "for", system_file)
@@ -277,30 +257,55 @@ def main():
     if not cached.empty:
         score_db = score_db.append(cached, ignore_index=True)
 
-    if not DEBUG:
+    if not DEBUG and uncached != 0:
         save_cache(score_db, CACHE_FILE)
 
+    if results_file:
+        save_cache(score_db, results_file)
+    return score_db
+
+
+def main():
+    if DEBUG:
+        print("***********************")
+        print("DEBUGGING!")
+        print("***********************")
+
+    learner_file = PARAGRAPHS_DIR + "conll.tok.orig"
+    first_nucle = REFERENCE_DIR + "NUCLEA"
+    second_nucle = REFERENCE_DIR + "NUCLEB"
+    # combined_nucle = REFERENCE_DIR + "NUCLE.m2"
+    # BN = REFERENCE_DIR + "BN.m2"
+    # ALL =  REFERENCE_DIR + "ALL.m2"
+    references_files = [second_nucle]
+    edits_files = [second_nucle + ".m2"]
+    system_files = [
+        PARAGRAPHS_DIR + systemXId(x) for x in range(len(SYSTEMS) - 1)] + [REFERENCE_DIR + systemXId(len(SYSTEMS) - 1)]
+
+    # TODO perhaps combine them?
+    judgments_file = HUMAN_JUDGMENTS_DIR + "8judgments.xml"
+    judgments_file = HUMAN_JUDGMENTS_DIR + "all_judgments.xml"
+    score_db = create_score_db(CACHE_FILE, judgments_file, references_files, edits_files,
+                               learner_file, system_files, ONE_SENTENCE_DIR, PARSE_DIR, CACHE_EVERY, SCORE_FILE)
+
+    force = False
     name = "uccaSim"
-    uccaSim_db = save_for_Truekill(create_measure_db(
-        score_db, name, lambda row: float(row[UCCA_SIM])), name)
+    uccaSim_db = save_for_Truekill(
+        score_db, name, lambda row: float(row[UCCA_SIM]), force=force)
     name = "glue"
-    gleu_db = save_for_Truekill(create_measure_db(
-        score_db, name, lambda row: float(row[GLEU])), name)
+    gleu_db = save_for_Truekill(
+        score_db, name, lambda row: float(row[GLEU]), force=force)
     name = "m2"
-    m2_db = save_for_Truekill(create_measure_db(
-        score_db, name, lambda row: float(row[M2][2])), name)
+    m2_db = save_for_Truekill(
+        score_db, name, lambda row: float(row[M2][2]), force=force)
     name = "grammar"
-    Grammatical = save_for_Truekill(create_measure_db(
-        score_db, name, lambda row: float(row[GRAMMAR])), name)
+    Grammatical = save_for_Truekill(
+        score_db, name, lambda row: float(row[GRAMMAR]), force=force)
     for alpha in np.linspace(0, 1, 101):
         name = "combined" + str(alpha)
-        combined = save_for_Truekill(create_measure_db(
-            score_db, name, lambda row: float(
-                float(row[UCCA_SIM]) * alpha + (1 - alpha) * float(row[GRAMMAR]))), name)
+        combined = save_for_Truekill(score_db, name, lambda row: float(
+            float(row[UCCA_SIM]) * alpha + (1 - alpha) * float(row[GRAMMAR])), force=force)
 
-    # think what to calculate with it (percentage of agreeing comparisons \
-    # truekill \ expected wins both found in Human Evaluation of Grammatical
-    # Error Correction Systems)
 
 if __name__ == '__main__':
     main()
