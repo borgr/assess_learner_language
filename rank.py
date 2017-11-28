@@ -5,6 +5,7 @@ import re
 import scipy
 import numpy as np
 import pandas as pd
+import nltk
 from multiprocessing import Pool
 import multiprocessing
 from subprocess import call
@@ -66,6 +67,8 @@ def main():
     # rerank_by_SARI("moses", mx=True)
     # rerank_by_SARI()
     # rerank_by_SARI("moses")
+    rerank_by_BLEU()
+    rerank_by_BLEU("moses")
 
     # announce_finish()
 
@@ -75,6 +78,9 @@ def parse_JFLEG():
     (path, dirs, files) = next(os.walk(JFLEG_dir))
     filenames = [path + os.sep + fl for fl in files]
     ucca_parse_files(filenames, JFLEG_dir + os.sep + "xmls")
+
+# a lot of code duplication because pooling doesn't react well to passing
+# different functions (e.g. lambdas) as an argument
 
 
 def rerank_by_uccasim(gamma=0.27):
@@ -162,7 +168,8 @@ def rerank_by_wordist():
 
         # print("parsing")
         # print(reduce(operator.add, packed_system_sentences))
-        # ucca_parse(reduce(operator.add, packed_system_sentences) + source_sentences, ucca_parse_dir)
+        # ucca_parse(reduce(operator.add, packed_system_sentences) +
+        # source_sentences, ucca_parse_dir)
 
         print("reranking")
         # find top ranking
@@ -244,7 +251,8 @@ def rerank_by_m2():
             #       candidate_num += 1
             #       curr_sentences.append(sentence)
             #   packed_system_sentences.append(curr_sentences)
-            # print(len(packed_system_sentences), len(gold_edits), len(source_sentences))
+            # print(len(packed_system_sentences), len(gold_edits),
+            # len(source_sentences))
 
             # find top ranking
             pool = Pool(POOL_SIZE)
@@ -294,31 +302,30 @@ def load_moses_k_best(k_best_dir):
     return system_sentences
 
 
-def rerank_by_SARI(k_best="nisioi", mx=False):
-    data_dir = "data/simplification/"
-    k_best_dir = data_dir + "K-best/"
+def read_simplification_k_best(k_best):
+    k_best_dir = "data/simplification/K-best/"
 
-    DATA_DIR = os.path.dirname(os.path.realpath(
+    data_dir = os.path.dirname(os.path.realpath(
         __file__)) + os.sep + "/simplification/data/"
-    TURK_CORPUS_DIR = DATA_DIR + "turkcorpus/"
-    TURKERS_DIR = TURK_CORPUS_DIR + "truecased/"
+    turkcorpus_dir = data_dir + "turkcorpus/"
+    turkers_dir = turkcorpus_dir + "truecased/"
 
     ORIGIN = "origin"
 
     db = []
-    # for root, dirs, files in os.walk(TURKERS_DIR):
+    # for root, dirs, files in os.walk(turkers_dir):
     #   for filename in files:
-    #       cur_db = pd.read_table(TURKERS_DIR + filename, names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
+    #       cur_db = pd.read_table(turkers_dir + filename, names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
     #       db.append(cur_db)
     # db = pd.concat(db, ignore_index=True)
     filename = "test.8turkers.organized.tsv"
-    db = pd.read_table(TURKERS_DIR + filename,
+    db = pd.read_table(turkers_dir + filename,
                        names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
     db.drop("index", inplace=True, axis=1)
     db.dropna(inplace=True, axis=0)
     db.applymap(an.normalize_sentence)
 
-    with open(TURK_CORPUS_DIR + "test.8turkers.tok.turk.0") as fl:
+    with open(turkcorpus_dir + "test.8turkers.tok.turk.0") as fl:
         gold = fl.readlines()
 
     keep = []
@@ -336,6 +343,64 @@ def rerank_by_SARI(k_best="nisioi", mx=False):
     else:
         raise "unknown system"
     gold = np.array(gold)[keep]
+    return gold, system_sentences, references, source_sentences
+
+
+def rerank_by_BLEU(k_best="nisioi"):
+    gold, system_sentences, references, source_sentences = read_simplification_k_best(
+        k_best)
+    calculations_dir = "calculations_data/"
+    output_file = "simplification_rank_results_" + "BLEU" + k_best
+
+    out_text_file = calculations_dir + output_file + "_origin"
+    with codecs.open(out_text_file, "w+", "utf-8") as fl:
+        print("writing origin", out_text_file)
+        fl.write("\n".join(source_sentences))
+
+    out_text_file = calculations_dir + output_file + "_gold"
+    with codecs.open(out_text_file, "w+", "utf-8") as fl:
+        print("writing gold", out_text_file)
+        fl.write("\n".join(gold).replace("\n\n", "\n"))
+
+    for ref_num in range(8, 0, -1):
+        out_text_file = calculations_dir + output_file + str(ref_num) + "refs"
+        out_res_file = calculations_dir + "BLEU" + "_" + \
+            output_file + str(ref_num) + "refs"
+        if not os.path.isfile(out_text_file):
+            print("ranking with", ref_num, "refs")
+
+            # pack k-best
+            packed_system_sentences = []
+            for source, refs, system in zip(source_sentences, references, system_sentences):
+                packed_system_sentences.append(
+                    (source, refs[np.random.randint(0, 8, ref_num)].tolist(), system))
+
+            # find top ranking
+            pool = Pool(POOL_SIZE)
+            assert(len(packed_system_sentences) == len(references)
+                   and len(references) == len(source_sentences))
+            results = pool.imap_unordered(BLEU_oracle,
+                packed_system_sentences)
+            pool.close()
+            pool.join()
+            results = list(results)
+            sentences = "\n".join(list(zip(*results))[0])
+            results = list(zip(*results))[1]
+            results = "\n".join([str(x) for x in results])
+
+            print("writing to " + os.path.realpath(out_text_file))
+            with codecs.open(out_text_file, "w+", "utf-8") as fl:
+                fl.write(sentences)
+            with open(out_res_file, "w+") as fl:
+                fl.write(results)
+        else:
+            print("skipped calculating with", ref_num,
+                  " references, file already exists.")
+
+
+def rerank_by_SARI(k_best="nisioi", mx=False):
+    gold, system_sentences, references, source_sentences = read_simplification_k_best(
+        k_best)
 
     calculations_dir = "calculations_data/"
     maxname = "max_" if mx else ""
@@ -413,7 +478,7 @@ def referece_less_full_rerank(source, system_sentences, parse_dir, gamma):
 
 def wordist_oracle(source, system_sentences):
     maximum = 0
-    chosen = [None,None]
+    chosen = [None, None]
 
     for sentence in set(system_sentences):
         combined_score = word_diff(source, sentence)
@@ -425,7 +490,7 @@ def wordist_oracle(source, system_sentences):
 
 def referece_less_oracle(source, system_sentences, parse_dir, gamma):
     maximum = 0
-    chosen = [None,None]
+    chosen = [None, None]
     for sentence in set(system_sentences):
         combined_scores = reference_less_score(
             source, sentence, parse_dir, gamma)
@@ -437,7 +502,7 @@ def referece_less_oracle(source, system_sentences, parse_dir, gamma):
 
 def M2SCORER_oracle(tple):
     maximum = 0
-    chosen = [None,None]
+    chosen = [None, None]
     source, this_edits, system_sentences = tple
     for sentence in system_sentences:
         p, r, f = score(source, this_edits, sentence)
@@ -449,6 +514,18 @@ def M2SCORER_oracle(tple):
         print(this_edits)
     else:
         print("changed")
+    return chosen
+
+
+def BLEU_oracle(tple, mx=False):
+    maximum = 0
+    chosen = [None, None]
+    source, references, system_sentences = tple
+    for sentence in system_sentences:
+        score = BLEU_score(source, references, sentence)
+        if (maximum == score and chosen[0] != source) or maximum < score:
+            maximum = score
+            chosen = sentence, score
     return chosen
 
 
@@ -653,7 +730,7 @@ def grammaticality_score(source, sentence, parse_dir):
     out = res.stdout.decode("utf-8")
     out = re.sub(r"\\'", "'", out)
     res = json.loads(out)
-    return 1 / (1 + len(res["matches"]))
+    return 1 - len(res["matches"])/an.normalize_sentence(sentence).count(" ")
 
 
 def sentence_m2(source, gold_edits, system):
@@ -756,8 +833,16 @@ def gleu_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
         #     print("total", total[-1][0])
     return total, per_sentence
 
+def BLEU_score(source, references, system, n=4):
+    source = an.normalize_sentence(source).split()
+    references = [an.normalize_sentence(reference).split() for reference in references]
+    n = min(n, len(source), *((len(reference) for reference in references)))
+    weights = tuple(1/n for i in range(n))
+    BLEUscore = nltk.translate.bleu_score.sentence_bleu(references, system, weights=weights)
+    return BLEUscore
 
 def gleu_score(source, references, system):
+    raise "unimplemented"
     return None
 
 
