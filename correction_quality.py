@@ -1032,21 +1032,24 @@ def create_hist(l, top=30, bottom=0):
     return hist if hist else [0]
 
 
-def plot_ygrid(ymin, ymax, magnitude):
-    print(ymax)
-    # not efficient
+def plot_ygrid(magnitude, ymin=None, ymax=None, ax=None, alpha=0.3):
+    ax = init_ax(ax)
+    ymin, ymax = init_ylim(ymin, ymax, ax)
+    # not efficient if far from 0
     i = 1
     while magnitude * i < ymax:
         y = magnitude * i
         i += 1
         if y > ymin:
-            plt.axhline(y=y, lw=0.5, color="black", alpha=0.3, linestyle='--')
+            plt.axhline(y=y, lw=0.5, color="black",
+                        alpha=alpha, linestyle='--')
     i = 0
     while magnitude * i > ymin:
         y = magnitude * i
         i += 1
         if y < ymax:
-            plt.axhline(y=y, lw=0.5, color="black", alpha=0.3, linestyle='--')
+            plt.axhline(y=y, lw=0.5, color="black",
+                        alpha=alpha, linestyle='--')
 
 
 def remove_spines(ax=None):
@@ -1086,9 +1089,9 @@ def beautify_heatmap(colorbar=None, magnitude=None, ymin=None, ymax=None,  ax=No
     if colorbar:
         colorbar.ax.tick_params(labelsize=fontsize)
 
-def beautify_lines_graph(magnitude, ymin=None, ymax=None, ax=None, fontsize=14):
+
+def beautify_lines_graph(magnitude, ymin=None, ymax=None, ax=None, fontsize=14, ygrid_alpha=None):
     ax = init_ax(ax)
-    ymin, ymax = init_ylim(ymin, ymax, ax)
     remove_spines(ax)
 
     # Ensure that the axis ticks only show up on the bottom and left of the plot.
@@ -1111,7 +1114,10 @@ def beautify_lines_graph(magnitude, ymin=None, ymax=None, ax=None, fontsize=14):
     # just plotted.
     plt.tick_params(axis="both", which="both", bottom="off", top="off",
                     labelbottom="on", left="off", right="off", labelleft="on")
-    plot_ygrid(ymin, ymax, magnitude)
+    data = {"ymin": ymin, "ymax": ymax,
+            "magnitude": magnitude, "alpha": ygrid_alpha, "ax": ax}
+    data = dict((k, v) for k, v in data.items() if v is not None)
+    plot_ygrid(**data)
 
 
 def many_colors(labels, colors=cm.rainbow):
