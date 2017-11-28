@@ -67,7 +67,7 @@ def main():
     # rerank_by_SARI()
     # rerank_by_SARI("moses")
 
-    # anounce_finish()
+    # announce_finish()
 
 
 def parse_JFLEG():
@@ -769,7 +769,7 @@ def name_extension(name):
     return basename(name).split(".")
 
 
-def anounce_finish():
+def announce_finish():
     if sys.platform == "linux":
         if set(("debian", "Ubuntu")) & set(platform.linux_distribution()):
             subprocess.call(['speech-dispatcher'])  # start speech dispatcher
