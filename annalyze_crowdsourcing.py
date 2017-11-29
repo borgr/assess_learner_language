@@ -20,8 +20,8 @@ import matplotlib.cm as cm
 import numpy as np
 import pickle
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
-UCCA_DIR = TUPA_DIR + '/ucca/'
-# UCCA_DIR = '/home/borgr/ucca/ucca'
+# UCCA_DIR = TUPA_DIR + '/ucca/'
+UCCA_DIR = '/home/borgr/ucca/ucca'
 sys.path.append(UCCA_DIR + '/scripts')
 sys.path.append(UCCA_DIR + '/ucca')
 sys.path.append(UCCA_DIR)
@@ -33,7 +33,7 @@ from correction_quality import align_sentence_words
 from correction_quality import preprocess_word
 from correction_quality import beautify_lines_graph
 from correction_quality import remove_spines
-PAPER = "paper"
+PAPER = "sari"
 LUCKY = "lucky"
 MAX = "max"
 BLEU = "BLEU"
@@ -599,7 +599,7 @@ def assess_real_distributions(filename, minFrequency=0):
     if os.path.isfile(outfile):
         print(outfile, "already exists")
     else:
-        os.system("python /home/borgr/unseenest/src/unseen_est.py " +
+        os.system("python " + ASSESS_LEARNER_DIR + "/unseenest/src/unseen_est.py " +
                   filename + " 0 " + outfile + " -s 1 ")
 
 
