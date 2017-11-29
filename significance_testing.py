@@ -10,6 +10,7 @@ from m2scorer.scripts import m2scorer
 import numpy as np
 from multiprocessing import Pool
 from rank import SARI_score
+from rank import BLEU_score
 import annalyze_crowdsourcing as an
 import multiprocessing
 import time
@@ -92,8 +93,8 @@ def main():
     # print(results)
 
     # perfect annotator sari score
-    # sentences, simplifications = an.sari_source_simplifications_tuple()
-    # print("once",np.mean([sari_score(1, sentences, simplifications) for x in range(10)]))
+    # sentences, simplifications = an.simplification_source_simplifications_tuple()
+    # print("once",np.mean([simplification_score(1, sentences, simplifications) for x in range(10)]))
     # s = time.time()
     # print("sari sig", sari_sig(1))
     # print("time elapsed in seconds", time.time() - s)
@@ -102,7 +103,8 @@ def main():
 
     pool = Pool(POOL_SIZE)
     results_per_type = {}
-    sari_types = [an.MAX, an.LUCKY, an.PAPER]
+    # sari_types = [an.BLEU, an.MAX, an.LUCKY, an.PAPER]
+    sari_types = [an.BLEU]
     for sari_type in sari_types:
         output_dir = os.path.join(r"./results/significance/", sari_type)
         if not os.path.isdir(output_dir):
@@ -179,7 +181,7 @@ def m2score_sig(filename, gold_file=r"./data/conll14st-test-data/noalt/official-
 def sari_sent_sig(m, output_dir=r"./results/significance/"):
     """ checks the confidence intervals with specific samples of sources and corrections"""
     n_samples = 1000
-    sentences, simplifications = an.sari_source_simplifications_tuple()
+    sentences, simplifications = an.simplification_source_simplifications_tuple()
     corpus_size = 2000
     unique_sentences = pd.Series(sentences.unique())
     all_chosen_sentences = []
@@ -212,22 +214,25 @@ def sari_sent_score(sentences, simplifications):
     return np.mean(res)
 
 
-def sari_sig(m, output_dir=r"./results/significance/", sari_type=an.PAPER):
+def sari_sig(m, output_dir=r"./results/significance/", simplification_measure=an.PAPER):
     """ checks the confidence when each sample could be another sentence and another sampled references for it"""
     n_samples = 1000
     print("testing significance of sari with m=" + str(m))
-    sentences, simplifications = an.sari_source_simplifications_tuple()
-    statfunction = lambda x: sari_score(
-        m, sentences, simplifications, sari_type)
+    sentences, simplifications = an.simplification_source_simplifications_tuple()
+    statfunction = lambda x: simplification_score(
+        m, sentences, simplifications, simplification_measure)
     # statfunction = lambda x: np.random.randint(6)
-    filename = str(n_samples) + "_sari" + str(m)
+    if simplification_measure == an.BLEU:
+        filename = str(n_samples) + "_bleu" + str(m)
+    else:
+        filename = str(n_samples) + "_sari" + str(m)
     filename = os.path.join(output_dir, filename)
     # filename = None
     return test_significance(statfunction, ([None] * 10000,),
                              filename, n_samples=n_samples, method="pi")
 
 
-def sari_score(m, sentences, simplifications, sari_type):
+def simplification_score(m, sentences, simplifications, simplification_measure):
     corpus_size = 2000
     unique_sentences = pd.Series(sentences.unique())
     res = []
@@ -242,13 +247,16 @@ def sari_score(m, sentences, simplifications, sari_type):
                 0, corresponding_simplifications.size)
             chosen_simplifications.append(corresponding_simplifications.iloc[
                 chosen_ind])
-        if sari_type == an.PAPER:
+        if simplification_measure == an.BLEU:
+            res.append(BLEU_score(chosen_sentence, chosen_simplifications[
+                       :-1], chosen_simplifications[-1]))
+        if simplification_measure == an.PAPER:
             res.append(SARI_score(chosen_sentence, chosen_simplifications[
                        :-1], chosen_simplifications[-1]))
-        if sari_type == an.LUCKY:
+        if simplification_measure == an.LUCKY:
             res.append(SARI_score(chosen_sentence, chosen_simplifications[
                        :-1], chosen_simplifications[0]))
-        if sari_type == an.MAX:
+        if simplification_measure == an.MAX:
             assert(len(chosen_simplifications) - 1 == m)
             scr = [SARI_score(chosen_sentence, [chosen_simplifications[i]],
                               chosen_simplifications[-1]) for i in range(len(chosen_simplifications) - 1)]
