@@ -6,7 +6,7 @@
 	url = https://github.com/borgr/gec-ranking.git
 [submodule "wmt-trueskill"]
 	path = wmt-trueskill
-	url = https://github.com/keisks/wmt-trueskill.git
+	url = https://github.com/borgr/wmt-trueskill.git
 [submodule "unseenest"]
 	path = unseenest
 	url = https://github.com/borgr/unseenest.git
