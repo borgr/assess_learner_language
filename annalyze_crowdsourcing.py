@@ -36,7 +36,8 @@ from correction_quality import remove_spines
 PAPER = "paper"
 LUCKY = "lucky"
 MAX = "max"
-SARI_TYPES = [LUCKY, MAX, PAPER]
+BLEU = "BLEU"
+SIMPLIFICATION_MEASURES = [LUCKY, MAX, PAPER]
 
 SIMPLIFICATION = "simple"
 GEC = "gec"
@@ -141,10 +142,10 @@ def main():
     if TASK == GEC:
         plot_significance(show=show_significance, save=save_significance)
     else:
-        sari_coverage(show=show_significance, save=save_significance)
+        simplification_coverage(show=show_significance, save=save_significance)
 
 
-def sari_source_simplifications_tuple():
+def simplification_source_simplifications_tuple():
     db = read_batches()
     db = clean_data(db)
     sentences = db.loc[:, LEARNER_SENTENCES_COL]
@@ -183,27 +184,30 @@ def get_lines_from_file(file, lines):
         return (line.replace("\n", "") for line in text[lines])
 
 
-def sari_coverage(show, save):
-    print("sari sig results")
+def simplification_coverage(show, save):
+    print("simplification sig results")
     colorbrewer = [(230, 97, 1), (253, 184, 99),
                    (178, 171, 210), (94, 60, 153)]
     for i in range(len(colorbrewer)):    
         r, g, b = colorbrewer[i]    
         colorbrewer[i] = (r / 255., g / 255., b / 255.)  
-    colors = many_colors(SARI_TYPES, mpl.colors.ListedColormap(colorbrewer))
-    for j, measure in enumerate(SARI_TYPES * 2):
-        files = ["sari" +
+    colors = many_colors(SIMPLIFICATION_MEASURES, mpl.colors.ListedColormap(colorbrewer))
+    for j, measure in enumerate(SIMPLIFICATION_MEASURES * 2):
+        if measure == BLEU:
+            files = ["bleu" +
                  str(m + 1) for m in np.arange(10)]
+        else:
+            files = ["sari" +
+                     str(m + 1) for m in np.arange(10)]
         paths = [os.path.join(SIG_DIR, measure, "1000_" + file)
                  for file in files]
         results = parse_sigfiles(paths)
         for i, file in enumerate(paths):
             print(file, results[i])
         names = [str(m + 1) for m in np.arange(10)]
-        sari = "SARI"
         ax = plt.gca()
         ymin, ymax = ax.get_ylim()
-        if j < len(SARI_TYPES):
+        if j < len(SIMPLIFICATION_MEASURES):
             beautify_lines_graph(0.1, min(1, ymin), min(1, ymax))
 
             f5_2 = plot_sig(results, names, show, save,
@@ -213,9 +217,9 @@ def sari_coverage(show, save):
                             [measure], False, clean=False, line_color=colors[measure], alpha=0)
     beautify_lines_graph(0.1, min(1, ymin), min(1, ymax))
     if save:
-        print("saving all in",PLOTS_DIR + ",".join(SARI_TYPES) + "_Ms_significance" +".png")
+        print("saving all in",PLOTS_DIR + ",".join(SIMPLIFICATION_MEASURES) + "_Ms_significance" +".png")
         plt.legend(loc='best', fancybox=True, fontsize=10, shadow=True)
-        plt.savefig(PLOTS_DIR + ",".join(SARI_TYPES) + "_Ms_significance" +
+        plt.savefig(PLOTS_DIR + ",".join(SIMPLIFICATION_MEASURES) + "_Ms_significance" +
                     ".png", bbox_inches='tight')
     if show:
         plt.show()

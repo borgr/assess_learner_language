@@ -53,7 +53,7 @@ parser = Parser(model_path, "bilstm")
 
 def main():
     # parse_JFLEG()
-    rerank_by_m2()
+    # rerank_by_m2()
     # for gamma in np.linspace(0,1,11):
     #   print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
     #                 gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
@@ -379,7 +379,7 @@ def rerank_by_BLEU(k_best="nisioi"):
             pool = Pool(POOL_SIZE)
             assert(len(packed_system_sentences) == len(references)
                    and len(references) == len(source_sentences))
-            results = pool.imap_unordered(BLEU_oracle,
+            results = pool.imap(BLEU_oracle,
                 packed_system_sentences)
             pool.close()
             pool.join()

@@ -25,7 +25,7 @@ from nltk.stem import WordNetLemmatizer
 UCCA_DIR = '/home/borgr/ucca/ucca'
 ASSESS_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa'
-# UCCA_DIR = TUPA_DIR + '/ucca'
+UCCA_DIR = TUPA_DIR + '/ucca'
 sys.path.append(UCCA_DIR + '/scripts/distances')
 sys.path.append(UCCA_DIR + '/ucca')
 sys.path.append(UCCA_DIR)
@@ -53,6 +53,11 @@ SHORT_WORD_LEN = 4
 CHANGING_RATIO = 5
 PATH = ASSESS_DIR + r"/data/paragraphs/"
 
+SARI = "sari"
+MAX = "max"
+BLEU = "BLEU"
+SIMPLIFICATION_MEASURES = [SARI, BLEU, MAX]
+
 ORDERED = "original order"
 FIRST_LONGER = "sentence splitted"
 SECOND_LONGER = "sentence concatenated"
@@ -71,10 +76,12 @@ def main():
     # UCCASim_conservatism()
     # outputs_conservatism()
     # ranking_conservatism()
-    reranking_simplification_conservatism("moses")
+    # reranking_simplification_conservatism("moses")
     # reranking_simplification_conservatism()
-    reranking_simplification_conservatism("moses", mx=True)
-    # reranking_simplification_conservatism(mx=True)
+    reranking_simplification_conservatism("moses", measure=MAX)
+    # reranking_simplification_conservatism(measure=MAX)
+    # reranking_simplification_conservatism("moses", measure=BLEU)
+    # reranking_simplification_conservatism(measure=BLEU)
 
 
 def outputs_conservatism():
@@ -366,30 +373,35 @@ def outputs_conservatism():
     convert_file_to_csv(filename)
 
 
-def reranking_simplification_conservatism(k_best="nisioi", mx=False):
+def reranking_simplification_conservatism(k_best="nisioi", measure=SARI):
     change_date = "011126"
-    maxname = "max_" if mx else ""
-    complex_file = "simplification_rank_results_" + maxname + k_best + "_origin"
-    filename = "results/simplification_reranking_results" + \
-        maxname + k_best + change_date + ".json"
+    if measure == MAX:
+        complex_file = "simplification_rank_results_" + "max_" + k_best + "_origin"
+        filename = "results/simplification_reranking_results" + \
+            "max_" + k_best + change_date + ".json"
+    if measure == BLEU:
+        complex_file = "simplification_rank_results_" + "BLEU" + k_best + "_origin"
+        filename = "results/" + "simplification_reranking_results_" + "BLEU" + \
+            k_best + change_date + ".json"
+    if measure == SARI:
+        complex_file = "simplification_rank_results_" + k_best + "_origin"
+        filename = "results/simplification_reranking_results" + \
+            k_best + change_date + ".json"
+
     (path, dirs, files) = next(os.walk(PATH))
     filenames = []
     names = []
     # filenames.append("test.8turkers.tok.simp")
     # names.append("gold")
     for fl in files:
-        # print(fl, "simplification" in fl, "origin" not in fl, k_best in fl,
-        # (("max" in fl) == mx))
-        if "simplification" in fl and "origin" not in fl and k_best in fl and (("max" in fl) == mx):
-            print(fl)
-            filenames.append(fl)
-            names.append(fl[-5:])
-            if "gold" in fl:
-                names[-1] = "gold"
+        if "simplification" in fl and "origin" not in fl and k_best in fl:
+            if  (measure == SARI and (all(measure not in fl for measure in SIMPLIFICATION_MEASURES))) or measure in fl:
+                filenames.append(fl)
+                names.append(fl[-5:])
+                if "gold" in fl:
+                    names[-1] = "gold"
     argsort = np.argsort(names)
     names = np.array(names)[argsort]
-    # print(names)
-    # return
     filenames = np.array(filenames)[argsort]
     origin = read_text(complex_file)
     compare(filenames, names, filename, origin,
