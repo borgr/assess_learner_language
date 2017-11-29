@@ -7,3 +7,6 @@
 [submodule "wmt-trueskill"]
 	path = wmt-trueskill
 	url = https://github.com/keisks/wmt-trueskill.git
+[submodule "unseenest"]
+	path = unseenest
+	url = https://github.com/borgr/unseenest.git
