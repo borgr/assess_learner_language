@@ -1,5 +1,8 @@
 import os
+import subprocess
+import shlex
 import re
+import json
 import pandas as pd
 import numpy as np
 
@@ -36,6 +39,7 @@ CACHE_FILE = CALCULATIONS_DIR + "cache.pkl"
 SCORE_FILE = CALCULATIONS_DIR + "score_db.pkl"
 RESULTS_DIR = ASSESS_DIR + "/results/"
 TRUE_KILL_DIR = RESULTS_DIR + "/HumanEvaluation/"
+TS_DIR = TRUE_KILL_DIR + "TS/"
 M2, GLEU, GRAMMAR, UCCA_SIM, SENTENCE, SOURCE, SYSTEM_ID = "m2", "gleu", "grammar", "uccaSim", "sentence", "source", "systemId"
 SRC_LNG, TRG_LANG, SRC_ID, DOC_ID, SEG_ID, MEASURE_ID = "srclang", "trglang", "srcIndex", "documentId", "segmentId", "judgeId"
 
@@ -83,7 +87,7 @@ def systemXNumber(x):
 
 
 SYSTEMS = ["POST", "JMGR", "AMU", "CUUI", "IITB", "IPN", "NTHU",
-           "PKU", "RAC", "SJTU", "UFC", "UMC", "CAMB", "NUCLEA"]
+           "PKU", "RAC", "SJTU", "UFC", "UMC", "CAMB", "src", "NUCLEA"]
 if DEBUG:
     SYSTEMS = SYSTEMS[-3:]
 
@@ -271,6 +275,8 @@ def main():
         print("DEBUGGING!")
         print("***********************")
 
+    # calculate
+
     learner_file = PARAGRAPHS_DIR + "conll.tok.orig"
     first_nucle = REFERENCE_DIR + "NUCLEA"
     second_nucle = REFERENCE_DIR + "NUCLEB"
@@ -280,31 +286,69 @@ def main():
     references_files = [second_nucle]
     edits_files = [second_nucle + ".m2"]
     system_files = [
-        PARAGRAPHS_DIR + systemXId(x) for x in range(len(SYSTEMS) - 1)] + [REFERENCE_DIR + systemXId(len(SYSTEMS) - 1)]
-
-    # TODO perhaps combine them?
-    judgments_file = HUMAN_JUDGMENTS_DIR + "8judgments.xml"
-    judgments_file = HUMAN_JUDGMENTS_DIR + "all_judgments.xml"
-    score_db = create_score_db(CACHE_FILE, judgments_file, references_files, edits_files,
+        PARAGRAPHS_DIR + systemXId(x) for x in range(len(SYSTEMS) - 2)] + [learner_file] + [REFERENCE_DIR + systemXId(len(SYSTEMS) - 1)]
+    # TODO perhaps combine them? (the problem is in truekill and the xml
+    # instead of csv format)
+    judgments_file = HUMAN_JUDGMENTS_DIR + "8judgments"
+    judgments_file = HUMAN_JUDGMENTS_DIR + "all_judgments"
+    # augmented_judgments_file = HUMAN_JUDGMENTS_DIR + "augmented_all_judgments"
+    score_db = create_score_db(CACHE_FILE, judgments_file + ".xml", references_files, edits_files,
                                learner_file, system_files, ONE_SENTENCE_DIR, PARSE_DIR, CACHE_EVERY, SCORE_FILE)
-
+    # print(score_db)
+    # print(score_db[SYSTEM_ID].unique(), len(score_db[SYSTEM_ID].unique()))
+    # return
+    # format for truekill
     force = False
-    name = "uccaSim"
-    uccaSim_db = save_for_Truekill(
-        score_db, name, lambda row: float(row[UCCA_SIM]), force=force)
-    name = "glue"
+    names = []
+    names.append("glue")
     gleu_db = save_for_Truekill(
-        score_db, name, lambda row: float(row[GLEU]), force=force)
-    name = "m2"
+        score_db, names[-1], lambda row: float(row[GLEU]), force=force)
+    names.append("uccaSim")
+    uccaSim_db = save_for_Truekill(
+        score_db, names[-1], lambda row: float(row[UCCA_SIM]), force=force)
+    names.append("m2")
     m2_db = save_for_Truekill(
-        score_db, name, lambda row: float(row[M2][2]), force=force)
-    name = "grammar"
+        score_db, names[-1], lambda row: float(row[M2][2]), force=force)
+    names.append("grammar")
     Grammatical = save_for_Truekill(
-        score_db, name, lambda row: float(row[GRAMMAR]), force=force)
+        score_db, names[-1], lambda row: float(row[GRAMMAR]), force=force)
     for alpha in np.linspace(0, 1, 101):
-        name = "combined" + str(alpha)
-        combined = save_for_Truekill(score_db, name, lambda row: float(
-            float(row[UCCA_SIM]) * alpha + (1 - alpha) * float(row[GRAMMAR])), force=force)
+        names.append("combined" + str(alpha))
+        combined = save_for_Truekill(score_db, names[-1], lambda row: (float(
+            float(row[UCCA_SIM]) * alpha) + ((1 - alpha) * float(row[GRAMMAR]))), force=force)
+
+    # run truekills
+    # run human judgments trueskill
+    judgment_name = os.path.basename(judgments_file)
+    judgment_rank = trueskill_rank(2, judgments_file + ".csv", judgment_name)
+    print(judgment_rank)
+    # augmented_judgments_name = os.path.basename(augmented_judgments_file)
+    # augmented_judgment_rank = trueskill_rank(3, augmented_judgments_file + ".csv", augmented_judgments_name)
+    ranks = []
+    for name in names:
+        measure_path = os.path.join(TRUE_KILL_DIR, name + ".csv")
+        ranks.append(trueskill_rank(len(SYSTEMS), measure_path, name))
+        print(ranks[-1])
+
+
+def trueskill_rank(system_num, measure_db_path, measure_name):
+    trueskill_dir = os.path.join(TS_DIR + measure_name) + os.sep
+    trueskill_file = os.path.join(trueskill_dir, "_mu_sigma.json")
+    print("ranking by", measure_name)
+    if not os.path.isdir(TS_DIR):
+        os.mkdir(TS_DIR)
+    if not os.path.isfile(trueskill_file):
+        if not os.path.isdir(trueskill_dir):
+            os.mkdir(trueskill_dir)
+        ps = subprocess.Popen(("cat", measure_db_path), stdout=subprocess.PIPE)
+        subprocess.check_call(shlex.split("python " + ASSESS_DIR + "wmt-trueskill/src/infer_TS.py -e -s " +
+                                          str(system_num) + " -d 0 -n 2 " + trueskill_dir), stdin=ps.stdout)
+        # subprocess.Popen(r"cat " + measure_db_path +
+        #                  " | python " + ASSESS_DIR + "wmt-trueskill/src/infer_TS.py -e -s " + str(system_num) + " -d 0 -n 2 " + output_file)
+    with open(trueskill_file) as fl:
+        mu_sig = json.load(fl)
+    mu_sig.pop("data_points")
+    return sorted(mu_sig.keys(), key=lambda x: -mu_sig[x][0])
 
 
 if __name__ == '__main__':
