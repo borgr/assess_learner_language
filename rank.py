@@ -553,7 +553,7 @@ def parse_location(output_dir, filename, sentence_num=None):
     return os.path.join(cur_dir, filename + str(sentence_num) + ".xml")
 
 
-def ucca_parse_files(filenames, output_dir, clean=False):
+def ucca_parse_files(filenames, output_dir, clean=False, normalize_sentence=lambda x:x):
     # parse_command = "python ../tupa/tupa/parse.py -c bilstm -m ../tupa/models/bilstm -o "+ output_dir +" "
     # print("parsing with:", parse_command)
 
@@ -567,6 +567,7 @@ def ucca_parse_files(filenames, output_dir, clean=False):
                 print("parsing " + filename)
                 with open(filename, "r") as fl:
                     text = fl.readlines()
+                text = [normalize_sentence(x) for x in text]
                 text = from_text(text, split=True, one_per_line=True)
                 text = list(text)
                 # text = [item for line in text for item in from_text(line, split=True)]
@@ -655,6 +656,7 @@ def get_sentence_id(sentence, parse_dir, graceful=True):
         otherwise throws exception"""
     filename = "sentenceIds.pkl"
     max_id = "max"
+    sentence = an.normalize_sentence(sentence)
     if parse_dir in _id_dics:
         id_dic = _id_dics[parse_dir]
     elif not os.path.isfile(parse_dir + os.sep + filename):
@@ -695,7 +697,7 @@ def SARI_score(source, references, system):
     # return SARI.SARIsent(system, source, references)
 
 
-def semantics_score(source, sentence, parse_dir, source_sentence_id=None, sentence_id=None):
+def semantics_score(source, sentence, parse_dir, source_id=None, sentence_id=None):
     """ accepts filename instead of sentence\source and a sentence id\source_sentence id for locating the file"""
     if align.regularize_word(source) == "":
         if align.regularize_word(sentence) == "":
@@ -705,12 +707,12 @@ def semantics_score(source, sentence, parse_dir, source_sentence_id=None, senten
     elif align.regularize_word(sentence) == "":
         return 0
 
-    if source_sentence_id is None:
+    if source_id is None:
         source_xml = file2passage(
             parse_dir + str(get_sentence_id(source, parse_dir, False)) + ".xml")
     else:
         source_xml = file2passage(parse_location(
-            parse_dir, source, source_sentence_id))
+            parse_dir, source, source_id))
     if sentence_id is None:
         sentence_xml = file2passage(
             parse_dir + str(get_sentence_id(sentence, parse_dir, False)) + ".xml")
@@ -722,6 +724,9 @@ def semantics_score(source, sentence, parse_dir, source_sentence_id=None, senten
 
 
 def grammaticality_score(source, sentence, parse_dir):
+    word_num = an.normalize_sentence(sentence).count(" ")
+    if word_num == 0:
+        return 1
     command = "java -jar ../softwares/LanguageTool-3.7/languagetool-commandline.jar --json -l en-US"
     filename = str(get_sentence_id(sentence, parse_dir, False)) + ".txt"
     with open(os.devnull, 'wb') as devnull:
@@ -730,7 +735,7 @@ def grammaticality_score(source, sentence, parse_dir):
     out = res.stdout.decode("utf-8")
     out = re.sub(r"\\'", "'", out)
     res = json.loads(out)
-    return 1 - len(res["matches"])/an.normalize_sentence(sentence).count(" ")
+    return 1 - len(res["matches"])/word_num
 
 
 def sentence_m2(source, gold_edits, system):
