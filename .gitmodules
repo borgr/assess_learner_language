@@ -10,3 +10,6 @@
 [submodule "unseenest"]
 	path = unseenest
 	url = https://github.com/borgr/unseenest.git
+[submodule "simplification"]
+	path = simplification
+	url = https://github.com/borgr/simplification.git
