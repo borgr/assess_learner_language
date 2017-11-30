@@ -53,6 +53,7 @@ pathlib.Path(PARSE_DIR).mkdir(parents=True, exist_ok=True)
 pathlib.Path(ONE_SENTENCE_DIR).mkdir(parents=True, exist_ok=True)
 pathlib.Path(TRUE_KILL_DIR).mkdir(parents=True, exist_ok=True)
 
+
 def parse_xml(judgments_file):
     judgments = []
     with open(judgments_file) as fl:
@@ -78,11 +79,11 @@ def parse_xml(judgments_file):
     return db
 
 
-def get_lines_from_file(filename, lines):
+def get_lines_from_file(filename, lines, normalize=lambda x: x):
     lines = np.array(lines)
     with open(filename) as fl:
         text = np.array(fl.readlines())
-        return (line.replace("\n", "") for line in text[lines])
+        return (normalize(line.replace("\n", "")) for line in text[lines])
 
 
 def get_edits_from_file(filename, lines):
@@ -172,11 +173,13 @@ def save_for_Truekill(score_db, name, measure_from_row, dr=TRUE_KILL_DIR, force=
     else:
         return pd.read_csv(filename)
 
+
 def normalize_sentence(s):
     s = an.normalize_sentence(s)
     if len(s):
         s = s[0].upper() + s[1:] + "."
     return s
+
 
 def create_score_db(cache_file, judgment_file, references_files, edits_files, learner_file, system_files, one_sentence_dir, ucca_parse_dir, cache_every, results_file="", force=False):
     if (not force) and os.path.isfile(results_file):
@@ -191,21 +194,19 @@ def create_score_db(cache_file, judgment_file, references_files, edits_files, le
     cached = load_cache(cache_file, force=force)
 
     # read relevant lines note that id135 = line 136
-    source_lines = list(get_lines_from_file(learner_file, sentence_ids))
-    source_lines = [normalize_sentence(x) for x in source_lines]
+    source_lines = list(get_lines_from_file(
+        learner_file, sentence_ids, normalize_sentence))
     score_db = []
     # load files
     references_edits = zip(
         *[get_edits_from_file(fl, sentence_ids) for fl in edits_files])
     references_edits = [list(x) for x in references_edits]
     references_lines = zip(
-        *[get_lines_from_file(fl, sentence_ids) for fl in references_files])
+        *[get_lines_from_file(fl, sentence_ids, normalize_sentence) for fl in references_files])
     references_lines = [list(x) for x in references_lines]
-    references_lines = [[normalize_sentence(sent) for sent in ref] for ref in references_lines]
 
-    lines_references = [list(get_lines_from_file(fl, sentence_ids))
+    lines_references = [list(get_lines_from_file(fl, sentence_ids, normalize_sentence))
                         for fl in references_files]
-    lines_references = [[normalize_sentence(sent) for sent in ref] for ref in lines_references]
     ucca_parse_files(system_files + references_files +
                      [learner_file], ucca_parse_dir, normalize_sentence=normalize_sentence)
     create_one_sentence_files([x for lines in references_lines for x in lines] +
@@ -238,7 +239,6 @@ def create_score_db(cache_file, judgment_file, references_files, edits_files, le
                 leven = distance.levenshtein(source, system)
                 uccaSim = semantics_score(
                     learner_file, system_file, PARSE_DIR, i, i)
-                if uccaSim < 0.5:
                 grammar = grammaticality_score(
                     source, system, one_sentence_dir)
                 edits = list(edits)
@@ -286,6 +286,7 @@ def create_score_db(cache_file, judgment_file, references_files, edits_files, le
         save_cache(score_db, results_file)
     return score_db
 
+
 def combined_score(uccaSim, grammar, alpha):
     score = float(uccaSim) * alpha + (1 - alpha) * float(grammar)
     print("uccaSim", uccaSim)
@@ -294,14 +295,27 @@ def combined_score(uccaSim, grammar, alpha):
     print("score", score)
     return score
 
+
 def main():
     if DEBUG:
         print("***********************")
         print("DEBUGGING!")
         print("***********************")
 
-    # calculate
+    ## Human Judgments
+    # TODO perhaps combine them?
+    judgment_name =  "all_judgments"
+    judgment_name =  "8judgments"
 
+    judgments_file = HUMAN_JUDGMENTS_DIR + judgment_name
+    judgment_csv = TRUE_KILL_DIR, "corrected_" + name + ".csv"
+    if not os.path.isfile(judgment_csv):
+        correct_wmt_csv(TRUE_KILL_DIR, name + ".csv")
+    judgment_rank = trueskill_rank(2, judgment_csv, judgment_name)
+    judgment_rank = ["NUCLEA" if x == "refmix1" else x for x in judgment_rank]
+
+
+    ## measure judgments
     learner_file = PARAGRAPHS_DIR + "conll.tok.orig"
     first_nucle = REFERENCE_DIR + "NUCLEA"
     second_nucle = REFERENCE_DIR + "NUCLEB"
@@ -313,10 +327,6 @@ def main():
     system_files = [
         PARAGRAPHS_DIR + systemXId(x) for x in range(len(SYSTEMS) - 2)] + [learner_file] + [REFERENCE_DIR + systemXId(len(SYSTEMS) - 1)]
 
-    # TODO perhaps combine them?
-    judgments_file = HUMAN_JUDGMENTS_DIR + "all_judgments"
-    judgments_file = HUMAN_JUDGMENTS_DIR + "8judgments"
-    # augmented_judgments_file = HUMAN_JUDGMENTS_DIR + "augmented_all_judgments"
     force = False
     score_db = create_score_db(CACHE_FILE, judgments_file + ".xml", references_files, edits_files,
                                learner_file, system_files, ONE_SENTENCE_DIR, PARSE_DIR, CACHE_EVERY, SCORE_FILE, force=force)
@@ -341,23 +351,46 @@ def main():
         score_db, names[-1], lambda row: float(row[LEVENSHTEIN]), force=force)
     for alpha in np.linspace(0, 1, 101):
         names.append("combined" + str(alpha))
-        combined = save_for_Truekill(score_db, names[-1], lambda row: combined_score(row[UCCA_SIM], row[GRAMMAR], alpha), force=force)
+        combined = save_for_Truekill(
+            score_db, names[-1], lambda row: combined_score(row[UCCA_SIM], row[GRAMMAR], alpha), force=force)
 
     # run trueskill
-    judgment_name = os.path.basename(judgments_file)
-    judgment_rank = trueskill_rank(2, judgments_file + ".csv", judgment_name)
-
-    judgment_rank = ["NUCLEA" if x == "refmix1" else x for x in judgment_rank]
-    # augmented_judgments_name = os.path.basename(augmented_judgments_file)
-    # augmented_judgment_rank = trueskill_rank(3, augmented_judgments_file + ".csv", augmented_judgments_name)
     ranks = []
+    human_ranks = list(range(len(judgment_rank)))
+    assert ([judgment_rank.index(x) for x in judgment_rank] == human_ranks)
     for name in names:
-        measure_path = os.path.join(TRUE_KILL_DIR, name + ".csv")
+        measure_path = os.path.join(judgment_csv)
         rank = trueskill_rank(len(SYSTEMS), measure_path, name, True)
 
         id_rank = [judgment_rank.index(x) for x in rank if x in judgment_rank]
-        print(name, pearsonr(list(range(len(judgment_rank))), id_rank))
+        print(name, pearsonr(human_ranks, id_rank), spearmanr(human_ranks, id_rank))
         ranks.append(rank)
+
+
+def correct_wmt_csv(filename):
+    """ converts places where is contains several systems to different rows, 
+        NOTE: currently assumes exactly 2 systems in each row """
+    lines = []
+    with open(filename) as fl:
+        for i, line in enumerate(fl.readlines()):
+            parts = line.split(",")
+            if i == 0:
+                first_system_col = parts.index("system1Id")
+                second_system_col = parts.index("system2Id")
+                if first_system_col > second_system_col:
+                    first_system_col, second_system_col = second_system_col, first_system_col
+            systems = parts[first_system_col].split()
+            second_systems = parts[second_system_col].split()
+            for system in systems:
+                for second_system in second_systems:
+                    lines.append(
+                        ",".join(parts[0:first_system_col] + [system] + parts[first_system_col + 1:second_system_col] + [second_system] + parts[second_system_col + 1:]))
+                    print(lines[-1])
+    outfile = os.path.join(os.path.dirname(filename),
+                           "corrected_" + os.path.basename(filename))
+    with open(outfile, "w") as fl:
+        print("wrote corrected csv to", outfile)
+        fl.writelines(lines)
 
 
 def trueskill_rank(system_num, measure_db_path, measure_name, verbose=False):
