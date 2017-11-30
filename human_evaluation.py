@@ -119,7 +119,6 @@ def create_measure_db(score_db, measure_name, measure_from_row):
         scores = cur_db.apply(measure_from_row, axis=1).values
         argsort = np.flipud(np.argsort(scores))
         scores = scores[argsort]
-        # print(measure_name, "vals", scores)
         cur_db = cur_db.iloc[argsort, :]
         ranked_systems = pd.Index(cur_db.loc[:, SYSTEM_ID])
         ranks = []
@@ -128,15 +127,12 @@ def create_measure_db(score_db, measure_name, measure_from_row):
                 ranks.append(ranks[-1])
             else:
                 ranks.append(i + 1)
-        # print(cur_db, "cur")
-        # print(ranked_systems, "ranked_systems")
         for i in range(len(SYSTEMS)):
             sentence_ranked_row.append(systemXNumber(i))
             system_id = systemXId(i)
             sentence_ranked_row.append(system_id)
             sentence_ranked_row.append(
                 ranks[ranked_systems.get_loc(system_id)])
-            # print(sentence_ranked_row)
         ranked_db.append(sentence_ranked_row)
     columns = [SRC_LNG, TRG_LANG, SRC_ID, DOC_ID, SEG_ID, MEASURE_ID] + \
         ["system" + str(1 + x) + header
@@ -243,8 +239,6 @@ def create_score_db(cache_file, judgment_file, references_files, edits_files, le
                 uccaSim = semantics_score(
                     learner_file, system_file, PARSE_DIR, i, i)
                 if uccaSim < 0.5:
-                    print("score with system is", uccaSim, "source",
-                        source, "system", system)
                 grammar = grammaticality_score(
                     source, system, one_sentence_dir)
                 edits = list(edits)
@@ -326,9 +320,7 @@ def main():
     force = False
     score_db = create_score_db(CACHE_FILE, judgments_file + ".xml", references_files, edits_files,
                                learner_file, system_files, ONE_SENTENCE_DIR, PARSE_DIR, CACHE_EVERY, SCORE_FILE, force=force)
-    # print(score_db)
-    # print(score_db[SYSTEM_ID].unique(), len(score_db[SYSTEM_ID].unique()))
-    # return
+
     # format for truekill
     force = False
     names = []
@@ -351,8 +343,7 @@ def main():
         names.append("combined" + str(alpha))
         combined = save_for_Truekill(score_db, names[-1], lambda row: combined_score(row[UCCA_SIM], row[GRAMMAR], alpha), force=force)
 
-    # run truekills
-    # run human judgments trueskill
+    # run trueskill
     judgment_name = os.path.basename(judgments_file)
     judgment_rank = trueskill_rank(2, judgments_file + ".csv", judgment_name)
 
