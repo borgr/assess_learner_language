@@ -6,6 +6,7 @@ Note that this project uses many submodules, after cloning use:
 
 
 Dependencies (python3 packages):
+
 nltk
 
 ucca
