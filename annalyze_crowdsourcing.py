@@ -217,6 +217,7 @@ def simplification_coverage(show, save):
                             [measure], False, clean=False, line_color=colors[measure], alpha=0)
     beautify_lines_graph(0.1, min(1, ymin), min(1, ymax))
     if save:
+        plt.ylabel("score")
         print("saving all in",PLOTS_DIR + ",".join(SIMPLIFICATION_MEASURES) + "_Ms_significance" +".png")
         plt.legend(loc='best', fancybox=True, fontsize=10, shadow=True)
         plt.savefig(PLOTS_DIR + ",".join(SIMPLIFICATION_MEASURES) + "_Ms_significance" +
