@@ -7,11 +7,17 @@ Note that this project uses many submodules, after cloning use:
 
 Dependencies (python3 packages):
 nltk
+
 ucca
+
 munkres
+
 distance
+
 zss
+
 numpy
+
 pandas
-SARI - for SARI measure and data https://github.com/cocoxu/simplification
+
 tupa - for automatic UCCASim https://github.com/danielhers/tupa
