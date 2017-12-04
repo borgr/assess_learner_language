@@ -413,8 +413,8 @@ def ranking_conservatism():
     filename = "results/reranking_results" + change_date + ".json"
     all_file = "first_rank_resultsALL"
     BN_file = "first_rank_resultsBN"
-    NUCLEA_file = "first_rank_resultsNUCLEA"
-    NUCLE_file = "first_rank_resultsNUCLE"
+    # NUCLEA_file = "first_rank_resultsNUCLEA"
+    # NUCLE_file = "first_rank_resultsNUCLE"
     (path, dirs, files) = next(os.walk(PATH))
     filenames = []
     nums = []
@@ -427,9 +427,9 @@ def ranking_conservatism():
             nums.append(int(name[:2]))
         else:
             nums.append(int(name[0]))
-    nums = nums + [15, 10, 2, 1]
-    filenames = filenames + [all_file, BN_file, NUCLE_file, NUCLEA_file]
-    names = names + ["all", "BN", "NUCLE", "NUCLEA"]
+    nums = nums + [15, 10] #, 2, 1]
+    filenames = filenames + [all_file, BN_file] #, NUCLE_file, NUCLEA_file]
+    names = names + ["all", "BN"] #, "NUCLE", "NUCLEA"]
     argsort = np.argsort(nums)
     names = np.array(names)
     filenames = np.array(filenames)
