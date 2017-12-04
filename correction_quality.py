@@ -75,10 +75,10 @@ trial_name = ""
 def main():
     # UCCASim_conservatism()
     # outputs_conservatism()
-    # ranking_conservatism()
+    ranking_conservatism()
     # reranking_simplification_conservatism("moses")
     # reranking_simplification_conservatism()
-    reranking_simplification_conservatism("moses", measure=MAX)
+    # reranking_simplification_conservatism("moses", measure=MAX)
     # reranking_simplification_conservatism(measure=MAX)
     # reranking_simplification_conservatism("moses", measure=BLEU)
     # reranking_simplification_conservatism(measure=BLEU)
@@ -395,7 +395,7 @@ def reranking_simplification_conservatism(k_best="nisioi", measure=SARI):
     # names.append("gold")
     for fl in files:
         if "simplification" in fl and "origin" not in fl and k_best in fl:
-            if  (measure == SARI and (all(measure not in fl for measure in SIMPLIFICATION_MEASURES))) or measure in fl:
+            if (measure == SARI and (all(measure not in fl for measure in SIMPLIFICATION_MEASURES))) or measure in fl:
                 filenames.append(fl)
                 names.append(fl[-5:])
                 if "gold" in fl:
@@ -1140,6 +1140,13 @@ def many_colors(labels, colors=cm.rainbow):
     return dict(zip(cls, colors(np.linspace(0, 1, len(cls)))))
 
 
+def plot_words_relative_differences_hist(l, ax):
+    """ gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
+    broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(
+        range(6))  # tuple structure
+    plot_differences_hist(l, ax, words_differences, "words", 0, relative_bar=0)
+
+
 def plot_words_differences_hist(l, ax):
     """ gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the hists"""
     broken, words_differences, index_differences, spearman_differences, aligned_by, name = list(
@@ -1234,13 +1241,16 @@ def boxplot_differences(l, ax, pivot, diff_type, bottom):
     plt.legend(loc=7, fontsize=10, fancybox=True, shadow=True)
 
 
-def plot_differences_hist(l, ax, pivot, diff_type, bottom, bins=None):
+def plot_differences_hist(l, ax, pivot, diff_type, bottom, bins=None, relative_bar=-1):
     """ gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the plots"""
     width = 1 / len(l)
     name = -1
     if bins != None:
         bins = np.array(bins) + 1 - bottom
     total_width = len(l) * width
+    relative = 0
+    ys = []
+    names = []
     for i, tple in enumerate(l):
         full_hist = create_hist(tple[pivot], bottom=bottom)
         # print(full_hist)
@@ -1253,11 +1263,29 @@ def plot_differences_hist(l, ax, pivot, diff_type, bottom, bins=None):
                 print(full_hist[bins[j - 1]:bins[j]])
                 y.append(sum(full_hist[bins[j - 1]:bins[j]]))
             y.append(sum(full_hist[bins[j]:]))
+        relative_text = "relative_bar to column number " + \
+            str(relative_bar) if relative_bar >= 0 else ""
+        y = np.array(y)
+        ys.append(y)
+        if i == relative_bar:
+            relative = y
+        names.append(tple[name])
+    print(ys)
+    colors = many_colors(range(len(l)))
+    for i, (y, name) in enumerate(zip(ys, names)):
+        print(diff_type + " hist", relative_text,
+              "results", name, ":", y - relative_bar)
+        if relative_bar >= 0:
+            longer_shape = y.shape if len(y) > len(
+                relative) else relative.shape
+            print("unpadded", y, relative, longer_shape)
+            y = np.lib.pad(y, (0,longer_shape[0] - y.shape[0]), "constant")
+            relative = np.lib.pad(relative, (0,longer_shape[0] - relative.shape[0]), "constant")
+            print("padded", y, relative)
         x = np.array(range(len(y)))
-        print(diff_type + " hist results ", tple[name], ":", y[:])
-        colors = many_colors(range(len(l)))
-        ax.bar(x + i * width - 0.5 * total_width, y, width=width,
-               color=colors[i], align='center', label=tple[name], edgecolor=colors[i])
+        x = x + i * width - 0.5 * total_width
+        ax.bar(x, y - relative, width=width,
+               color=colors[i], align='center', label=name, edgecolor=colors[i])
     plt.autoscale(enable=True, axis='x', tight=False)
     plt.ylabel("amount")
     plt.xlim(xmin=0 - 0.5 * total_width)
@@ -1450,10 +1478,15 @@ def plot_comparison(l):
                 trial_name + ".png", bbox_inches='tight')
     plt.clf()
     ax = plt.subplot(111)
+    plot_words_relative_differences_hist(l, ax)
+    plt.savefig(dirname + r"words_relative_differences_hist" +
+                trial_name + ".png", bbox_inches='tight')
+    plt.show()
+    plt.clf()
+    ax = plt.subplot(111)
     plot_words_heat(l, ax)
     plt.savefig(dirname + r"words_differences_heat" +
                 trial_name + ".png", bbox_inches='tight')
-    plt.show()
     plt.clf()
     ax = plt.subplot(111)
     plot_index_differences(l, ax)
