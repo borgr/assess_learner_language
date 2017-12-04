@@ -1279,8 +1279,9 @@ def plot_differences_hist(l, ax, pivot, diff_type, bottom, bins=None, relative_b
             longer_shape = y.shape if len(y) > len(
                 relative) else relative.shape
             print("unpadded", y, relative, longer_shape)
-            y = np.lib.pad(y, (0,longer_shape[0] - y.shape[0]), "constant")
-            relative = np.lib.pad(relative, (0,longer_shape[0] - relative.shape[0]), "constant")
+            y = np.lib.pad(y, (0, longer_shape[0] - y.shape[0]), "constant")
+            relative = np.lib.pad(
+                relative, (0, longer_shape[0] - relative.shape[0]), "constant")
             print("padded", y, relative)
         x = np.array(range(len(y)))
         x = x + i * width - 0.5 * total_width
@@ -1554,7 +1555,7 @@ def read(filename):
         print(e, "The file was not found, creating it instead")
         return dict()
     except json.decoder.JSONDecodeError as e:
-        print("json decoder error:", e)
+        print("json decoder error in ", filename, ":", e)
         return dict()
 
 
