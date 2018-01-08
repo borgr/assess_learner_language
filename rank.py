@@ -80,7 +80,7 @@ def parse_JFLEG():
     ucca_parse_files(filenames, JFLEG_dir + os.sep + "xmls")
 
 # a lot of code duplication because pooling doesn't react well to passing
-# different functions (e.g. lambdas) as an argument
+# different lambdas as an argument
 
 
 def rerank_by_uccasim(gamma=0.27):
@@ -380,7 +380,7 @@ def rerank_by_BLEU(k_best="nisioi"):
             assert(len(packed_system_sentences) == len(references)
                    and len(references) == len(source_sentences))
             results = pool.imap(BLEU_oracle,
-                packed_system_sentences)
+                                packed_system_sentences)
             pool.close()
             pool.join()
             results = list(results)
@@ -531,7 +531,7 @@ def BLEU_oracle(tple, mx=False):
 
 def SARI_oracle(tple, mx=False):
     maximum = 0
-    chosen = [None,None]
+    chosen = [None, None]
     source, references, system_sentences = tple
     for sentence in system_sentences:
         if mx:
@@ -553,7 +553,7 @@ def parse_location(output_dir, filename, sentence_num=None):
     return os.path.join(cur_dir, filename + str(sentence_num) + ".xml")
 
 
-def ucca_parse_files(filenames, output_dir, clean=False, normalize_sentence=lambda x:x):
+def ucca_parse_files(filenames, output_dir, clean=False, normalize_sentence=lambda x: x):
     # parse_command = "python ../tupa/tupa/parse.py -c bilstm -m ../tupa/models/bilstm -o "+ output_dir +" "
     # print("parsing with:", parse_command)
 
@@ -561,7 +561,7 @@ def ucca_parse_files(filenames, output_dir, clean=False, normalize_sentence=lamb
         for filename in filenames:
             cur_output_dir = parse_location(output_dir, filename)
             if os.path.isdir(cur_output_dir):
-                print("Skipping parsing, file already parsed in", cur_output_dir)
+                print("File already parsed in", cur_output_dir)
             else:
                 os.mkdir(cur_output_dir)
                 print("parsing " + filename)
@@ -735,7 +735,7 @@ def grammaticality_score(source, sentence, parse_dir):
     out = res.stdout.decode("utf-8")
     out = re.sub(r"\\'", "'", out)
     res = json.loads(out)
-    return 1 - len(res["matches"])/word_num
+    return 1 - len(res["matches"]) / word_num
 
 
 def sentence_m2(source, gold_edits, system):
@@ -838,13 +838,17 @@ def gleu_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
         #     print("total", total[-1][0])
     return total, per_sentence
 
-def BLEU_score(source, references, system, n=4):
-    source = an.normalize_sentence(source).split()
-    references = [an.normalize_sentence(reference).split() for reference in references]
-    n = min(n, len(source), *((len(reference) for reference in references)))
-    weights = tuple(1/n for i in range(n))
-    BLEUscore = nltk.translate.bleu_score.sentence_bleu(references, system, weights=weights)
+
+def BLEU_score(source, references, system, n=4, smoothing=None):
+    system = an.normalize_sentence(system).split()
+    references = [an.normalize_sentence(
+        reference).split() for reference in references]
+    n = min(n, len(system), *((len(reference) for reference in references)))
+    weights = tuple(1 / n for i in range(n))
+    BLEUscore = nltk.translate.bleu_score.sentence_bleu(
+        references, system, weights=weights, smoothing_function=smoothing)
     return BLEUscore
+
 
 def gleu_score(source, references, system):
     raise "unimplemented"

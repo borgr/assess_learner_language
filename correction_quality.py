@@ -1133,7 +1133,21 @@ def beautify_lines_graph(magnitude, ymin=None, ymax=None, ax=None, fontsize=14, 
 
 
 def many_colors(labels, colors=cm.rainbow):
-    """creates colors, each corresponding to a unique label"""
+    """creates colors, each corresponding to a unique label
+
+    use for a list of colors:
+    example = [(230, 97, 1), (253, 184, 99),
+                   (178, 171, 210), (94, 60, 153)]
+    for i in range(len(example)):    
+        r, g, b = example[i]    
+        example[i] = (r / 255., g / 255., b / 255.)
+
+     places with colors
+     https://matplotlib.org/users/colormaps.html
+     http://colorbrewer2.org/#type=diverging&scheme=PuOr&n=4
+     http://tableaufriction.blogspot.co.il/2012/11/finally-you-can-use-tableau-data-colors.html
+     https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
+     """
     cls = set(labels)
     if len(cls) == 2:
         return dict(zip(cls, ("blue", "orange")))

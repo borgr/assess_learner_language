@@ -42,7 +42,7 @@ SIMPLIFICATION_MEASURES = [LUCKY, MAX, PAPER]
 SIMPLIFICATION = "simple"
 GEC = "gec"
 TASK = SIMPLIFICATION
-# TASK = GEC
+TASK = GEC
 
 # file locations
 ASSESS_LEARNER_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
@@ -113,8 +113,15 @@ def main():
     #   pass
     # elif TASK == SIMPLIFICATION:
     #   return
-    db = clean_data(db)
-    # print(db.groupby(LEARNER_SENTENCES_COL)[CORRECTED_SENTENCES_COL].nunique())
+    # db = clean_data(db)
+
+    filename = ASSESS_LEARNER_DIR + r"/data/paragraphs/" +"conll.tok.orig"
+    with open(filename) as fl:
+        source_sentences = [normalize_sentence(line) for line in fl]
+    print([s for s in db.loc[:, LEARNER_SENTENCES_COL].unique() if normalize_sentence(s) in source_sentences])
+    # print([sentence for sentence in source_sentences if sentence in db.loc[:, LEARNER_SENTENCES_COL].unique()])
+    print(len(db.groupby(LEARNER_SENTENCES_COL)[CORRECTED_SENTENCES_COL].nunique()))
+    return 
 
     # learner_sentences = db[LEARNER_SENTENCES_COL].unique()
     show_correction = False
@@ -130,11 +137,12 @@ def main():
     # db[INDEXES_CHANGED_COL] = find_changed_indexes(learner_sentences, db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL])
     # compare_correction_distributions(db, INDEX_COMP,
     # index=INDEXES_CHANGED_COL, show=show_correction, save=save_correction)
-    root, dirs, files = next(os.walk(HISTS_DIR))
-    for filename in files:
-        if INPUT_HIST_IDENTIFIER in filename:
-            assess_real_distributions(os.path.join(root + filename), str(0))
-    plot_dists(show_dists, save_dists, EXACT_COMP)
+    if show_dists or save_dists:
+        root, dirs, files = next(os.walk(HISTS_DIR))
+        for filename in files:
+            if INPUT_HIST_IDENTIFIER in filename:
+                assess_real_distributions(os.path.join(root + filename), str(0))
+        plot_dists(show_dists, save_dists, EXACT_COMP)
     assess_coverage(True, show=show_coverage,
                     save=save_coverage, res_type=EXACT_COMP)
     coverage_by_corrections_num = assess_coverage(

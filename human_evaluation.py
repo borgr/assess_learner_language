@@ -1,18 +1,26 @@
 import os
 import subprocess
-import shlex
 import re
+from itertools import repeat
 import json
 import pandas as pd
-import numpy as np
-from scipy.stats.stats import pearsonr
-import distance
+import shlex
+import multiprocessing
+from multiprocessing import Pool
+POOL_SIZE = multiprocessing.cpu_count()
+POOL_SIZE = 4
 
+import numpy as np
+from scipy.stats.stats import pearsonr, spearmanr
+import distance
+from nltk.translate import bleu_score
 import annalyze_crowdsourcing as an
 
 from rank import ucca_parse_files
 from rank import semantics_score
 from rank import gleu_scores
+from rank import SARI_score, SARI_max_score
+from rank import BLEU_score
 from rank import grammaticality_score
 from rank import create_one_sentence_files
 from rank import parse_location
@@ -30,6 +38,14 @@ SENTENCE_ID = "segmentId"
 SYSTEM1NAME = "system1Id"
 ANNOTATOR = "judgeID"
 
+BN = "BN"
+REFS = ""  # NUCLEB only
+REFS = [BN]
+PAPER = "referencless_paper"
+BEST = "bpractice"
+HUMAN_JUDGMENT_TYPE = BEST
+HUMAN_JUDGMENT_SYMB = HUMAN_JUDGMENT_TYPE + \
+    "_" if HUMAN_JUDGMENT_TYPE != PAPER else ""
 ASSESS_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
 DATA_DIR = ASSESS_DIR + "data/"
 HUMAN_JUDGMENTS_DIR = DATA_DIR + "human_judgements/"
@@ -38,15 +54,18 @@ REFERENCE_DIR = DATA_DIR + "references/"
 CALCULATIONS_DIR = "calculations_data/human_judgements/"
 PARSE_DIR = CALCULATIONS_DIR + "/ucca_parse/"
 ONE_SENTENCE_DIR = CALCULATIONS_DIR + "/one_sentence_files/"
-CACHE_FILE = CALCULATIONS_DIR + "cache.pkl"
-SCORE_FILE = CALCULATIONS_DIR + "score_db.pkl"
+CACHE_FILE = CALCULATIONS_DIR + \
+    "_".join(REFS) + HUMAN_JUDGMENT_SYMB + "cache.pkl"
+SCORE_FILE = CALCULATIONS_DIR + \
+    "_".join(REFS) + HUMAN_JUDGMENT_SYMB + "score_db.pkl"
 RESULTS_DIR = ASSESS_DIR + "/results/"
 TRUE_KILL_DIR = RESULTS_DIR + "/HumanEvaluation/"
 TS_DIR = TRUE_KILL_DIR + "TS/"
+BLEU = "bleu"
 LEVENSHTEIN = "levenshtein"
-M2, GLEU, GRAMMAR, UCCA_SIM, SENTENCE, SOURCE, SYSTEM_ID = "m2", "gleu", "grammar", "uccaSim", "sentence", "source", "systemId"
+M2, GLEU, SARI, MAX_SARI, GRAMMAR, UCCA_SIM, SENTENCE, SOURCE, SYSTEM_ID = "m2", "gleu", "sari", "max_sari", "grammar", "uccaSim", "sentence", "source", "systemId"
 SRC_LNG, TRG_LANG, SRC_ID, DOC_ID, SEG_ID, MEASURE_ID = "srclang", "trglang", "srcIndex", "documentId", "segmentId", "judgeId"
-DB_COLS = [LEVENSHTEIN, M2, GLEU, GRAMMAR, UCCA_SIM,
+DB_COLS = [BLEU, LEVENSHTEIN, M2, GLEU, SARI, MAX_SARI, GRAMMAR, UCCA_SIM,
            SENTENCE, SOURCE, SENTENCE_ID, SYSTEM_ID]
 
 pathlib.Path(PARSE_DIR).mkdir(parents=True, exist_ok=True)
@@ -80,10 +99,12 @@ def parse_xml(judgments_file):
 
 
 def get_lines_from_file(filename, lines, normalize=lambda x: x):
-    lines = np.array(lines)
     with open(filename) as fl:
         text = np.array(fl.readlines())
-        return (normalize(line.replace("\n", "")) for line in text[lines])
+        if lines is not None:
+            lines = np.array(lines)
+            text = text[lines]
+        return (normalize(line.replace("\n", "")) for line in text)
 
 
 def get_edits_from_file(filename, lines):
@@ -96,8 +117,8 @@ def systemXNumber(x):
     return -1
 
 
-SYSTEMS = ["POST", "JMGR", "AMU", "CUUI", "IITB", "IPN", "NTHU",
-           "PKU", "RAC", "SJTU", "UFC", "UMC", "CAMB", "src", "NUCLEA"]
+SYSTEMS = ["POST", "AMU", "CUUI", "IITB", "IPN", "NTHU",
+           "PKU", "RAC", "SJTU", "UFC", "UMC", "CAMB", "SOURCE", "NUCLEA"]
 if DEBUG:
     SYSTEMS = SYSTEMS[-3:]
 
@@ -111,10 +132,12 @@ def system_by_id(system):
 
 
 def create_measure_db(score_db, measure_name, measure_from_row):
+    count = 0
     ranked_db = []
     for idx in score_db.loc[:, SENTENCE_ID].unique():
         cur_db = score_db.loc[score_db.loc[
             :, SENTENCE_ID] == idx, :].drop_duplicates()
+        # print(cur_db)
         sentence_ranked_row = ["Complex", "simple",
                                int(idx), -1, int(idx), measure_name]
         scores = cur_db.apply(measure_from_row, axis=1).values
@@ -122,6 +145,11 @@ def create_measure_db(score_db, measure_name, measure_from_row):
         scores = scores[argsort]
         cur_db = cur_db.iloc[argsort, :]
         ranked_systems = pd.Index(cur_db.loc[:, SYSTEM_ID])
+        if len(ranked_systems) != len(SYSTEMS):
+            print("system lengths in the db and experiment do not match",
+                  len(ranked_systems), len(SYSTEMS), ranked_systems, SYSTEMS)
+            continue
+        count += 1
         ranks = []
         for i, score in enumerate(scores):
             if i != 0 and scores[i] == scores[i - 1]:
@@ -168,6 +196,7 @@ def save_for_Truekill(score_db, name, measure_from_row, dr=TRUE_KILL_DIR, force=
         db = create_measure_db(
             score_db, name, measure_from_row)
 
+        print("saving to", filename, "with", len(db), "rows")
         db.to_csv(filename, index=False)
         return db
     else:
@@ -181,17 +210,129 @@ def normalize_sentence(s):
     return s
 
 
-def create_score_db(cache_file, judgment_file, references_files, edits_files, learner_file, system_files, one_sentence_dir, ucca_parse_dir, cache_every, results_file="", force=False):
+def convert_edit_reflist2dic(edits):
+    edits = list(edits)
+    edits, rest = edits[0], edits[1:]
+    # print("original edits", edits, type(edits))
+    # print("original rest", rest)
+    for edit in rest:
+        i = max(edits.keys())
+        for key, val in edit.items():
+            i += 1
+            # print("key,val", key, val)
+            # print("edits", edits)
+            # print("edit", edit)
+            edits[i] = edit[key]
+    # print("res",edits)
+    return [edits]
+
+
+def calculate_all_scores(sent_id, source, references, edits, system, gleu, cached, one_sentence_dir, learner_file, system_file, system_id):
+    cache = cached[cached[SENTENCE] == system]
+    calculated = cache.columns.values
+    # if system not in system_sentences_calculated:
+    if not cache.empty and M2 in calculated:
+        m2 = cache[M2].values[0]
+    else:
+        edits = convert_edit_reflist2dic(edits)
+        m2 = m2scorer.get_score([system], [source], edits, max_unchanged_words=2, beta=0.5,
+                                ignore_whitespace_casing=True, verbose=False, very_verbose=False, should_cache=False)
+    if not cache.empty and LEVENSHTEIN in calculated:
+        leven = cache[LEVENSHTEIN].values[0]
+    else:
+        leven = distance.levenshtein(source, system)
+        leven = 1 if len(source) == 0 else 1 - leven / len(source)
+    if not cache.empty and GLEU in calculated:
+        print(cache)
+        assert gleu == cache[GLEU].values[0], "cached glue is " + str(
+            cache[GLEU].values[0]) + " while calculated gleu is " + str(gleu) + str((source, references, system))
+        gleu = cache[GLEU].values[0]
+    if not cache.empty and SARI in calculated:
+        sari = cache[SARI].values[0]
+    else:
+        sari = SARI_score(source, references, system)
+    if not cache.empty and MAX_SARI in calculated:
+        max_sari = cache[MAX_SARI].values[0]
+    else:
+        max_sari = SARI_max_score(source, references, system)
+    if not cache.empty and GRAMMAR in calculated:
+        grammar = cache[GRAMMAR].values[0]
+    else:
+        grammar = grammaticality_score(
+            source, system, one_sentence_dir)
+    if not cache.empty and UCCA_SIM in calculated:
+        uccaSim = cache[UCCA_SIM].values[0]
+    else:
+        uccaSim = semantics_score(
+            learner_file, system_file, PARSE_DIR, sent_id, sent_id)
+    if not cache.empty and BLEU in calculated:
+        bleu = cache[UCCA_SIM].values[0]
+    else:
+        bleu = BLEU_score(source, references, system, smoothing=bleu_score.SmoothingFunction().method3) # method3 = NIST geometric sequence smoothing
+    # print(("res", bleu, leven, m2, gleu, sari, max_sari,
+    #        grammar, uccaSim, sent_id, system_id))
+    # print("source", source)
+    # print("system", system)
+    # print("references", references)
+    return (bleu, leven, m2, gleu, sari, max_sari, grammar, uccaSim, system, source, sent_id, system_id)
+
+    # update_sentences_calculated(system)
+    #     if cache.empty:
+    #         uncached += 1
+    # else:
+    #     for row in score_db:
+    #         if row[-4] == system:
+    #             row = list(row[:])
+    #             row[-1] = system_id
+    #             res = row
+    #             uncached += 1
+    #             break
+    #     assert res[-4] == system # row must be found in the db
+
+    # if (not DEBUG) and (uncached == cache_every):
+    #     uncached = 0
+    #     cur_scores = pd.DataFrame(
+    #         score_db, columns=DB_COLS)
+    #     cached = cur_scores.append(cached, ignore_index=True)
+
+    #     save_cache(cached, CACHE_FILE)
+    #     print("calculated", len(score_db),
+    #           "sentences overall", i + 1, "for", system_file)
+    #     # print(Cached)
+    #     # return
+    # if DEBUG and len(score_db) % 2 == 0 and len(score_db) != 0:
+    #     print("fast run for DEBUG")
+    #     break
+
+# uncached = 0
+# def cache(cache_every)
+# mutex = multiprocessing.Lock()
+# system_sentences_calculated = set()
+# def update_sentences_calculated(system):
+#     mutex.acquire()
+#     system_sentences_calculated.add(system)
+#     mutex.release()
+
+
+def create_score_db(cache_file, judgment_files, references_files, edits_files, learner_file, system_files, one_sentence_dir, ucca_parse_dir, cache_every, results_file="", force=False, clean_cache=False, use_all=False):
+    """ when using force, and clean_cache relevant caches will be overwritten"""
     if (not force) and os.path.isfile(results_file):
         print("reading scores from", results_file)
         return pd.read_pickle(results_file)
 
     # parse xmls
-    db = parse_xml(judgment_file)
-    sentence_ids = db[SENTENCE_ID].map(lambda x: int(x)).unique()
+    sentence_ids = []
+    for judgment_file in judgment_files:
+        db = parse_xml(judgment_file)
+        # print(type(db[SENTENCE_ID].map(lambda x: int(x)).unique()), db[SENTENCE_ID].map(lambda x: int(x)).unique())
+        sentence_ids.append(db[SENTENCE_ID].map(lambda x: int(x)).unique())
+    sentence_ids = np.unique(np.concatenate(sentence_ids))
+    if use_all:
+        print("using all sentences, not only human judgment ones")
+        sentence_ids = list(range(1312))
     print("number of judgments:", len(sentence_ids))
 
-    cached = load_cache(cache_file, force=force)
+    cached = load_cache(cache_file, force=clean_cache)
 
     # read relevant lines note that id135 = line 136
     source_lines = list(get_lines_from_file(
@@ -207,79 +348,119 @@ def create_score_db(cache_file, judgment_file, references_files, edits_files, le
 
     lines_references = [list(get_lines_from_file(fl, sentence_ids, normalize_sentence))
                         for fl in references_files]
-    ucca_parse_files(system_files + references_files +
-                     [learner_file], ucca_parse_dir, normalize_sentence=normalize_sentence)
+    ucca_parse_files(system_files + [learner_file],
+                     ucca_parse_dir, normalize_sentence=normalize_sentence)
     create_one_sentence_files([x for lines in references_lines for x in lines] +
                               source_lines, one_sentence_dir)
 
-    system_sentences_calculated = set()
     for x, system_file in enumerate(system_files):
         system_id = systemXId(x)
         print("calculating for", system_id)
         system_lines = list(get_lines_from_file(system_file, sentence_ids))
         system_lines = [normalize_sentence(x) for x in system_lines]
+        assert(len(system_lines) == len(sentence_ids))
         create_one_sentence_files(system_lines, one_sentence_dir)
         gleu_sentence_scores = gleu_scores(
             source_lines, lines_references, [system_lines])[1]
         gleu_sentence_scores = [s[0] for s in gleu_sentence_scores]
-        uncached = 0
-        for i, (sent_id, source, references, edits, system, gleu) in enumerate(zip(
-                sentence_ids, source_lines, references_lines, references_edits, system_lines, gleu_sentence_scores)):
-            cache = cached[cached[SENTENCE] == system]
-            if not cache.empty:
-                m2 = cache[M2].values[0]
-                leven = cache[LEVENSHTEIN].values[0]
-                gleu = cache[GLEU].values[0]
-                grammar = cache[GRAMMAR].values[0]
-                uccaSim = cache[UCCA_SIM].values[0]
-                score_db.append(
-                    (leven, m2, gleu, grammar, uccaSim, system, source, sent_id, system_id))
-                system_sentences_calculated.add(system)
-            elif system not in system_sentences_calculated:
-                leven = distance.levenshtein(source, system)
-                uccaSim = semantics_score(
-                    learner_file, system_file, PARSE_DIR, i, i)
-                grammar = grammaticality_score(
-                    source, system, one_sentence_dir)
-                edits = list(edits)
-                m2 = m2scorer.get_score([system], [source], edits, max_unchanged_words=2, beta=0.5,
-                                        ignore_whitespace_casing=True, verbose=False, very_verbose=False, should_cache=False)
-                score_db.append(
-                    (leven, m2, gleu, grammar, uccaSim, system, source, sent_id, system_id))
-                system_sentences_calculated.add(system)
-                uncached += 1
-            else:
-                for row in score_db:
-                    if row[4] == system:
-                        row = list(row[:])
-                        row[-1] = system_id
-                        score_db.append(row)
-                        uncached += 1
-                        break
-                assert score_db[-1][4] == system
+        pool = Pool(POOL_SIZE)
+        score_db = pool.starmap(calculate_all_scores, zip(
+            sentence_ids, source_lines, references_lines, references_edits, system_lines, gleu_sentence_scores, repeat(cached), repeat(one_sentence_dir), repeat(learner_file), repeat(system_file), repeat(system_id)))
+        pool.close()
+        pool.join()
+        if (not DEBUG):
+            cur_scores = pd.DataFrame(
+                score_db, columns=DB_COLS)
+            cached = cur_scores.append(cached, ignore_index=True)
 
-            if (not DEBUG) and (uncached == cache_every):
-                uncached = 0
-                cur_scores = pd.DataFrame(
-                    score_db, columns=DB_COLS)
-                cached = cur_scores.append(cached, ignore_index=True)
+            save_cache(cached, CACHE_FILE)
+            print("calculated", len(score_db),
+                  "sentences overall", i + 1, "for", system_file)
+            # print(Cached)
+            # return
+        # uncached = 0
+    # for sent_id, source, references, edits, system, gleu) in enumerate(zip(
+    #         sentence_ids, source_lines, references_lines, references_edits, system_lines, gleu_sentence_scores):
+    #     cache = cached[cached[SENTENCE] == system]
+    #     calculated = cache.columns.values
+    #     if system not in system_sentences_calculated:
+    #         if not cache.empty and M2 in calculated:
+    #             m2 = cache[M2].values[0]
+    #         else:
+    #             edits = convert_edit_reflist2dic(edits)
+    #             m2 = m2scorer.get_score([system], [source], edits, max_unchanged_words=2, beta=0.5,
+    #                                     ignore_whitespace_casing=True, verbose=False, very_verbose=False, should_cache=False)
+    #         if not cache.empty and LEVENSHTEIN in calculated:
+    #             leven = cache[LEVENSHTEIN].values[0]
+    #         else:
+    #             leven = distance.levenshtein(source, system)
+    #             leven = 1 if len(source) == 0 else 1 - leven / len(source)
+    #         if not cache.empty and GLEU in calculated:
+    #             print(cache)
+    #             assert gleu == cache[GLEU].values[0], "cached glue is " + str(
+    #                 cache[GLEU].values[0]) + " while calculated gleu is " + str(gleu) + str((source, references, system))
+    #             gleu = cache[GLEU].values[0]
+    #         if not cache.empty and SARI in calculated:
+    #             sari = cache[SARI].values[0]
+    #         else:
+    #             sari = SARI_score(source, references, system)
+    #         if not cache.empty and MAX_SARI in calculated:
+    #             max_sari = cache[MAX_SARI].values[0]
+    #         else:
+    #             max_sari = SARI_max_score(source, references, system)
+    #         if not cache.empty and GRAMMAR in calculated:
+    #             grammar = cache[GRAMMAR].values[0]
+    #         else:
+    #             grammar = grammaticality_score(
+    #                 source, system, one_sentence_dir)
+    #         if not cache.empty and UCCA_SIM in calculated:
+    #             uccaSim = cache[UCCA_SIM].values[0]
+    #         else:
+    #             uccaSim = semantics_score(
+    #                 learner_file, system_file, PARSE_DIR, sent_id, sent_id)
+    #         if not cache.empty and BLEU in calculated:
+    #             bleu = cache[UCCA_SIM].values[0]
+    #         else:
+    #             bleu = BLEU_score(source, references, system)
+    #         score_db.append(
+    #             (bleu, leven, m2, gleu, sari, max_sari, grammar, uccaSim, system, source, sent_id, system_id))
+    #         system_sentences_calculated.add(system)
+    #         if cache.empty:
+    #             uncached += 1
+    #     else:
+    #         for row in score_db:
+    #             if row[-4] == system:
+    #                 row = list(row[:])
+    #                 row[-1] = system_id
+    #                 score_db.append(row)
+    #                 uncached += 1
+    #                 break
+    #         assert score_db[-1][-4] == system
 
-                save_cache(cached, CACHE_FILE)
-                print("calculated", len(score_db),
-                      "sentences overall", i + 1, "for", system_file)
-                # print(Cached)
-                # return
-            if DEBUG and len(score_db) % 2 == 0 and len(score_db) != 0:
-                print("fast run for DEBUG")
-                break
+    #     if (not DEBUG) and (uncached == cache_every):
+    #         uncached = 0
+    #         cur_scores = pd.DataFrame(
+    #             score_db, columns=DB_COLS)
+    #         cached = cur_scores.append(cached, ignore_index=True)
+
+    #         save_cache(cached, CACHE_FILE)
+    #         print("calculated", len(score_db),
+    #               "sentences overall", i + 1, "for", system_file)
+    #         # print(Cached)
+    #         # return
+    #     if DEBUG and len(score_db) % 2 == 0 and len(score_db) != 0:
+    #         print("fast run for DEBUG")
+    #         break
+    # assert (DEBUG or i == len(sentence_ids) - 1)
 
     score_db = pd.DataFrame(
         score_db, columns=DB_COLS)
+    # if not cached.empty:
+    #     score_db = score_db.append(cached, ignore_index=True)
+    score_db[SYSTEM_ID] = score_db[SYSTEM_ID].apply(
+        lambda x: "SOURCE" if x.lower() in ["source", "input", "src"] else x)
 
-    if not cached.empty:
-        score_db = score_db.append(cached, ignore_index=True)
-
-    if not DEBUG and uncached != 0:
+    if not DEBUG:
         save_cache(score_db, CACHE_FILE)
 
     if results_file:
@@ -289,10 +470,10 @@ def create_score_db(cache_file, judgment_file, references_files, edits_files, le
 
 def combined_score(uccaSim, grammar, alpha):
     score = float(uccaSim) * alpha + (1 - alpha) * float(grammar)
-    print("uccaSim", uccaSim)
-    print("grammar", grammar)
-    print("alpha", alpha)
-    print("score", score)
+    # print("uccaSim", uccaSim)
+    # print("grammar", grammar)
+    # print("alpha", alpha)
+    # print("score", score)
     return score
 
 
@@ -302,41 +483,66 @@ def main():
         print("DEBUGGING!")
         print("***********************")
 
-    ## Human Judgments
-    # TODO perhaps combine them?
-    judgment_name =  "all_judgments"
-    judgment_name =  "8judgments"
+    # Human Judgments
+    all_judgments = "all_judgments"
+    judgments8 = "8judgments"
+    combined_judgments = "combined_judgments"
 
-    judgments_file = HUMAN_JUDGMENTS_DIR + judgment_name
-    judgment_csv = TRUE_KILL_DIR, "corrected_" + name + ".csv"
-    if not os.path.isfile(judgment_csv):
-        correct_wmt_csv(TRUE_KILL_DIR, name + ".csv")
-    judgment_rank = trueskill_rank(2, judgment_csv, judgment_name)
-    judgment_rank = ["NUCLEA" if x == "refmix1" else x for x in judgment_rank]
+    if HUMAN_JUDGMENT_TYPE == BEST:
+        judgments_files = [HUMAN_JUDGMENTS_DIR + judgments8 + ".xml",
+                           HUMAN_JUDGMENTS_DIR + all_judgments + ".xml"]
+        judgment_name = combined_judgments
+    elif HUMAN_JUDGMENT_TYPE == PAPER:
+        judgment_name = judgments8
+        judgments_files = [HUMAN_JUDGMENTS_DIR + judgments8 + ".xml"]
 
-
-    ## measure judgments
+    # measure judgments
     learner_file = PARAGRAPHS_DIR + "conll.tok.orig"
     first_nucle = REFERENCE_DIR + "NUCLEA"
     second_nucle = REFERENCE_DIR + "NUCLEB"
     # combined_nucle = REFERENCE_DIR + "NUCLE.m2"
-    # BN = REFERENCE_DIR + "BN.m2"
+    bn = REFERENCE_DIR + "BN"
     # ALL =  REFERENCE_DIR + "ALL.m2"
+
     references_files = [second_nucle]
-    edits_files = [second_nucle + ".m2"]
+    edits_files = [second_nucle]
+
+    if BN in REFS:
+        edits_files += [bn]
+        references_files += [bn + str(i) for i in range(1, 11)]
+
+    edits_files = [x + ".m2" for x in edits_files]
+
     system_files = [
         PARAGRAPHS_DIR + systemXId(x) for x in range(len(SYSTEMS) - 2)] + [learner_file] + [REFERENCE_DIR + systemXId(len(SYSTEMS) - 1)]
 
-    force = False
-    score_db = create_score_db(CACHE_FILE, judgments_file + ".xml", references_files, edits_files,
-                               learner_file, system_files, ONE_SENTENCE_DIR, PARSE_DIR, CACHE_EVERY, SCORE_FILE, force=force)
+    clean_cache = False
+    if not clean_cache:
+        force = False
+    else:
+        force = False
+    score_db = create_score_db(CACHE_FILE, judgments_files, references_files, edits_files,
+                               learner_file, system_files, ONE_SENTENCE_DIR, PARSE_DIR, CACHE_EVERY, SCORE_FILE, force=force, clean_cache=clean_cache, use_all=(HUMAN_JUDGMENT_TYPE == PAPER))
 
     # format for truekill
-    force = False
+    if not force:
+        force = False
     names = []
+    names.append("BLEU")
+    Grammatical = save_for_Truekill(
+        score_db, names[-1], lambda row: float(row[BLEU]), force=force)
+    names.append("levenshtein")
+    Grammatical = save_for_Truekill(
+        score_db, names[-1], lambda row: float(row[LEVENSHTEIN]), force=force)
     names.append("glue")
     gleu_db = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[GLEU]), force=force)
+    names.append("sari")
+    sari_db = save_for_Truekill(
+        score_db, names[-1], lambda row: float(row[SARI]), force=force)
+    names.append("max-sari")
+    max_sari_db = save_for_Truekill(
+        score_db, names[-1], lambda row: float(row[MAX_SARI]), force=force)
     names.append("uccaSim")
     uccaSim_db = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[UCCA_SIM]), force=force)
@@ -346,24 +552,45 @@ def main():
     names.append("grammar")
     Grammatical = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[GRAMMAR]), force=force)
-    names.append("levenshtein")
-    Grammatical = save_for_Truekill(
-        score_db, names[-1], lambda row: float(row[LEVENSHTEIN]), force=force)
     for alpha in np.linspace(0, 1, 101):
         names.append("combined" + str(alpha))
         combined = save_for_Truekill(
             score_db, names[-1], lambda row: combined_score(row[UCCA_SIM], row[GRAMMAR], alpha), force=force)
+    for alpha in np.linspace(0, 1, 11):
+        names.append("combined_minus_UCCASim" + str(alpha))
+        combined = save_for_Truekill(
+            score_db, names[-1], lambda row: combined_score(-row[UCCA_SIM], row[GRAMMAR], alpha), force=force)
+    for alpha in np.linspace(0, 1, 11):
+        names.append("combined_levenshtein" + str(alpha))
+        combined = save_for_Truekill(
+            score_db, names[-1], lambda row: combined_score(-row[LEVENSHTEIN], row[GRAMMAR], alpha), force=force)
 
-    # run trueskill
+    if not force:
+        force = False
+    # run trueskill human judgments
+    judgment_csv = os.path.join(
+        HUMAN_JUDGMENTS_DIR, "corrected_" + judgment_name + ".csv")
+    if not os.path.isfile(judgment_csv):
+        correct_wmt_csv(HUMAN_JUDGMENTS_DIR, judgment_name + ".csv")
+    judgment_rank = trueskill_rank(2, judgment_csv, judgment_name, force=force)
+    judgment_rank = ["NUCLEA" if x == "refmix1" else x for x in judgment_rank]
+    judgment_rank = ["SOURCE" if x.lower() in ["source", "input", "src"]
+                     else x for x in judgment_rank]
+    print("Human judgment rank")
+    print("rank", judgment_rank)
+
+    # run trueskill systems
     ranks = []
     human_ranks = list(range(len(judgment_rank)))
     assert ([judgment_rank.index(x) for x in judgment_rank] == human_ranks)
     for name in names:
-        measure_path = os.path.join(judgment_csv)
-        rank = trueskill_rank(len(SYSTEMS), measure_path, name, True)
-
+        measure_path = os.path.join(TRUE_KILL_DIR, name + ".csv")
+        rank = trueskill_rank(len(SYSTEMS), measure_path,
+                              name, False, force=force)
         id_rank = [judgment_rank.index(x) for x in rank if x in judgment_rank]
-        print(name, pearsonr(human_ranks, id_rank), spearmanr(human_ranks, id_rank))
+        print(name)
+        print(pearsonr(human_ranks, id_rank), spearmanr(human_ranks, id_rank))
+        print("rank", rank)
         ranks.append(rank)
 
 
@@ -393,15 +620,18 @@ def correct_wmt_csv(filename):
         fl.writelines(lines)
 
 
-def trueskill_rank(system_num, measure_db_path, measure_name, verbose=False):
+def trueskill_rank(system_num, measure_db_path, measure_name, verbose=False, force=False):
     trueskill_dir = os.path.join(TS_DIR + measure_name) + os.sep
     trueskill_file = os.path.join(trueskill_dir, "_mu_sigma.json")
+    if not os.path.isdir(trueskill_dir):
+        os.makedirs(trueskill_dir)
     if verbose:
         print("ranking by", measure_name)
-    if not os.path.isfile(trueskill_file):
+    if force or not os.path.isfile(trueskill_file):
         ps = subprocess.Popen(("cat", measure_db_path), stdout=subprocess.PIPE)
-        subprocess.check_call(shlex.split("python " + ASSESS_DIR + "wmt-trueskill/src/infer_TS.py -e -s " +
-                                          str(system_num) + " -d 0 -n 2 " + trueskill_dir), stdin=ps.stdout)
+        command = "python " + ASSESS_DIR + "wmt-trueskill/src/infer_TS.py -e -s " + \
+            str(system_num) + " -d 0 -n 2 " + trueskill_dir
+        subprocess.check_call(shlex.split(command), stdin=ps.stdout)
         # subprocess.Popen(r"cat " + measure_db_path +
         #                  " | python " + ASSESS_DIR + "wmt-trueskill/src/infer_TS.py -e -s " + str(system_num) + " -d 0 -n 2 " + output_file)
     with open(trueskill_file) as fl:
@@ -409,7 +639,7 @@ def trueskill_rank(system_num, measure_db_path, measure_name, verbose=False):
     mu_sig.pop("data_points")
     rank = sorted(mu_sig.keys(), key=lambda x: -mu_sig[x][0])
     if verbose:
-        print(rank)
+        print("rank", rank)
     return rank
 
 
