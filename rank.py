@@ -839,10 +839,15 @@ def gleu_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
     return total, per_sentence
 
 
+def _split_if_str(obj):
+    if isinstance(source, six.string_types):
+        return obj.split()
+    return obj
+
 def BLEU_score(source, references, system, n=4, smoothing=None, normalize_sentence=an.normalize_sentence):
-    system = normalize_sentence(system).split()
-    references = [normalize_sentence(
-        reference).split() for reference in references]
+    system = _split_if_str(normalize_sentence(system))
+    references = [_split_if_str(normalize_sentence(
+        reference)) for reference in references]
     n = min(n, len(system), *((len(reference) for reference in references)))
     weights = tuple(1 / n for i in range(n))
     BLEUscore = nltk.translate.bleu_score.sentence_bleu(
