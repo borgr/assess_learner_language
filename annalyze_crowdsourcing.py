@@ -379,8 +379,6 @@ def convert_correction_to_m2(source, correct, annotator_num=0):
             else:
                 # print("special case ", i, j)
                 # i,j are not aligned and not deleted but we still got here
-                # print("test that. what happens when s longer? when c
-                # longer?")
                 tmpi = i + 1
                 tmpj = j + 1
                 while ((tmpi < len(s) and tmpj < len(c)) and
