@@ -56,7 +56,7 @@ parser = Parser(model_path, "bilstm")
 
 def main():
     # parse_JFLEG()
-    # rerank_by_m2()
+    rerank_by_m2()
     # for gamma in np.linspace(0,1,11):
     #   print(m2score(system_file="calculations_data/uccasim_rerank/" + str(gamma) + "_" + "uccasim_rank_results",
     #                 gold_file=r"/home/borgr/ucca/assess_learner_language/data/references/ALL.m2"))
@@ -70,8 +70,8 @@ def main():
     # rerank_by_SARI("moses", mx=True)
     # rerank_by_SARI()
     # rerank_by_SARI("moses")
-    rerank_by_BLEU()
-    rerank_by_BLEU("moses")
+    # rerank_by_BLEU()
+    # rerank_by_BLEU("moses")
 
     # announce_finish()
 
@@ -87,7 +87,7 @@ def parse_JFLEG():
 
 
 def rerank_by_uccasim(gamma=0.27):
-    data_dir = "data/"
+    data_dir = ASSESS_DIR + "data" + os.sep
     # only used to extract source sentences
     first_nucle = data_dir + "references/" + "NUCLEA.m2"
     k_best_dir = data_dir + "K-best/"
@@ -144,7 +144,7 @@ def rerank_by_uccasim(gamma=0.27):
 
 
 def rerank_by_wordist():
-    data_dir = "data/"
+    data_dir = ASSESS_DIR + "data/"
     # only used to extract source sentences
     first_nucle = data_dir + "references/" + "NUCLEA.m2"
     k_best_dir = data_dir + "K-best/"
@@ -206,7 +206,7 @@ def rerank_by_wordist():
 
 
 def rerank_by_m2():
-    data_dir = "data/"
+    data_dir = ASSESS_DIR + "data/"
     k_best_dir = data_dir + "K-best/"
     system_file = k_best_dir + "conll14st.output.1.best100"
 
@@ -278,7 +278,7 @@ def rerank_by_m2():
 
 
 def load_nisioi_k_best(k_best_dir):
-    system_dir = k_best_dir + "NTS_beam12_12hyp"
+    system_dir = os.path.join(k_best_dir, "NTS_beam12_12hyp")
     for root, dirs, files in os.walk(system_dir):
         all_lines = []
         for filename in files:
@@ -291,7 +291,7 @@ def load_nisioi_k_best(k_best_dir):
 
 
 def load_moses_k_best(k_best_dir):
-    system_file = k_best_dir + "Moses_based"
+    system_file = os.path.join(k_best_dir, "Moses_based")
     # load system hypotheses
     with open(system_file, "r") as fl:
         system_sentences = []
@@ -322,13 +322,13 @@ def read_simplification_k_best(k_best):
     #       db.append(cur_db)
     # db = pd.concat(db, ignore_index=True)
     filename = "test.8turkers.organized.tsv"
-    db = pd.read_table(turkers_dir + filename,
+    db = pd.read_table(os.path.join(turkers_dir, filename),
                        names=["index", ORIGIN, 1, 2, 3, 4, 5, 6, 7, 8])
     db.drop("index", inplace=True, axis=1)
     db.dropna(inplace=True, axis=0)
     db.applymap(an.normalize_sentence)
 
-    with open(turkcorpus_dir + "test.8turkers.tok.turk.0") as fl:
+    with open(os.path.join(turkcorpus_dir, "test.8turkers.tok.turk.0")) as fl:
         gold = fl.readlines()
 
     keep = []
@@ -608,11 +608,11 @@ def ucca_parse(sentences, output_dir):
         filename = str(get_sentence_id(sentence, output_dir))
         txt_file = filename + ".txt"
         xml_file = filename + ".xml"
-        if not os.path.isfile(output_dir + txt_file):
-            with open(output_dir + txt_file, "w+") as fl:
+        if not os.path.isfile(os.path.join(output_dir, txt_file)):
+            with open(os.path.join(output_dir, txt_file), "w+") as fl:
                 fl.write(sentence)
-        if not os.path.isfile(output_dir + xml_file):
-            filenames.append(output_dir + txt_file)
+        if not os.path.isfile(os.path.join(output_dir, xml_file)):
+            filenames.append(os.path.join(output_dir, txt_file))
 
     # check = []
     # for sentence in list(set(filenames)):
@@ -663,28 +663,25 @@ def get_sentence_id(sentence, parse_dir, graceful=True):
     if parse_dir in _id_dics:
         id_dic = _id_dics[parse_dir]
     elif not os.path.isfile(parse_dir + os.sep + filename):
-        print("creating a new id list")
+        print("creating a new id list for file", parse_dir + os.sep + filename)
         id_dic = {max_id: -1}
         _id_dics[parse_dir] = id_dic
     else:
         with open(parse_dir + os.sep + filename, "rb") as fl:
             id_dic = pickle.load(fl)
             _id_dics[parse_dir] = id_dic
-    if not graceful:
-        # print(id_dic)
-        pass
     if graceful and not sentence in id_dic:
-        # print("dumping" + sentence + "\n")
         id_dic[max_id] += 1
         id_dic[sentence] = id_dic[max_id]
         with open(parse_dir + os.sep + filename, "wb+") as fl:
             pickle.dump(id_dic, fl)
-    # print(sentence)
     return id_dic[sentence]
 
 
-def reference_less_score(source, sentence, parse_dir, gamma):
-    return gamma * grammaticality_score(source, sentence, parse_dir) + (1 - gamma) * semantics_score(source, sentence, parse_dir)
+def reference_less_score(source, sentence, parse_dir, gamma, grammaticality_dir=None):
+    if grammaticality_dir is None:
+        grammaticality_dir = parse_dir
+    return gamma * grammaticality_score(source, sentence, grammaticality_dir) + (1 - gamma) * semantics_score(source, sentence, parse_dir)
 
 
 def score(source, gold_edits, system):
@@ -712,13 +709,13 @@ def semantics_score(source, sentence, parse_dir, source_id=None, sentence_id=Non
 
     if source_id is None:
         source_xml = file2passage(
-            parse_dir + str(get_sentence_id(source, parse_dir, False)) + ".xml")
+            os.path.join(parse_dir, str(get_sentence_id(source, parse_dir, False)) + ".xml"))
     else:
         source_xml = file2passage(parse_location(
             parse_dir, source, source_id))
     if sentence_id is None:
         sentence_xml = file2passage(
-            parse_dir + str(get_sentence_id(sentence, parse_dir, False)) + ".xml")
+            os.path.join(parse_dir, str(get_sentence_id(sentence, parse_dir, False)) + ".xml"))
     else:
         sentence_xml = file2passage(
             parse_location(parse_dir, sentence, sentence_id))
@@ -734,9 +731,13 @@ def grammaticality_score(source, sentence, parse_dir, lt_jar="../softwares/Langu
     filename = str(get_sentence_id(sentence, parse_dir, False)) + ".txt"
     with open(os.devnull, 'wb') as devnull:
         res = subprocess.run(
-            command.split() + [parse_dir + filename], stdout=subprocess.PIPE, stderr=devnull)
+            command.split() + [os.path.join(parse_dir, filename)], stdout=subprocess.PIPE, stderr=devnull)
+    # print("command", "".join(command.split() + [parse_dir + filename]))
+    # print("res.stdout", res.stdout)
     out = res.stdout.decode("utf-8")
+    # print("out", out)
     out = re.sub(r"\\'", "'", out)
+    # print("outb", out)
     res = json.loads(out)
     return 1 - len(res["matches"]) / word_num
 
