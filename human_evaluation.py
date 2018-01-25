@@ -42,6 +42,7 @@ BN = "BN"
 REFS = ""  # NUCLEB only
 REFS = [BN]
 PAPER = "referencless_paper"
+OLD_PAPER = "jusgments_paper"
 BEST = "bpractice"
 HUMAN_JUDGMENT_TYPE = BEST
 HUMAN_JUDGMENT_SYMB = HUMAN_JUDGMENT_TYPE + \
@@ -117,7 +118,7 @@ def systemXNumber(x):
     return -1
 
 
-SYSTEMS = ["POST", "AMU", "CUUI", "IITB", "IPN", "NTHU",
+SYSTEMS = ["POST", "NTHU", "AMU", "CUUI", "IITB", "IPN",
            "PKU", "RAC", "SJTU", "UFC", "UMC", "CAMB", "SOURCE", "NUCLEA"]
 if DEBUG:
     SYSTEMS = SYSTEMS[-3:]
@@ -187,7 +188,7 @@ def save_cache(cache, cache_file, verbose=True):
     cache.drop_duplicates(inplace=True)
     cache.to_pickle(cache_file)
     if verbose:
-        print("Cached with db with size", cache.shape)
+        print("Cached db with size", cache.shape)
 
 
 def save_for_Truekill(score_db, name, measure_from_row, dr=TRUE_KILL_DIR, force=False):
@@ -243,7 +244,7 @@ def calculate_all_scores(sent_id, source, references, edits, system, gleu, cache
         leven = distance.levenshtein(source, system)
         leven = 1 if len(source) == 0 else 1 - leven / len(source)
     if not cache.empty and GLEU in calculated:
-        print(cache)
+        # print(cache)
         assert gleu == cache[GLEU].values[0], "cached glue is " + str(
             cache[GLEU].values[0]) + " while calculated gleu is " + str(gleu) + str((source, references, system))
         gleu = cache[GLEU].values[0]
@@ -268,7 +269,8 @@ def calculate_all_scores(sent_id, source, references, edits, system, gleu, cache
     if not cache.empty and BLEU in calculated:
         bleu = cache[UCCA_SIM].values[0]
     else:
-        bleu = BLEU_score(source, references, system, smoothing=bleu_score.SmoothingFunction().method3) # method3 = NIST geometric sequence smoothing
+        bleu = BLEU_score(source, references, system, smoothing=bleu_score.SmoothingFunction(
+        ).method3)  # method3 = NIST geometric sequence smoothing
     # print(("res", bleu, leven, m2, gleu, sari, max_sari,
     #        grammar, uccaSim, sent_id, system_id))
     # print("source", source)
@@ -374,8 +376,8 @@ def create_score_db(cache_file, judgment_files, references_files, edits_files, l
             cached = cur_scores.append(cached, ignore_index=True)
 
             save_cache(cached, CACHE_FILE)
-            print("calculated", len(score_db),
-                  "sentences overall", i + 1, "for", system_file)
+            # print("calculated", len(score_db),
+            #       "sentences overall", i + 1, "for", system_file)
             # print(Cached)
             # return
         # uncached = 0
@@ -495,7 +497,11 @@ def main():
     elif HUMAN_JUDGMENT_TYPE == PAPER:
         judgment_name = judgments8
         judgments_files = [HUMAN_JUDGMENTS_DIR + judgments8 + ".xml"]
-
+    elif HUMAN_JUDGMENT_TYPE == OLD_PAPER:
+        judgment_name = all_judgments
+        judgments_files = [HUMAN_JUDGMENTS_DIR + all_judgments + ".xml"]
+    else:
+        raise NotImplementedError
     # measure judgments
     learner_file = PARAGRAPHS_DIR + "conll.tok.orig"
     first_nucle = REFERENCE_DIR + "NUCLEA"
@@ -520,7 +526,7 @@ def main():
     if not clean_cache:
         force = False
     else:
-        force = False
+        force = True
     score_db = create_score_db(CACHE_FILE, judgments_files, references_files, edits_files,
                                learner_file, system_files, ONE_SENTENCE_DIR, PARSE_DIR, CACHE_EVERY, SCORE_FILE, force=force, clean_cache=clean_cache, use_all=(HUMAN_JUDGMENT_TYPE == PAPER))
 
@@ -529,10 +535,10 @@ def main():
         force = False
     names = []
     names.append("BLEU")
-    Grammatical = save_for_Truekill(
-        score_db, names[-1], lambda row: float(row[BLEU]), force=force)
+    bleu = save_for_Truekill(
+        score_db, names[-1], lambda row: (print(row), float(row[BLEU])[1]), force=force)
     names.append("levenshtein")
-    Grammatical = save_for_Truekill(
+    leven = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[LEVENSHTEIN]), force=force)
     names.append("glue")
     gleu_db = save_for_Truekill(
