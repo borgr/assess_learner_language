@@ -838,9 +838,8 @@ def gleu_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
         #     print("total", total[-1][0])
     return total, per_sentence
 
-
 def _split_if_str(obj):
-    if isinstance(source, six.string_types):
+    if isinstance(obj, six.string_types):
         return obj.split()
     return obj
 
