@@ -48,32 +48,49 @@ TASK = GEC
 ASSESS_LEARNER_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
 SIG_DIR = ASSESS_LEARNER_DIR + r"/results/significance/"
 
-if TASK == GEC:
-    GOLD_FILE = ASSESS_LEARNER_DIR + \
-        r"data/conll14st-test-data/noalt/official-2014.combined.m2"
-    CORRECTIONS_DIR = ASSESS_LEARNER_DIR + r"batches/"
-    DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
-    PLOTS_DIR = ASSESS_LEARNER_DIR + r"plots/corrections/"
-    HISTS_DIR = ASSESS_LEARNER_DIR + r"unseenEst/"
-    TRIALS_FILE = DATA_DIR + r"trials"
-    BATCH_FILES = [r"Batch_2612793_batch_results.csv",
-                   r"Batch_2626033_batch_results.csv", r"Batch_2634540_batch_results.csv"]
-elif TASK == SIMPLIFICATION:
-    GOLD_FILE = None
-    CORRECTIONS_DIR = ASSESS_LEARNER_DIR + r"batches/simplification/"
-    DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
-    PLOTS_DIR = ASSESS_LEARNER_DIR + r"plots/simplification/"
-    HISTS_DIR = ASSESS_LEARNER_DIR + r"unseenEst/simplification/"
-    TRIALS_FILE = DATA_DIR + r"trials"
-    BATCH_FILES = [r"Batch_2998009_batch_results.csv"]
-    SARI_DIR = "simplification/"
-    SARI_CORPUS_DIR = SARI_DIR + "data/turkcorpus/"
-    TURKERS_DIR = SARI_CORPUS_DIR + "/truecased/"
-    GOLD_FILE = [SARI_CORPUS_DIR +
-                 "tune.8turkers.tok.turk." + str(i) for i in range(8)]
-    ORIGIN = "origin"
-    LEARNER_FILE = SARI_CORPUS_DIR + "tune.8turkers.tok.norm"
 
+def init_globals():
+    global BATCH_FILES 
+    global CORRECTIONS_DIR 
+    global DATA_DIR 
+    global HISTS_DIR 
+    global GOLD_FILE
+    global PLOTS_DIR 
+    global TRIALS_FILE 
+
+    global SARI_DIR 
+    global SARI_CORPUS_DIR 
+    global TURKERS_DIR 
+    global ORIGIN 
+    global LEARNER_FILE
+
+    if TASK == GEC:
+        GOLD_FILE = ASSESS_LEARNER_DIR + \
+            r"data/conll14st-test-data/noalt/official-2014.combined.m2"
+        CORRECTIONS_DIR = ASSESS_LEARNER_DIR + r"batches/"
+        DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
+        PLOTS_DIR = ASSESS_LEARNER_DIR + r"plots/corrections/"
+        HISTS_DIR = ASSESS_LEARNER_DIR + r"unseenEst/"
+        TRIALS_FILE = DATA_DIR + r"trials"
+        BATCH_FILES = [r"Batch_2612793_batch_results.csv",
+                       r"Batch_2626033_batch_results.csv", r"Batch_2634540_batch_results.csv"]
+    elif TASK == SIMPLIFICATION:
+        GOLD_FILE = None
+        CORRECTIONS_DIR = ASSESS_LEARNER_DIR + r"batches/simplification/"
+        DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
+        PLOTS_DIR = ASSESS_LEARNER_DIR + r"plots/simplification/"
+        HISTS_DIR = ASSESS_LEARNER_DIR + r"unseenEst/simplification/"
+        TRIALS_FILE = DATA_DIR + r"trials"
+        BATCH_FILES = [r"Batch_2998009_batch_results.csv"]
+        SARI_DIR = "simplification/"
+        SARI_CORPUS_DIR = SARI_DIR + "data/turkcorpus/"
+        TURKERS_DIR = SARI_CORPUS_DIR + "/truecased/"
+        GOLD_FILE = [SARI_CORPUS_DIR +
+                     "tune.8turkers.tok.turk." + str(i) for i in range(8)]
+        ORIGIN = "origin"
+        LEARNER_FILE = SARI_CORPUS_DIR + "tune.8turkers.tok.norm"
+
+init_globals()
 # batch column names
 LEARNER_SENTENCES_COL = "Input.sentence"
 CORRECTED_SENTENCES_COL = "Answer.WritingTexts"
@@ -234,11 +251,11 @@ def simplification_coverage(show, save):
         plt.show()
 
 
-def create_golds(sentences, corrections, gold_file, ms):
+def create_golds(sentences, corrections, gold_file, ms, edits=True):
     """ writes a m2 file and a perfect output by sampling a sentence for sentences for each ungrammatical sentence in gold_file"""
     for m in ms:
         m2file, perfectOutput = choose_corrections_for_gold(
-            gold_file, sentences, corrections, m)
+            gold_file, sentences, corrections, m, edits)
         if TASK == GEC:
             filename = str(m) + "_sgss.m2"
             with open(DATA_DIR + filename, "w") as fl:
@@ -248,7 +265,7 @@ def create_golds(sentences, corrections, gold_file, ms):
             fl.writelines(perfectOutput)
 
 
-def choose_corrections_for_gold(gold_file, sentences, corrections, m):
+def choose_corrections_for_gold(gold_file, sentences, corrections, m, edits=True):
     """ creates (source_sentences, gold_edits, system_sentences) tuple that can be passed as data for m2scorer.
             The function replaces sentences that need corrections with sentences from sentences and adds m corrections
             to the gold edits and system sentences as needed. """
@@ -265,8 +282,12 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m):
     while i < len(lines):
         if lines[i].startswith("S"):
             if i + 1 == len(lines) or not lines[i + 1].startswith("A"):
-                correction4gold.append(lines[i])
                 perfectOutput.append(lines[i][2:])
+                if edits:
+                    correction4gold.append(lines[i])
+                else:
+                    correction4gold.append(perfectOutput[-1])
+                    
             else:
                 chosen_index = -1
                 # while chosen_index not in sentences
@@ -275,30 +296,33 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m):
                 num_chosen = 0
                 corresponding_corrections = corrections[
                     sentences == chosen_sentence]
-                correction4gold.append("S " + chosen_sentence + "\n")
-                while num_chosen < m:
+                if edits:
+                    correction4gold.append("S " + chosen_sentence + "\n")
+                    while num_chosen < m:
+                        chosen_ind = np.random.randint(
+                            0, corresponding_corrections.size)
+                        chosen_correction = corresponding_corrections.iloc[
+                            chosen_ind]
+                        addition = convert_correction_to_m2(
+                            chosen_sentence, chosen_correction, num_chosen)
+                        if not addition:
+                            addition = [
+                                "A -1 -1|||noop|||-NONE-|||REQUIRED|||-NONE-|||" + str(num_chosen) + "\n"]
+                        correction4gold += addition
+
+                        num_chosen += 1
                     chosen_ind = np.random.randint(
                         0, corresponding_corrections.size)
-                    chosen_correction = corresponding_corrections.iloc[
-                        chosen_ind]
-                    addition = convert_correction_to_m2(
-                        chosen_sentence, chosen_correction, num_chosen)
-                    if not addition:
-                        addition = [
-                            "A -1 -1|||noop|||-NONE-|||REQUIRED|||-NONE-|||" + str(num_chosen) + "\n"]
-                    correction4gold += addition
-
-                    num_chosen += 1
-                chosen_ind = np.random.randint(
-                    0, corresponding_corrections.size)
-                chosen_correction = corresponding_corrections.iloc[chosen_ind]
-                if chosen_correction.count("\n") != 0:
-                    chosen_correction = chosen_correction.split("\n")[-1]
-                perfectOutput.append(chosen_correction + "\n")
-                if perfectOutput[-1].count("\n") != 1:
-                    print("bad sentence", perfectOutput[-1])
-                    raise("?")
-            correction4gold.append("\n")
+                    chosen_correction = corresponding_corrections.iloc[chosen_ind]
+                    if chosen_correction.count("\n") != 0:
+                        chosen_correction = chosen_correction.split("\n")[-1]
+                    perfectOutput.append(chosen_correction + "\n")
+                    if perfectOutput[-1].count("\n") != 1:
+                        print("bad sentence", perfectOutput[-1])
+                        raise("?")
+                    correction4gold.append("\n")
+                else:
+                    correction4gold.append(corresponding_corrections)     
         i += 1
     return correction4gold, perfectOutput
 
