@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath("./m2scorer/scripts/"))
 
+import pickle
 from itertools import repeat
 import pandas as pd
 import subprocess
@@ -11,6 +12,7 @@ import numpy as np
 from multiprocessing import Pool
 from rank import SARI_score
 from rank import BLEU_score
+from rank import gleu_scores
 import annalyze_crowdsourcing as an
 import multiprocessing
 import time
@@ -86,11 +88,26 @@ def main():
     # files = ["perfect_output_for_" + str(m) + "_sgss.m2" for m in ALTERNATIVE_GOLD_MS]
     # gold_files = [perfect_dir + str(m) + "_sgss.m2" for m in ALTERNATIVE_GOLD_MS]
     # input_dirs = [perfect_dir] * len(files)
-    # results = pool.imap_unordered(m2score_sig_in_one,list(zip(files, gold_files, input_dirs)))
+    # results = pool.imap_unordered(sig_in_one,list(zip(files, gold_files, input_dirs)))
     # pool.close()
     # pool.join()
     # results = list(results)
     # print(results)
+
+    # perfect annotator GLEU
+    perfect_dir = an.DATA_DIR
+    pool = Pool(POOL_SIZE)
+    files = ["perfect_output_for_" +
+             str(m) + "_sgss.m2" for m in ALTERNATIVE_GOLD_MS]
+    gold_files = [perfect_dir +
+                  str(m) + "_sgss.pkl" for m in ALTERNATIVE_GOLD_MS]
+    input_dirs = [perfect_dir] * len(files)
+    results = pool.starmap(sig_in_one, zip(list(reversed(list(
+        zip(files, gold_files, input_dirs)))), repeat(gleu_sig)))
+    pool.close()
+    pool.join()
+    results = list(results)
+    print(results)
 
     # perfect annotator sari score
     # sentences, simplifications = an.simplification_source_simplifications_tuple()
@@ -101,36 +118,28 @@ def main():
     # output_dir = os.path.join(r"./results/significance/", an.LUCKY)
     # sari_sig(1, output_dir, an.LUCKY)
 
-    pool = Pool(POOL_SIZE)
-    results_per_type = {}
-    # sari_types = [an.BLEU, an.MAX, an.LUCKY, an.PAPER]
-    sari_types = [an.BLEU]
-    for sari_type in sari_types:
-        output_dir = os.path.join(r"./results/significance/", sari_type)
-        if not os.path.isdir(output_dir):
-            print("directory not found, creating", output_dir)
-            os.mkdir(output_dir)
-        results = pool.starmap(sari_sig, zip(
-            ALTERNATIVE_GOLD_MS, repeat(output_dir), repeat(sari_type)))
-        results_per_type[sari_type] = results
-    # results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
-    # results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
-    # results = pool.imap_unordered(sari_sent_sig, ALTERNATIVE_GOLD_MS)
-    pool.close()
-    pool.join()
-    for sari_type in sari_types:
-        results = results_per_type[sari_type]
-        results = list(results)
-        print("time elapsed in seconds", time.time() - s)
-        print(results)
-
-
-def m2score_sig_in_one(tpl):
-    if len(tpl) == 2:
-        return m2score_sig(tpl[0], tpl[1])
-    if len(tpl) == 3:
-        return m2score_sig(tpl[0], tpl[1], tpl[2])
-    return m2score_sig(tpl[0], tpl[1], tpl[2], tpl[3])
+    # pool = Pool(POOL_SIZE)
+    # results_per_type = {}
+    # # sari_types = [an.BLEU, an.MAX, an.LUCKY, an.PAPER]
+    # sari_types = [an.BLEU]
+    # for sari_type in sari_types:
+    #     output_dir = os.path.join(r"./results/significance/", sari_type)
+    #     if not os.path.isdir(output_dir):
+    #         print("directory not found, creating", output_dir)
+    #         os.mkdir(output_dir)
+    #     results = pool.starmap(sari_sig, zip(
+    #         ALTERNATIVE_GOLD_MS, repeat(output_dir), repeat(sari_type)))
+    #     results_per_type[sari_type] = results
+    # # results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
+    # # results = pool.imap_unordered(sari_sig, ALTERNATIVE_GOLD_MS)
+    # # results = pool.imap_unordered(sari_sent_sig, ALTERNATIVE_GOLD_MS)
+    # pool.close()
+    # pool.join()
+    # for sari_type in sari_types:
+    #     results = results_per_type[sari_type]
+    #     results = list(results)
+    #     print("time elapsed in seconds", time.time() - s)
+    #     print(results)
 
 
 def read_system(file):
@@ -160,6 +169,35 @@ def m2score(m=None, system_file=None, gold_file=r"./data/conll14st-test-data/noa
     assert(len(system_sentences) == len(source_sentences)
            and len(system_sentences) == len(gold_edits))
     return m2scorer.get_score(system_sentences, source_sentences, gold_edits, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
+
+
+def gleu_sig(filename, gold_file, input_dir=r"./data/paragraphs/", output_dir=r"./results/significance/"):
+    system_file = input_dir + filename
+    with open(gold_file, "rb") as fl:
+        source_sentences, references = pickle.load(fl)
+    system_sentences = read_system(system_file)
+    print("gold_file", gold_file)
+    print("system_file", system_file)
+    print("Learner", source_sentences[:2])
+    print("corrections", references[:2])
+    print("system_sentences", system_sentences[:2])
+    print("number of refs", len(references[0]), len(references[1]), len(references[2]), len(list(zip(*references))))
+    print("testing gleu significance")
+
+    print("min, max refs", min([len(x) for x in list(zip(*references))]), max([len(x) for x in list(zip(*references))]))
+    n_samples = 1000
+    statfunction = lambda source, refs, sys: gleu_scores(source, list(zip(*references)), [sys])[1]
+    data = (source_sentences, references, system_sentences)
+    test_significance(statfunction, data, os.path.join(output_dir, "GLEU_" +
+                                               str(n_samples) + "_" + filename), n_samples=n_samples)
+
+    # # faster but less exact, gleu changes its inner parameter by what it gets i.e. gleu is not a per sentence score
+    # gleu_sentence_scores = gleu_scores(
+    #     source_sentences, list(zip(*references)), [system_sentences])[1]
+
+    # data = list(range(len(gleu_sentence_scores)))
+    # test_significance(None, data, os.path.join(output_dir, "GLEU_" +
+    #                   str(n_samples) + "_" + filename), n_samples=n_samples)
 
 
 def m2score_sig(filename, gold_file=r"./data/conll14st-test-data/noalt/official-2014.combined.m2", input_dir=r"./data/paragraphs/", output_dir=r"./results/significance/"):
@@ -263,6 +301,14 @@ def simplification_score(m, sentences, simplifications, simplification_measure):
             scr = np.max(scr)
             res.append(scr)
     return np.mean(res)
+
+
+def sig_in_one(tpl, sig=m2score_sig):
+    if len(tpl) == 2:
+        return sig(tpl[0], tpl[1])
+    if len(tpl) == 3:
+        return sig(tpl[0], tpl[1], tpl[2])
+    return sig(tpl[0], tpl[1], tpl[2], tpl[3])
 
 
 def test_significance(statfunction, data, filename=None, alpha=0.05, n_samples=100, method='bca', output='lowhigh', epsilon=0.001, multi=True):
