@@ -20,8 +20,8 @@ import matplotlib.cm as cm
 import numpy as np
 import pickle
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
-# UCCA_DIR = TUPA_DIR + '/ucca/'
-UCCA_DIR = '/home/borgr/ucca/ucca'
+UCCA_DIR = TUPA_DIR + '/ucca/'
+# UCCA_DIR = '/home/borgr/ucca/ucca'
 sys.path.append(UCCA_DIR + '/scripts')
 sys.path.append(UCCA_DIR + '/ucca')
 sys.path.append(UCCA_DIR)
@@ -48,32 +48,49 @@ TASK = GEC
 ASSESS_LEARNER_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
 SIG_DIR = ASSESS_LEARNER_DIR + r"/results/significance/"
 
-if TASK == GEC:
-    GOLD_FILE = ASSESS_LEARNER_DIR + \
-        r"data/conll14st-test-data/noalt/official-2014.combined.m2"
-    CORRECTIONS_DIR = ASSESS_LEARNER_DIR + r"batches/"
-    DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
-    PLOTS_DIR = ASSESS_LEARNER_DIR + r"plots/corrections/"
-    HISTS_DIR = ASSESS_LEARNER_DIR + r"unseenEst/"
-    TRIALS_FILE = DATA_DIR + r"trials"
-    BATCH_FILES = [r"Batch_2612793_batch_results.csv",
-                   r"Batch_2626033_batch_results.csv", r"Batch_2634540_batch_results.csv"]
-elif TASK == SIMPLIFICATION:
-    GOLD_FILE = None
-    CORRECTIONS_DIR = ASSESS_LEARNER_DIR + r"batches/simplification/"
-    DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
-    PLOTS_DIR = ASSESS_LEARNER_DIR + r"plots/simplification/"
-    HISTS_DIR = ASSESS_LEARNER_DIR + r"unseenEst/simplification/"
-    TRIALS_FILE = DATA_DIR + r"trials"
-    BATCH_FILES = [r"Batch_2998009_batch_results.csv"]
-    SARI_DIR = "simplification/"
-    SARI_CORPUS_DIR = SARI_DIR + "data/turkcorpus/"
-    TURKERS_DIR = SARI_CORPUS_DIR + "/truecased/"
-    GOLD_FILE = [SARI_CORPUS_DIR +
-                 "tune.8turkers.tok.turk." + str(i) for i in range(8)]
-    ORIGIN = "origin"
-    LEARNER_FILE = SARI_CORPUS_DIR + "tune.8turkers.tok.norm"
 
+def init_globals():
+    global BATCH_FILES 
+    global CORRECTIONS_DIR 
+    global DATA_DIR 
+    global HISTS_DIR 
+    global GOLD_FILE
+    global PLOTS_DIR 
+    global TRIALS_FILE 
+
+    global SARI_DIR 
+    global SARI_CORPUS_DIR 
+    global TURKERS_DIR 
+    global ORIGIN 
+    global LEARNER_FILE
+
+    if TASK == GEC:
+        GOLD_FILE = ASSESS_LEARNER_DIR + \
+            r"data/conll14st-test-data/noalt/official-2014.combined.m2"
+        CORRECTIONS_DIR = ASSESS_LEARNER_DIR + r"batches/"
+        DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
+        PLOTS_DIR = ASSESS_LEARNER_DIR + r"plots/corrections/"
+        HISTS_DIR = ASSESS_LEARNER_DIR + r"unseenEst/"
+        TRIALS_FILE = DATA_DIR + r"trials"
+        BATCH_FILES = [r"Batch_2612793_batch_results.csv",
+                       r"Batch_2626033_batch_results.csv", r"Batch_2634540_batch_results.csv"]
+    elif TASK == SIMPLIFICATION:
+        GOLD_FILE = None
+        CORRECTIONS_DIR = ASSESS_LEARNER_DIR + r"batches/simplification/"
+        DATA_DIR = ASSESS_LEARNER_DIR + r"calculations_data/"
+        PLOTS_DIR = ASSESS_LEARNER_DIR + r"plots/simplification/"
+        HISTS_DIR = ASSESS_LEARNER_DIR + r"unseenEst/simplification/"
+        TRIALS_FILE = DATA_DIR + r"trials"
+        BATCH_FILES = [r"Batch_2998009_batch_results.csv"]
+        SARI_DIR = "simplification/"
+        SARI_CORPUS_DIR = SARI_DIR + "data/turkcorpus/"
+        TURKERS_DIR = SARI_CORPUS_DIR + "/truecased/"
+        GOLD_FILE = [SARI_CORPUS_DIR +
+                     "tune.8turkers.tok.turk." + str(i) for i in range(8)]
+        ORIGIN = "origin"
+        LEARNER_FILE = SARI_CORPUS_DIR + "tune.8turkers.tok.norm"
+
+init_globals()
 # batch column names
 LEARNER_SENTENCES_COL = "Input.sentence"
 CORRECTED_SENTENCES_COL = "Answer.WritingTexts"
@@ -105,23 +122,18 @@ ALTERNATIVE_GOLD_MS = list(range(1, 11))
 
 
 def main():
+    # create date for significance testing
     db = read_batches()
+    edits = False # True for m2
     # print(db[LEARNER_SENTENCES_COL].unique().size)
+    # create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS, edits=edits)
     # return
-    # create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
+
     # if TASK == GEC:
     #   pass
     # elif TASK == SIMPLIFICATION:
     #   return
-    # db = clean_data(db)
-
-    filename = ASSESS_LEARNER_DIR + r"/data/paragraphs/" +"conll.tok.orig"
-    with open(filename) as fl:
-        source_sentences = [normalize_sentence(line) for line in fl]
-    print([s for s in db.loc[:, LEARNER_SENTENCES_COL].unique() if normalize_sentence(s) in source_sentences])
-    # print([sentence for sentence in source_sentences if sentence in db.loc[:, LEARNER_SENTENCES_COL].unique()])
-    print(len(db.groupby(LEARNER_SENTENCES_COL)[CORRECTED_SENTENCES_COL].nunique()))
-    return 
+    db = clean_data(db)
 
     # learner_sentences = db[LEARNER_SENTENCES_COL].unique()
     show_correction = False
@@ -234,26 +246,33 @@ def simplification_coverage(show, save):
         plt.show()
 
 
-def create_golds(sentences, corrections, gold_file, ms):
+def create_golds(sentences, corrections, gold_file, ms, edits=True):
     """ writes a m2 file and a perfect output by sampling a sentence for sentences for each ungrammatical sentence in gold_file"""
     for m in ms:
         m2file, perfectOutput = choose_corrections_for_gold(
-            gold_file, sentences, corrections, m)
+            gold_file, sentences, corrections, m, edits)
         if TASK == GEC:
-            filename = str(m) + "_sgss.m2"
-            with open(DATA_DIR + filename, "w") as fl:
-                fl.writelines(m2file)
+            filename = str(m) + "_sgss"
+            if edits:
+                with open(os.path.join(DATA_DIR, filename + ".m2"), "w") as fl:
+                    fl.writelines(m2file)
+            else:
+                print("source, refs", m2file[0][:4], m2file[1][:4])
+                print("perfect output", perfectOutput[:4])
+                with open(os.path.join(DATA_DIR, filename + ".pkl"), "wb+") as fl:
+                    pickle.dump(m2file, fl)
         filename = "perfect_output_for_" + str(m) + "_sgss.m2"
         with open(DATA_DIR + filename, "w") as fl:
             fl.writelines(perfectOutput)
 
 
-def choose_corrections_for_gold(gold_file, sentences, corrections, m):
+def choose_corrections_for_gold(gold_file, sentences, corrections, m, edits=True):
     """ creates (source_sentences, gold_edits, system_sentences) tuple that can be passed as data for m2scorer.
             The function replaces sentences that need corrections with sentences from sentences and adds m corrections
             to the gold edits and system sentences as needed. """
     # print("_____\nsentences", sentences)
     correction4gold = []
+    chosen_sentences = []
     perfectOutput = []
     lines = []
     if gold_file:
@@ -265,8 +284,13 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m):
     while i < len(lines):
         if lines[i].startswith("S"):
             if i + 1 == len(lines) or not lines[i + 1].startswith("A"):
-                correction4gold.append(lines[i])
                 perfectOutput.append(lines[i][2:])
+                if edits:
+                    correction4gold.append(lines[i])
+                else:
+                    correction4gold.append([perfectOutput[-1]] * m)
+                    chosen_sentences.append(perfectOutput[-1])
+                    
             else:
                 chosen_index = -1
                 # while chosen_index not in sentences
@@ -275,19 +299,27 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m):
                 num_chosen = 0
                 corresponding_corrections = corrections[
                     sentences == chosen_sentence]
-                correction4gold.append("S " + chosen_sentence + "\n")
+                if edits:
+                    correction4gold.append("S " + chosen_sentence + "\n")
+                else:
+                    chosen_sentences.append(chosen_sentence)
+                    correction4gold.append([])
                 while num_chosen < m:
                     chosen_ind = np.random.randint(
                         0, corresponding_corrections.size)
                     chosen_correction = corresponding_corrections.iloc[
                         chosen_ind]
-                    addition = convert_correction_to_m2(
-                        chosen_sentence, chosen_correction, num_chosen)
-                    if not addition:
-                        addition = [
-                            "A -1 -1|||noop|||-NONE-|||REQUIRED|||-NONE-|||" + str(num_chosen) + "\n"]
-                    correction4gold += addition
-
+                    if edits:
+                        addition = convert_correction_to_m2(
+                            chosen_sentence, chosen_correction, num_chosen)
+                        if not addition:
+                            addition = [
+                                "A -1 -1|||noop|||-NONE-|||REQUIRED|||-NONE-|||" + str(num_chosen) + "\n"]
+                        correction4gold += addition
+                    else:
+                        if chosen_correction.count("\n") != 0:
+                            chosen_correction = chosen_correction.split("\n")[-1]
+                        correction4gold[-1].append(chosen_correction)
                     num_chosen += 1
                 chosen_ind = np.random.randint(
                     0, corresponding_corrections.size)
@@ -298,8 +330,11 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m):
                 if perfectOutput[-1].count("\n") != 1:
                     print("bad sentence", perfectOutput[-1])
                     raise("?")
-            correction4gold.append("\n")
+            if edits:
+                correction4gold.append("\n")
         i += 1
+    if not edits:
+        correction4gold = (chosen_sentences, correction4gold)
     return correction4gold, perfectOutput
 
 
@@ -912,7 +947,15 @@ def plot_significance(show=True, save=True):
     names = [str(m + 1) for m in np.arange(10)]
 
     precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
-    f5_2 = plot_sig(results, names, show, save, [precision, recall, fscore])
+    f5_2 = plot_sig(results, names, show, save, [precision, recall, fscore], clean=False)
+
+    # gleu
+    paths = [os.path.join(SIG_DIR, "GLEU_1000_" + file) for file in files]
+    results = parse_sigfiles(paths)
+    for i, file in enumerate(files):
+        print("gleu file and result", file, results[i])
+    gleu = "GLEU"
+    gleu = plot_sig(results, names, show, save, [gleu])
 
     learner_file = "source"
     JMGR_file = "JMGR"
@@ -982,7 +1025,6 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
             if len(significance) == 1:
                 sig = [significance[0][lower_confidence_bound],
                        significance[0][upper_confidence_bound]]
-                # print(significances)
             else:
                 sig = [significance[lower_confidence_bound][measure_idx],
                        significance[upper_confidence_bound][measure_idx]]
@@ -990,14 +1032,9 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
             xs.append(x + 1)
             ys.append(y)
             cis.append(y - sig[0])
-        # print(xs)
-        # raise
         xs = np.array(xs, dtype="float64")
-        # if not add_zero:
-        # xs += 0.1
         ys = np.array(ys)
         cis = np.array(cis)
-        # print(len(cis), len(xs), len(ys))
         sort_idx = xs.argsort()
         labels = names[sort_idx]
         ys = ys[sort_idx]
@@ -1063,6 +1100,12 @@ def plot_sig_bars(significances, names, show, save, line=None):
         remove_spines()
         if line != None and measure == fscore:
             plt.axhline(line, color="red")
+            if scale_by_line:
+                twin = ax.twinx()
+                y1, y2 = twin.get_ylim()
+                ax_c.set_ylim(y1 / line, y2 * line)
+                ax_c.figure.canvas.draw()
+                ax.set_ylabel("Ratio Scoring")
         if save:
             plt.savefig(PLOTS_DIR + measure + "_significance" +
                         ".png", bbox_inches='tight')
