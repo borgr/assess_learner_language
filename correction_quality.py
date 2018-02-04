@@ -24,8 +24,8 @@ from nltk.stem import WordNetLemmatizer
 # ucca
 UCCA_DIR = '/home/borgr/ucca/ucca'
 ASSESS_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
-TUPA_DIR = '/cs/labs/oabend/borgr/tupa'
-UCCA_DIR = TUPA_DIR + '/ucca'
+# TUPA_DIR = '/cs/labs/oabend/borgr/tupa'
+# UCCA_DIR = TUPA_DIR + '/ucca'
 sys.path.append(UCCA_DIR + '/scripts/distances')
 sys.path.append(UCCA_DIR + '/ucca')
 sys.path.append(UCCA_DIR)
@@ -188,6 +188,7 @@ def outputs_conservatism():
         #       print("-------\nsentences:\n", corrected_sentences[i],"\norignal:\n", origin_sentences[i])
         #       print ("word dif:", dif)
         #       print("match num:", i)
+    # print(len(origin_sentences), len(corrected_sentences), len(word_differences))
 
     # compare origin to cuui #1
     name = "cuui"
@@ -427,9 +428,9 @@ def ranking_conservatism():
             nums.append(int(name[:2]))
         else:
             nums.append(int(name[0]))
-    nums = nums + [15, 10] #, 2, 1]
-    filenames = filenames + [all_file, BN_file] #, NUCLE_file, NUCLEA_file]
-    names = names + ["all", "BN"] #, "NUCLE", "NUCLEA"]
+    nums = nums + [15, 10]  # , 2, 1]
+    filenames = filenames + [all_file, BN_file]  # , NUCLE_file, NUCLEA_file]
+    names = names + ["all", "BN"]  # , "NUCLE", "NUCLEA"]
     argsort = np.argsort(nums)
     names = np.array(names)
     filenames = np.array(filenames)
@@ -916,13 +917,13 @@ def calculate_conservatism(origin_sentences, corrected_sentences):
         origin_sentences, corrected_sentences)]
     word_differences = [word_diff(orig, cor) for orig, cor in zip(
         origin_sentences, corrected_sentences)]
-    # print("comparing done, printing interesting results")
-    # for i, dif in enumerate(word_differences):
-    #     if dif > 10:  # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
-    #         print("-------\nsentences:\n",
-    #               corrected_sentences[i], "\norignal:\n", origin_sentences[i])
-    #         print("word dif:", dif)
-    #         print("match num:", i)
+    print("comparing done, printing interesting results")
+    for i, dif in enumerate(word_differences):
+        if dif > 10:  # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
+            print("-------\nsentences:\n",
+                  corrected_sentences[i], "\norignal:\n", origin_sentences[i])
+            print("word dif:", dif)
+            print("match num:", i)
     # for i, dif in enumerate(index_differences):
     #     if dif > 10:  # or i < 3 # use i to print some, use diff to print all sentences which differ ion more than "diff" words from each other
     #         print("-------\nsentences:\n",
@@ -1243,11 +1244,11 @@ def boxplot_differences(l, ax, pivot, diff_type, bottom):
 
 def plot_differences_hist(l, ax, pivot, diff_type, bottom, bins=None, relative_bar=-1):
     """ gets a list of (broken, words_differences, index_differences, spearman_differences, aligned_by, name) tuples and plot the plots"""
-    width = 1 / len(l)
+    total_width = 1
+    width = total_width / len(l)
     name = -1
     if bins != None:
         bins = np.array(bins) + 1 - bottom
-    total_width = len(l) * width
     relative = 0
     ys = []
     names = []
@@ -1288,7 +1289,9 @@ def plot_differences_hist(l, ax, pivot, diff_type, bottom, bins=None, relative_b
         ax.bar(x, y - relative, width=width,
                color=colors[i], align='center', label=name, edgecolor=colors[i])
     plt.autoscale(enable=True, axis='x', tight=False)
-    plt.ylabel("amount")
+    ylabel = "amount" if relative_bar < 0 else "amount relative to " + \
+        names[relative_bar]
+    plt.ylabel(ylabel)
     plt.xlim(xmin=0 - 0.5 * total_width)
     plt.xlabel("number of " + diff_type + " changed")
     # plt.title("number of " + diff_type + " changed by method of correction")
