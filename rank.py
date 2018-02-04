@@ -23,7 +23,6 @@ ASSESS_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
 # ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
 UCCA_DIR = TUPA_DIR + 'ucca'
-sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
 sys.path.append(UCCA_DIR)
 sys.path.append(UCCA_DIR + '/scripts/distances')
 sys.path.append(UCCA_DIR + '/ucca')
@@ -32,6 +31,8 @@ sys.path.append(UCCA_DIR + '/ucca')
 from ucca.ioutil import file2passage
 import subprocess
 import codecs
+
+sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
 from m2scorer import m2scorer
 from gec_ranking.scripts.gleu import GLEU
 import align
@@ -40,6 +41,8 @@ from ucca.ioutil import passage2file
 from ucca.convert import from_text
 from correction_quality import word_diff
 
+sys.path.append(ASSESS_DIR + '/imeasure')
+import imeasure.ieval as imeasure
 from simplification import SARI
 import annalyze_crowdsourcing as an
 
@@ -80,7 +83,7 @@ def parse_JFLEG():
     ucca_parse_files(filenames, JFLEG_dir + os.sep + "xmls")
 
 # a lot of code duplication because pooling doesn't react well to passing
-# different functions (e.g. lambdas) as an argument
+# different lambdas as an argument
 
 
 def rerank_by_uccasim(gamma=0.27):
@@ -380,7 +383,7 @@ def rerank_by_BLEU(k_best="nisioi"):
             assert(len(packed_system_sentences) == len(references)
                    and len(references) == len(source_sentences))
             results = pool.imap(BLEU_oracle,
-                packed_system_sentences)
+                                packed_system_sentences)
             pool.close()
             pool.join()
             results = list(results)
@@ -531,7 +534,7 @@ def BLEU_oracle(tple, mx=False):
 
 def SARI_oracle(tple, mx=False):
     maximum = 0
-    chosen = [None,None]
+    chosen = [None, None]
     source, references, system_sentences = tple
     for sentence in system_sentences:
         if mx:
@@ -553,7 +556,7 @@ def parse_location(output_dir, filename, sentence_num=None):
     return os.path.join(cur_dir, filename + str(sentence_num) + ".xml")
 
 
-def ucca_parse_files(filenames, output_dir, clean=False, normalize_sentence=lambda x:x):
+def ucca_parse_files(filenames, output_dir, clean=False, normalize_sentence=lambda x: x):
     # parse_command = "python ../tupa/tupa/parse.py -c bilstm -m ../tupa/models/bilstm -o "+ output_dir +" "
     # print("parsing with:", parse_command)
 
@@ -561,7 +564,7 @@ def ucca_parse_files(filenames, output_dir, clean=False, normalize_sentence=lamb
         for filename in filenames:
             cur_output_dir = parse_location(output_dir, filename)
             if os.path.isdir(cur_output_dir):
-                print("Skipping parsing, file already parsed in", cur_output_dir)
+                print("File already parsed in", cur_output_dir)
             else:
                 os.mkdir(cur_output_dir)
                 print("parsing " + filename)
@@ -723,11 +726,11 @@ def semantics_score(source, sentence, parse_dir, source_id=None, sentence_id=Non
     return align.fully_aligned_distance(source_xml, sentence_xml)
 
 
-def grammaticality_score(source, sentence, parse_dir):
+def grammaticality_score(source, sentence, parse_dir, lt_jar="../softwares/LanguageTool-3.7/languagetool-commandline.jar"):
     word_num = an.normalize_sentence(sentence).count(" ")
     if word_num == 0:
         return 1
-    command = "java -jar ../softwares/LanguageTool-3.7/languagetool-commandline.jar --json -l en-US"
+    command = "java -jar " + lt_jar + " --json -l en-US"
     filename = str(get_sentence_id(sentence, parse_dir, False)) + ".txt"
     with open(os.devnull, 'wb') as devnull:
         res = subprocess.run(
@@ -735,7 +738,7 @@ def grammaticality_score(source, sentence, parse_dir):
     out = res.stdout.decode("utf-8")
     out = re.sub(r"\\'", "'", out)
     res = json.loads(out)
-    return 1 - len(res["matches"])/word_num
+    return 1 - len(res["matches"]) / word_num
 
 
 def sentence_m2(source, gold_edits, system):
@@ -838,13 +841,32 @@ def gleu_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
         #     print("total", total[-1][0])
     return total, per_sentence
 
-def BLEU_score(source, references, system, n=4):
-    source = an.normalize_sentence(source).split()
-    references = [an.normalize_sentence(reference).split() for reference in references]
-    n = min(n, len(source), *((len(reference) for reference in references)))
-    weights = tuple(1/n for i in range(n))
-    BLEUscore = nltk.translate.bleu_score.sentence_bleu(references, system, weights=weights)
+
+def _split_if_str(obj):
+    if isinstance(obj, six.string_types):
+        return obj.split()
+    return obj
+
+
+def Imeasure_scores(source, file_ref, system, **kwargs):
+    """ If per_sentence_score is False, one accumulated score is returned instead of a score for each sentence"""
+    file_hyp = None
+    if isinstance(system, six.string_types):
+        file_hyp = system
+        system = None
+    return imeasure.calculate_imeasure(file_ref, file_hyp=file_hyp, hyps=system, **kwargs)
+
+
+def BLEU_score(source, references, system, n=4, smoothing=None, normalize_sentence=an.normalize_sentence):
+    system = _split_if_str(normalize_sentence(system))
+    references = [_split_if_str(normalize_sentence(
+        reference)) for reference in references]
+    n = min(n, len(system), *((len(reference) for reference in references)))
+    weights = tuple(1 / n for i in range(n))
+    BLEUscore = nltk.translate.bleu_score.sentence_bleu(
+        references, system, weights=weights, smoothing_function=smoothing)
     return BLEUscore
+
 
 def gleu_score(source, references, system):
     raise "unimplemented"

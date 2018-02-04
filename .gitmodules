@@ -13,3 +13,6 @@
 [submodule "simplification"]
 	path = simplification
 	url = https://github.com/borgr/simplification.git
+[submodule "imeasure"]
+	path = imeasure
+	url = https://github.com/borgr/imeasure.git
