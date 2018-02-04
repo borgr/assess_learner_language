@@ -23,7 +23,6 @@ ASSESS_DIR = os.path.dirname(os.path.realpath(__file__)) + os.sep
 # ASSESS_DIR = '/cs/labs/oabend/borgr/assess_learner_language'
 TUPA_DIR = '/cs/labs/oabend/borgr/tupa/'
 UCCA_DIR = TUPA_DIR + 'ucca'
-sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
 sys.path.append(UCCA_DIR)
 sys.path.append(UCCA_DIR + '/scripts/distances')
 sys.path.append(UCCA_DIR + '/ucca')
@@ -32,6 +31,8 @@ sys.path.append(UCCA_DIR + '/ucca')
 from ucca.ioutil import file2passage
 import subprocess
 import codecs
+
+sys.path.append(ASSESS_DIR + '/m2scorer/scripts')
 from m2scorer import m2scorer
 from gec_ranking.scripts.gleu import GLEU
 import align
@@ -40,6 +41,8 @@ from ucca.ioutil import passage2file
 from ucca.convert import from_text
 from correction_quality import word_diff
 
+sys.path.append(ASSESS_DIR + '/imeasure')
+import imeasure.ieval as imeasure
 from simplification import SARI
 import annalyze_crowdsourcing as an
 
@@ -723,11 +726,11 @@ def semantics_score(source, sentence, parse_dir, source_id=None, sentence_id=Non
     return align.fully_aligned_distance(source_xml, sentence_xml)
 
 
-def grammaticality_score(source, sentence, parse_dir):
+def grammaticality_score(source, sentence, parse_dir, lt_jar="../softwares/LanguageTool-3.7/languagetool-commandline.jar"):
     word_num = an.normalize_sentence(sentence).count(" ")
     if word_num == 0:
         return 1
-    command = "java -jar ../softwares/LanguageTool-3.7/languagetool-commandline.jar --json -l en-US"
+    command = "java -jar " + lt_jar + " --json -l en-US"
     filename = str(get_sentence_id(sentence, parse_dir, False)) + ".txt"
     with open(os.devnull, 'wb') as devnull:
         res = subprocess.run(
@@ -842,6 +845,16 @@ def _split_if_str(obj):
     if isinstance(obj, six.string_types):
         return obj.split()
     return obj
+
+
+def Imeasure_scores(source, file_ref, system, **kwargs):
+    """ If per_sentence_score is False, one accumulated score is returned instead of a score for each sentence"""
+    file_hyp = None
+    if isinstance(system, six.string_types):
+        file_hyp = system
+        system = None
+    return imeasure.calculate_imeasure(file_ref, file_hyp=file_hyp, hyps=system, **kwargs)
+
 
 def BLEU_score(source, references, system, n=4, smoothing=None, normalize_sentence=an.normalize_sentence):
     system = _split_if_str(normalize_sentence(system))
