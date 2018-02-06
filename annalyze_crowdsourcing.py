@@ -106,22 +106,22 @@ ALTERNATIVE_GOLD_MS = list(range(1, 11))
 
 def main():
     db = read_batches()
-    # print(db[LEARNER_SENTENCES_COL].unique().size)
-    # return
-    # create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
-    # if TASK == GEC:
-    #   pass
-    # elif TASK == SIMPLIFICATION:
-    #   return
-    # db = clean_data(db)
+    # # print(db[LEARNER_SENTENCES_COL].unique().size)
+    # # return
+    # # create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS)
+    # # if TASK == GEC:
+    # #   pass
+    # # elif TASK == SIMPLIFICATION:
+    # #   return
+    # # db = clean_data(db)
 
-    filename = ASSESS_LEARNER_DIR + r"/data/paragraphs/" +"conll.tok.orig"
-    with open(filename) as fl:
-        source_sentences = [normalize_sentence(line) for line in fl]
-    print([s for s in db.loc[:, LEARNER_SENTENCES_COL].unique() if normalize_sentence(s) in source_sentences])
-    # print([sentence for sentence in source_sentences if sentence in db.loc[:, LEARNER_SENTENCES_COL].unique()])
-    print(len(db.groupby(LEARNER_SENTENCES_COL)[CORRECTED_SENTENCES_COL].nunique()))
-    return 
+    # filename = ASSESS_LEARNER_DIR + r"/data/paragraphs/" +"conll.tok.orig"
+    # with open(filename) as fl:
+    #     source_sentences = [normalize_sentence(line) for line in fl]
+    # print([s for s in db.loc[:, LEARNER_SENTENCES_COL].unique() if normalize_sentence(s) in source_sentences])
+    # # print([sentence for sentence in source_sentences if sentence in db.loc[:, LEARNER_SENTENCES_COL].unique()])
+    # print(len(db.groupby(LEARNER_SENTENCES_COL)[CORRECTED_SENTENCES_COL].nunique()))
+    # return 
 
     # learner_sentences = db[LEARNER_SENTENCES_COL].unique()
     show_correction = False
@@ -1029,7 +1029,7 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
     return res
 
 
-def plot_sig_bars(significances, names, show, save, line=None):
+def plot_sig_bars(significances, names, show, save, line=None, scale_by_line=True):
     precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
     names = np.array(names)
     for measure_idx, measure in enumerate([precision, recall, fscore]):
@@ -1061,6 +1061,12 @@ def plot_sig_bars(significances, names, show, save, line=None):
         remove_spines()
         if line != None and measure == fscore:
             plt.axhline(line, color="red")
+            if scale_by_line:
+                twin = ax.twinx()
+                y1, y2 = twin.get_ylim()
+                ax_c.set_ylim(y1 / line, y2 * line)
+                ax_c.figure.canvas.draw()
+                ax.set_ylabel("Ratio Scoring")
         if save:
             plt.savefig(PLOTS_DIR + measure + "_significance" +
                         ".png", bbox_inches='tight')
