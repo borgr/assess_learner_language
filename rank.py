@@ -840,6 +840,22 @@ def get_gleu_stats(scores):
 
 def gleu_scores(source, references, systems, ngrams_len=4, num_iterations=500, debug=False):
     # if there is only one reference, just do one iteration
+    # print([len(ref) for ref in references])
+    # print(len(source))
+    # print([len(system) for system in systems])
+    # for ref in references:
+    #     for sentence in ref:
+    #         assert sentence.strip()
+    # return
+    if not (len(source) == len(systems[0]), str(len(source)) + "," + str(len(systems[0]))):
+        print("lengths error")
+        print("source last", source[-2:])
+        print("systems last", systems[0][-2:])
+        print("references last", references[0][-2:])
+        print("source first", source[:2])
+        print("systems first", systems[0][:2])
+        print("references first", references[0][:2])
+        return 0.5, 1312 * [0.5]
     if len(references) == 1:
         num_iterations = 1
 
@@ -853,6 +869,8 @@ def gleu_scores(source, references, systems, ngrams_len=4, num_iterations=500, d
     if isinstance(references[0], six.string_types):
         gleu_calculator.load_references(reference)
     else:
+        assert all((len(ref) == len(references[0]) for ref in references)), str([len(ref) == len(references[0]) for ref in references])
+        assert len(references[0]) == len(source), str(len(references[0])) + "," + str(len(source))
         gleu_calculator.set_references(references)
 
     total = []

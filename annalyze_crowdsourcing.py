@@ -50,18 +50,18 @@ SIG_DIR = ASSESS_LEARNER_DIR + r"/results/significance/"
 
 
 def init_globals():
-    global BATCH_FILES 
-    global CORRECTIONS_DIR 
-    global DATA_DIR 
-    global HISTS_DIR 
+    global BATCH_FILES
+    global CORRECTIONS_DIR
+    global DATA_DIR
+    global HISTS_DIR
     global GOLD_FILE
-    global PLOTS_DIR 
-    global TRIALS_FILE 
+    global PLOTS_DIR
+    global TRIALS_FILE
 
-    global SARI_DIR 
-    global SARI_CORPUS_DIR 
-    global TURKERS_DIR 
-    global ORIGIN 
+    global SARI_DIR
+    global SARI_CORPUS_DIR
+    global TURKERS_DIR
+    global ORIGIN
     global LEARNER_FILE
 
     if TASK == GEC:
@@ -125,10 +125,11 @@ def main():
     # create date for significance testing
     db = read_batches()
 
-    edits = False # True for m2
+    edits = False  # True for m2
     # print(db[LEARNER_SENTENCES_COL].unique().size)
-    # create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS, edits=edits)
-    # return
+    create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[
+                 :, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS, edits=edits)
+    return
 
     # if TASK == GEC:
     #   pass
@@ -154,7 +155,8 @@ def main():
         root, dirs, files = next(os.walk(HISTS_DIR))
         for filename in files:
             if INPUT_HIST_IDENTIFIER in filename:
-                assess_real_distributions(os.path.join(root + filename), str(0))
+                assess_real_distributions(
+                    os.path.join(root + filename), str(0))
         plot_dists(show_dists, save_dists, EXACT_COMP)
     assess_coverage(True, show=show_coverage,
                     save=save_coverage, res_type=EXACT_COMP)
@@ -209,14 +211,15 @@ def simplification_coverage(show, save):
     print("simplification sig results")
     colorbrewer = [(230, 97, 1), (253, 184, 99),
                    (178, 171, 210), (94, 60, 153)]
-    for i in range(len(colorbrewer)):    
-        r, g, b = colorbrewer[i]    
-        colorbrewer[i] = (r / 255., g / 255., b / 255.)  
-    colors = many_colors(SIMPLIFICATION_MEASURES, mpl.colors.ListedColormap(colorbrewer))
+    for i in range(len(colorbrewer)):
+        r, g, b = colorbrewer[i]
+        colorbrewer[i] = (r / 255., g / 255., b / 255.)
+    colors = many_colors(SIMPLIFICATION_MEASURES,
+                         mpl.colors.ListedColormap(colorbrewer))
     for j, measure in enumerate(SIMPLIFICATION_MEASURES * 2):
         if measure == BLEU:
             files = ["bleu" +
-                 str(m + 1) for m in np.arange(10)]
+                     str(m + 1) for m in np.arange(10)]
         else:
             files = ["sari" +
                      str(m + 1) for m in np.arange(10)]
@@ -239,7 +242,8 @@ def simplification_coverage(show, save):
     beautify_lines_graph(0.1, min(1, ymin), min(1, ymax))
     if save:
         plt.ylabel("score")
-        print("saving all in",PLOTS_DIR + ",".join(SIMPLIFICATION_MEASURES) + "_Ms_significance" +".png")
+        print("saving all in", PLOTS_DIR +
+              ",".join(SIMPLIFICATION_MEASURES) + "_Ms_significance" + ".png")
         plt.legend(loc='best', fancybox=True, fontsize=10, shadow=True)
         plt.savefig(PLOTS_DIR + ",".join(SIMPLIFICATION_MEASURES) + "_Ms_significance" +
                     ".png", bbox_inches='tight')
@@ -291,7 +295,7 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m, edits=True
                 else:
                     correction4gold.append([perfectOutput[-1]] * m)
                     chosen_sentences.append(perfectOutput[-1])
-                    
+
             else:
                 chosen_index = -1
                 # while chosen_index not in sentences
@@ -319,7 +323,8 @@ def choose_corrections_for_gold(gold_file, sentences, corrections, m, edits=True
                         correction4gold += addition
                     else:
                         if chosen_correction.count("\n") != 0:
-                            chosen_correction = chosen_correction.split("\n")[-1]
+                            chosen_correction = chosen_correction.split(
+                                "\n")[-1]
                         correction4gold[-1].append(chosen_correction)
                     num_chosen += 1
                 chosen_ind = np.random.randint(
@@ -946,15 +951,18 @@ def plot_significance(show=True, save=True):
     names = [str(m + 1) for m in np.arange(10)]
 
     precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
-    f5_2 = plot_sig(results, names, show, save, [precision, recall, fscore], clean=False)
+    print("not showing")
+    f5_2 = plot_sig(results, names, False, save, [
+                    precision, recall, fscore], clean=False)
 
-    # gleu
-    paths = [os.path.join(SIG_DIR, "GLEU_1000_" + file) for file in files]
-    results = parse_sigfiles(paths)
-    for i, file in enumerate(files):
-        print("gleu file and result", file, results[i])
-    gleu = "GLEU"
-    gleu = plot_sig(results, names, show, save, [gleu])
+    # f5_2 = plot_sig(results, names, show, save, [precision, recall, fscore], clean=False)
+    # # gleu
+    # paths = [os.path.join(SIG_DIR, "GLEU_1000_" + file) for file in files]
+    # results = parse_sigfiles(paths)
+    # for i, file in enumerate(files):
+    #     print("gleu file and result", file, results[i])
+    # gleu = "GLEU"
+    # gleu = plot_sig(results, names, show, save, [gleu])
 
     learner_file = "source"
     JMGR_file = "JMGR"
@@ -1041,7 +1049,8 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
         plt.errorbar(xs, ys, yerr=cis, ecolor="blue")
         ax = plt.gca()
         ymin, ymax = ax.get_ylim()
-        beautify_lines_graph(0.1, max(0, ymin), min(1, ymax), ygrid_alpha=alpha)
+        beautify_lines_graph(0.1, max(0, ymin), min(
+            1, ymax), ygrid_alpha=alpha)
         measure_label = measure if measure != PAPER else "sari"
         if line_color is not None:
             plt.plot(xs, ys, linewidth=2,
@@ -1066,6 +1075,18 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
             plt.cla()
     return res
 
+# def rescale_ax(ax, scale):
+#     """
+#     Update second axis according with first axis.
+#     """
+#     print("in")
+#     y1, y2 = ax.get_ylim()
+#     twin = ax.twinx()
+#     twin.yaxis.set_label_position("right")
+#     twin.set_ylabel("Ratio Scoring")
+#     twin.set_ylim(y1 / scale, y2 / scale)
+#     twin.figure.canvas.draw()
+
 
 def plot_sig_bars(significances, names, show, save, line=None, scale_by_line=True):
     precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
@@ -1089,11 +1110,13 @@ def plot_sig_bars(significances, names, show, save, line=None, scale_by_line=Tru
         cis = cis[sort_idx]
         colors = many_colors(xs, cm.copper)
         colors = [colors[i] for i in xs]
+
+        ax = plt.gca()
+
         plt.bar(xs, ys, yerr=cis, align='center',
                 label=labels, edgecolor=colors, color=colors)
         plt.xticks(xs, labels, rotation=70)
         plt.ylabel(measure)
-        ax = plt.gca()
         ax.get_xaxis().tick_bottom()
         ax.get_yaxis().tick_left()
         remove_spines()
@@ -1101,10 +1124,11 @@ def plot_sig_bars(significances, names, show, save, line=None, scale_by_line=Tru
             plt.axhline(line, color="red")
             if scale_by_line:
                 twin = ax.twinx()
-                y1, y2 = twin.get_ylim()
-                ax_c.set_ylim(y1 / line, y2 * line)
-                ax_c.figure.canvas.draw()
-                ax.set_ylabel("Ratio Scoring")
+                # Why is the last tick not shown in the final figure?
+                twin.set_ylim(ax.get_yticks()[
+                              0] / line, ax.get_yticks()[-2] / line)
+                twin.yaxis.set_label_position("right")
+                twin.set_ylabel("Ratio Scoring")
         if save:
             plt.savefig(PLOTS_DIR + measure + "_significance" +
                         ".png", bbox_inches='tight')

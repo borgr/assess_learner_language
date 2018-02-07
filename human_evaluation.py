@@ -48,10 +48,10 @@ SHORT_BEST = "b"
 
 SOURCE_BLEU = "source_bleu"
 BLEU = "bleu"
-LEVENSHTEIN = "levenshtein"
+R_LEV, LEVENSHTEIN = "reference levenshtein", "levenshtein"
 M2, GLEU, SARI, MAX_SARI, GRAMMAR, UCCA_SIM, SENTENCE, SOURCE, SYSTEM_ID = "m2", "gleu", "sari", "max_sari", "grammar", "uccaSim", "sentence", "source", "systemId"
 SRC_LNG, TRG_LANG, SRC_ID, DOC_ID, SEG_ID, MEASURE_ID = "srclang", "trglang", "srcIndex", "documentId", "segmentId", "judgeId"
-DB_COLS = [SOURCE_BLEU, BLEU, LEVENSHTEIN, M2, GLEU, SARI, MAX_SARI, GRAMMAR, UCCA_SIM,
+DB_COLS = [SOURCE_BLEU, BLEU, R_LEV, LEVENSHTEIN, M2, GLEU, SARI, MAX_SARI, GRAMMAR, UCCA_SIM,
            SENTENCE, SOURCE, SENTENCE_ID, SYSTEM_ID]
 
 CACHE_EVERY = 100
@@ -273,6 +273,15 @@ def calculate_all_scores(sent_id, source, references, edits, system, gleu, cache
     else:
         leven = distance.levenshtein(source, system)
         leven = 1 if len(source) == 0 else 1 - leven / len(source)
+    if not cache.empty and R_LEV in calculated:
+        r_leven = cache[R_LEV].values[0]
+    else:
+        r_leven = 1
+        for ref in references:
+            cur = distance.levenshtein(ref, system)
+            cur = 1 if len(ref) == 0 else 1 - cur / len(ref)
+            if cur < r_leven:
+                r_leven = cur
     if not cache.empty and GLEU in calculated:
         # print(cache)
         # assert gleu == cache[GLEU].values[0], "cached glue is " + str(
@@ -307,7 +316,7 @@ def calculate_all_scores(sent_id, source, references, edits, system, gleu, cache
     else:
         s_bleu = BLEU_score(source, [source], system, smoothing=bleu_score.SmoothingFunction(
         ).method3)  # method3 = NIST geometric sequence smoothing
-    return (s_bleu, bleu, leven, m2, gleu, sari, max_sari, grammar, uccaSim, system, source, sent_id, system_id)
+    return (s_bleu, bleu, r_leven, leven, m2, gleu, sari, max_sari, grammar, uccaSim, system, source, sent_id, system_id)
 
 
 def create_score_db(cache_file, judgment_files, references_files, edits_files, learner_file, system_files, one_sentence_dir, ucca_parse_dir, cache_every, results_file="", force=False, clean_cache=False, use_all=False):
@@ -455,31 +464,56 @@ def main(args):
     names.append("BLEU")
     bleu = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[BLEU]), force=force)
-    # names.append("iBLEU")
-    # alpha=0.8
-    # ibleu = save_for_Truekill(
-    #     score_db, names[-1], lambda row: float(row[BLEU]) * alpha + (1 - alpha) * float(row[SOURCE_BLEU]), force=force)
-    names.append("levenshtein")
-    leven = save_for_Truekill(
+    names.append("iBLEU")
+    alpha=0.8
+    ibleu = save_for_Truekill(
+        score_db, names[-1], lambda row: float(row[BLEU]) * alpha + (1 - alpha) * float(row[SOURCE_BLEU]), force=force)
+    names.append("$LD_{S\\rightarrow O}$")
+    Grammatical = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[LEVENSHTEIN]), force=force)
-    names.append("glue")
+    names.append("$LD_{O\\rightarrow R}$")
+    Grammatical = save_for_Truekill(
+        score_db, names[-1], lambda row: float(row[R_LEV]), force=force)
+    names.append("GLEU")
     gleu_db = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[GLEU]), force=force)
-    names.append("sari")
+    names.append("SARI")
     sari_db = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[SARI]), force=force)
-    names.append("max-sari")
+    names.append("MAX-SARI")
     max_sari_db = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[MAX_SARI]), force=force)
-    names.append("uccaSim")
+    names.append("USim")
     uccaSim_db = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[UCCA_SIM]), force=force)
-    names.append("m2")
+    names.append("$M^2$")
     m2_db = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[M2][2]), force=force)
-    names.append("grammar")
+    names.append("LT")
     Grammatical = save_for_Truekill(
         score_db, names[-1], lambda row: float(row[GRAMMAR]), force=force)
+
+    # names.append("levenshtein")
+    # leven = save_for_Truekill(
+    #     score_db, names[-1], lambda row: float(row[LEVENSHTEIN]), force=force)
+    # names.append("glue")
+    # gleu_db = save_for_Truekill(
+    #     score_db, names[-1], lambda row: float(row[GLEU]), force=force)
+    # names.append("sari")
+    # sari_db = save_for_Truekill(
+    #     score_db, names[-1], lambda row: float(row[SARI]), force=force)
+    # names.append("max-sari")
+    # max_sari_db = save_for_Truekill(
+    #     score_db, names[-1], lambda row: float(row[MAX_SARI]), force=force)
+    # names.append("uccaSim")
+    # uccaSim_db = save_for_Truekill(
+    #     score_db, names[-1], lambda row: float(row[UCCA_SIM]), force=force)
+    # names.append("m2")
+    # m2_db = save_for_Truekill(
+    #     score_db, names[-1], lambda row: float(row[M2][2]), force=force)
+    # names.append("grammar")
+    # Grammatical = save_for_Truekill(
+    #     score_db, names[-1], lambda row: float(row[GRAMMAR]), force=force)
     # for alpha in np.linspace(0, 1, 11):
     #     names.append("combined" + "{0:.2f}".format(alpha))
     #     combined = save_for_Truekill(
@@ -494,7 +528,7 @@ def main(args):
     #         score_db, names[-1], lambda row: combined_score(-row[LEVENSHTEIN], row[GRAMMAR], alpha), force=force)
 
     if not force:
-        force = True
+        force = False
     # run trueskill human judgments
     judgment_csv = os.path.join(
         HUMAN_JUDGMENTS_DIR, "corrected_" + judgment_name + ".csv")
@@ -561,7 +595,7 @@ def correct_wmt_csv(filename):
 
 def trueskill_rank(system_num, measure_db_path, measure_name, verbose=False, force=False):
     trueskill_dir = os.path.join(TS_DIR, measure_name)
-    trueskill_file = os.path.join(trueskill_dir, "_mu_sigma.json")
+    trueskill_file = os.path.normpath(os.path.join(trueskill_dir, "_mu_sigma.json"))
     if not os.path.isdir(trueskill_dir):
         os.makedirs(trueskill_dir)
         print("trueskill_dir:", trueskill_dir)
@@ -572,7 +606,7 @@ def trueskill_rank(system_num, measure_db_path, measure_name, verbose=False, for
         ps = subprocess.Popen(("cat", measure_db_path), stdout=subprocess.PIPE)
         command = "python " + ASSESS_DIR + "wmt-trueskill/src/infer_TS.py -e -s " + \
             str(system_num) + verbose_symb + \
-            " -d 0 -n 2 " + trueskill_dir + os.sep
+            ' -d 0 -n 2 "' + trueskill_dir + os.sep + '"'
         try:
             p = subprocess.Popen(shlex.split(command), stdin=ps.stdout)
             p.communicate()
