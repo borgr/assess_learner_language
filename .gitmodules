@@ -16,3 +16,6 @@
 [submodule "imeasure"]
 	path = imeasure
 	url = https://github.com/borgr/imeasure.git
+[submodule "errant"]
+	path = errant
+	url = https://github.com/borgr/errant.git

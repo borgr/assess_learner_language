@@ -124,6 +124,7 @@ ALTERNATIVE_GOLD_MS = list(range(1, 11))
 def main():
     # create date for significance testing
     db = read_batches()
+
     edits = False # True for m2
     # print(db[LEARNER_SENTENCES_COL].unique().size)
     # create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS, edits=edits)
@@ -414,8 +415,6 @@ def convert_correction_to_m2(source, correct, annotator_num=0):
             else:
                 # print("special case ", i, j)
                 # i,j are not aligned and not deleted but we still got here
-                # print("test that. what happens when s longer? when c
-                # longer?")
                 tmpi = i + 1
                 tmpj = j + 1
                 while ((tmpi < len(s) and tmpj < len(c)) and
@@ -1068,7 +1067,7 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
     return res
 
 
-def plot_sig_bars(significances, names, show, save, line=None):
+def plot_sig_bars(significances, names, show, save, line=None, scale_by_line=True):
     precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
     names = np.array(names)
     for measure_idx, measure in enumerate([precision, recall, fscore]):
