@@ -127,9 +127,9 @@ def main():
 
     edits = False  # True for m2
     # print(db[LEARNER_SENTENCES_COL].unique().size)
-    create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[
-                 :, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS, edits=edits)
-    return
+    # create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[
+    #              :, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS, edits=edits)
+    # return
 
     # if TASK == GEC:
     #   pass
@@ -951,11 +951,7 @@ def plot_significance(show=True, save=True):
     names = [str(m + 1) for m in np.arange(10)]
 
     precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
-    print("not showing")
-    f5_2 = plot_sig(results, names, False, save, [
-                    precision, recall, fscore], clean=False)
-
-    # f5_2 = plot_sig(results, names, show, save, [precision, recall, fscore], clean=False)
+    f5_2 = plot_sig(results, names, show, save, [precision, recall, fscore], clean=False)
     # # gleu
     # paths = [os.path.join(SIG_DIR, "GLEU_1000_" + file) for file in files]
     # results = parse_sigfiles(paths)
