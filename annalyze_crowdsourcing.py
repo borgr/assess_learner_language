@@ -120,14 +120,13 @@ CORRECTION_NUMS = list(range(51))
 ALTERNATIVE_GOLD_MS = [1, 3, 4, 6, 7, 9, 10]
 ALTERNATIVE_GOLD_MS = list(range(1, 11))
 
-
 def main():
     # create date for significance testing
     db = read_batches()
     edits = False # True for m2
     # print(db[LEARNER_SENTENCES_COL].unique().size)
-    # create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS, edits=edits)
-    # return
+    create_golds(db.loc[:, LEARNER_SENTENCES_COL], db.loc[:, CORRECTED_SENTENCES_COL], GOLD_FILE, ALTERNATIVE_GOLD_MS, edits=edits)
+    return
 
     # if TASK == GEC:
     #   pass
@@ -947,15 +946,17 @@ def plot_significance(show=True, save=True):
     names = [str(m + 1) for m in np.arange(10)]
 
     precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
-    f5_2 = plot_sig(results, names, show, save, [precision, recall, fscore], clean=False)
+    print("not showing")
+    f5_2 = plot_sig(results, names, False, save, [precision, recall, fscore], clean=False)
 
-    # gleu
-    paths = [os.path.join(SIG_DIR, "GLEU_1000_" + file) for file in files]
-    results = parse_sigfiles(paths)
-    for i, file in enumerate(files):
-        print("gleu file and result", file, results[i])
-    gleu = "GLEU"
-    gleu = plot_sig(results, names, show, save, [gleu])
+    # f5_2 = plot_sig(results, names, show, save, [precision, recall, fscore], clean=False)
+    # # gleu
+    # paths = [os.path.join(SIG_DIR, "GLEU_1000_" + file) for file in files]
+    # results = parse_sigfiles(paths)
+    # for i, file in enumerate(files):
+    #     print("gleu file and result", file, results[i])
+    # gleu = "GLEU"
+    # gleu = plot_sig(results, names, show, save, [gleu])
 
     learner_file = "source"
     JMGR_file = "JMGR"
@@ -1067,8 +1068,20 @@ def plot_sig(significances, names, show, save, measures, add_zero=True, clean=Tr
             plt.cla()
     return res
 
+# def rescale_ax(ax, scale):
+#     """
+#     Update second axis according with first axis.
+#     """
+#     print("in")
+#     y1, y2 = ax.get_ylim()
+#     twin = ax.twinx()
+#     twin.yaxis.set_label_position("right")
+#     twin.set_ylabel("Ratio Scoring")
+#     twin.set_ylim(y1 / scale, y2 / scale)
+#     twin.figure.canvas.draw()
 
-def plot_sig_bars(significances, names, show, save, line=None):
+
+def plot_sig_bars(significances, names, show, save, line=None, scale_by_line=True):
     precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
     names = np.array(names)
     for measure_idx, measure in enumerate([precision, recall, fscore]):
@@ -1090,11 +1103,13 @@ def plot_sig_bars(significances, names, show, save, line=None):
         cis = cis[sort_idx]
         colors = many_colors(xs, cm.copper)
         colors = [colors[i] for i in xs]
+            
+        ax = plt.gca()
+
         plt.bar(xs, ys, yerr=cis, align='center',
                 label=labels, edgecolor=colors, color=colors)
         plt.xticks(xs, labels, rotation=70)
         plt.ylabel(measure)
-        ax = plt.gca()
         ax.get_xaxis().tick_bottom()
         ax.get_yaxis().tick_left()
         remove_spines()
@@ -1102,10 +1117,9 @@ def plot_sig_bars(significances, names, show, save, line=None):
             plt.axhline(line, color="red")
             if scale_by_line:
                 twin = ax.twinx()
-                y1, y2 = twin.get_ylim()
-                ax_c.set_ylim(y1 / line, y2 * line)
-                ax_c.figure.canvas.draw()
-                ax.set_ylabel("Ratio Scoring")
+                twin.set_ylim(ax.get_yticks()[0] / line, ax.get_yticks()[-2] / line) # Why is the last tick not shown in the final figure?
+                twin.yaxis.set_label_position("right")
+                twin.set_ylabel("Ratio Scoring")
         if save:
             plt.savefig(PLOTS_DIR + measure + "_significance" +
                         ".png", bbox_inches='tight')
