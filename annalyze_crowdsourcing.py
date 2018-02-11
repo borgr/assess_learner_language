@@ -957,17 +957,16 @@ def plot_significance(show=True, save=True):
                     precision, recall, fscore])
 
     # f5_2 = plot_sig(m2_results, names, show, save, [precision, recall, fscore], clean=False)
-    # gleu
     paths = [os.path.join(SIG_DIR, "GLEU_1000_" + file) for file in files]
+    print(paths)
+    return
     gleu_results = parse_sigfiles(paths)
     for i, file in enumerate(files):
-        print("gleu file and result", file, gleu_results[i])
+        print("gleu file and result:", file, gleu_results[i])
     gleu = "GLEU"
     # gleu = plot_sig(gleu_results, names, show, save, [gleu, gleu])
-    print(m2_results)
     results = [[[m2_results[i][boundary][-1], gleu_results[i][boundary][-1]]
                 for boundary in range(2)] for i in range(len(m2_results))]
-    print(results)
     plot_sigs(results, names, show, save, [fscore, gleu], clean=False)
 
     learner_file = "source"
