@@ -952,7 +952,6 @@ def plot_significance(show=True, save=True):
     names = [str(m + 1) for m in np.arange(10)]
 
     precision, recall, fscore = "precision", "recall", "$F_{0.5}$"
-    # print("not showing")
     f5_2 = plot_sig(m2_results, names, False, False, [
                     precision, recall, fscore])
 
