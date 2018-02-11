@@ -958,8 +958,6 @@ def plot_significance(show=True, save=True):
 
     # f5_2 = plot_sig(m2_results, names, show, save, [precision, recall, fscore], clean=False)
     paths = [os.path.join(SIG_DIR, "GLEU_1000_" + file) for file in files]
-    print(paths)
-    return
     gleu_results = parse_sigfiles(paths)
     for i, file in enumerate(files):
         print("gleu file and result:", file, gleu_results[i])
