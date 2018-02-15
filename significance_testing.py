@@ -2,8 +2,9 @@ import sys
 import os
 sys.path.append(os.path.abspath("./m2scorer/scripts/"))
 
+import time
 import pickle
-from itertools import repeat
+from itertools import repeat, zip_longest
 import pandas as pd
 import subprocess
 import scikits.bootstrap
@@ -17,7 +18,7 @@ import annalyze_crowdsourcing as an
 import multiprocessing
 import time
 POOL_SIZE = multiprocessing.cpu_count()
-# POOL_SIZE = 14
+# POOL_SIZE = 10
 print("pool size is", POOL_SIZE)
 ALTERNATIVE_GOLD_MS = an.ALTERNATIVE_GOLD_MS
 # ALTERNATIVE_GOLD_MS = np.arange(10) + 1
@@ -94,6 +95,24 @@ def main():
     # results = list(results)
     # print(results)
 
+    # test a specific file with gleu
+    # def read_paragraph(path):
+    #     with open(path) as fl:
+    #         lines = fl.readlines()
+    #     return [an.normalize_sentence(line) for line in lines]
+    # learner_file = os.path.dirname(os.path.realpath(__file__)) + os.sep + r"/data/paragraphs/" + "conll.tok.orig"
+    # JMGR_file = os.path.dirname(os.path.realpath(__file__)) + os.sep + r"/data/paragraphs/" + "conll14st.output.1cleaned"
+    # # JMGR_file = os.path.dirname(os.path.realpath(__file__)) + os.sep + r"/data/references/" +"BN1"
+    # gold1_file = os.path.dirname(os.path.realpath(__file__)) + os.sep + r"/data/references/" +"NUCLEA"
+    # gold2_file = os.path.dirname(os.path.realpath(__file__)) + os.sep + r"/data/references/" +"NUCLEB"
+    # jmgr = read_paragraph(JMGR_file)
+    # origin = read_paragraph(learner_file)
+    # gold1 = read_paragraph(gold1_file)
+    # gold2 = read_paragraph(gold2_file)
+    # print(gold1[:3], gold2[:3])
+    # print(len(jmgr), len(origin), len(gold1), len(gold2))
+    # print(gleu_mean_scores(origin, [gold1, gold2], [jmgr]))
+    # return
     # perfect annotator GLEU
     perfect_dir = an.DATA_DIR
     pool = Pool(POOL_SIZE)
@@ -102,8 +121,8 @@ def main():
     gold_files = [perfect_dir +
                   str(m) + "_sgss.pkl" for m in ALTERNATIVE_GOLD_MS]
     input_dirs = [perfect_dir] * len(files)
-    results = pool.starmap(sig_in_one, zip(list(reversed(list(
-        zip(files, gold_files, input_dirs)))), repeat(gleu_sig)))
+    results = pool.starmap(sig_in_one, zip(
+        list(zip(files, gold_files, input_dirs)), repeat(gleu_sig)))
     pool.close()
     pool.join()
     results = list(results)
@@ -171,25 +190,71 @@ def m2score(m=None, system_file=None, gold_file=r"./data/conll14st-test-data/noa
     return m2scorer.get_score(system_sentences, source_sentences, gold_edits, max_unchanged_words=2, beta=0.5, ignore_whitespace_casing=True, verbose=False, very_verbose=False)
 
 
+def gleu_mean_scores(source, references, system):
+    references = list(zip_longest(*references))
+    total, per_sentence = gleu_scores(source, references, [system])
+    # print("gmsource", source[-1:])
+    # print("gmref", references[-1][-1:])
+    # print("gmsys", system[0][-1:])
+    # print("gm source shape",np.array(source).shape)
+    # print("gm reference shape", np.array(references).shape)
+    # print("gm systems shape", np.array(system).shape)
+
+    # print(total, per_sentence[0])
+    # print([x[0] for x in per_sentence])
+    return float(total[0][0]), np.mean([float(x[0]) for x in per_sentence])
+
+
 def gleu_sig(filename, gold_file, input_dir=r"./data/paragraphs/", output_dir=r"./results/significance/"):
     system_file = input_dir + filename
     with open(gold_file, "rb") as fl:
         source_sentences, references = pickle.load(fl)
+    references = [tuple(x) for x in references]
     system_sentences = read_system(system_file)
-    print("gold_file", gold_file)
-    print("system_file", system_file)
-    print("Learner", source_sentences[:2])
-    print("corrections", references[:2])
-    print("system_sentences", system_sentences[:2])
-    print("number of refs", len(references[0]), len(references[1]), len(references[2]), len(list(zip(*references))))
-    print("testing gleu significance")
+    assert all((len(ref) == len(references[0]) for ref in references))
+    assert len(references) == len(source_sentences), str(
+        len(references)) + str(len(source_sentences))
+    assert len(system_sentences) == len(source_sentences)
+    # print("min, max refs", min([len(x) for x in list(zip_longest(
+    #     *references))]), max([len(x) for x in list(zip(*references))]))
+    try:
 
-    print("min, max refs", min([len(x) for x in list(zip(*references))]), max([len(x) for x in list(zip(*references))]))
-    n_samples = 1000
-    statfunction = lambda source, refs, sys: gleu_scores(source, list(zip(*references)), [sys])[1]
-    data = (source_sentences, references, system_sentences)
-    test_significance(statfunction, data, os.path.join(output_dir, "GLEU_" +
-                                               str(n_samples) + "_" + filename), n_samples=n_samples)
+        n_samples = 1000
+        statfunction = gleu_mean_scores
+        data = (source_sentences, references, system_sentences)
+        # print("gold_file", gold_file)
+        # print("system_file", system_file)
+        # print("Learner", source_sentences[-10:])
+        # print("corrections", references[-10:])
+        # print("system_sentences", system_sentences[-2:])
+        # print("number of refs for each sentence", len(references[0]), len(
+        #     references[1]), len(references[2]), len(list(zip(*references))))
+        # print("number of references", len(references))
+        # print("has empty sentences", any(
+        #     [ref.strip() == "" for refs in references for ref in refs]))
+        # print("testing gleu significance")
+        # print(np.array(source_sentences).shape)
+        # print(np.array(references).shape)
+        # print(np.array(system_sentences).shape)
+        # print("places", source_sentences.index('Without such surveillance technology , we can still live a better future .'))
+        # for i in range(len(references)):
+        #     for j in range(len(references[i])):
+        #         if references[i][j] == 'Healthcare by far has been expensive to carry out .':
+        #             print(i,",",j)
+        # print("lengths:", len(source_sentences),
+        #       len(references), len(system_sentences))
+        test_significance(statfunction, data, os.path.join(output_dir, "GLEU_" +
+                                                           str(n_samples) + "_" + filename), n_samples=n_samples, multi=True)
+    except:
+        # print("refs:", references)
+        # print("sents:", source_sentences)
+        print("has empty sentences", any(
+            [ref.strip() == "" for refs in references for ref in refs]))
+        print("has empty sentences", any(
+            [sent.strip() == "" for sent in source_sentences]))
+        print("error in ", filename, gold_file)
+        time.sleep(10)
+        raise
 
     # # faster but less exact, gleu changes its inner parameter by what it gets i.e. gleu is not a per sentence score
     # gleu_sentence_scores = gleu_scores(
